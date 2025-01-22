@@ -4,16 +4,19 @@ import com.owiseman.dataapi.Router.RouteRequest;
 import com.owiseman.dataapi.service.JooqService;
 import com.owiseman.dataapi.service.KongService;
 import com.owiseman.jpa.model.DataRecord;
-import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
-@RequiredArgsConstructor
+
 public class DynamicQueryController {
+    @Autowired
     private KongService kongService;
+    @Autowired
     private JooqService jooqService;
 
     /**
@@ -54,5 +57,10 @@ public class DynamicQueryController {
         }catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
+    }
+
+    @GetMapping("/hello")
+    public String hello() {
+        return "Hello world!";
     }
 }

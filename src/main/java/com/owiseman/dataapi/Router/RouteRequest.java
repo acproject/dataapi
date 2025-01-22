@@ -1,12 +1,8 @@
 package com.owiseman.dataapi.Router;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.List;
 
-@Getter
-@Setter
+
 /**
  * {@inheritDoc}
  * ```json
@@ -39,4 +35,44 @@ public class RouteRequest {
     private List<String> uris;
     private List<String> methods;
     private String upstreamUrl;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<String> getUris() {
+        return uris;
+    }
+
+    public void setUris(List<String> uris) {
+        this.uris = uris;
+    }
+
+    public List<String> getMethods() {
+        return methods;
+    }
+
+    public void setMethods(List<String> methods) {
+        this.methods = methods;
+    }
+
+    public String getUpstreamUrl() {
+        return upstreamUrl;
+    }
+
+    public void setUpstreamUrl(String upstreamUrl) {
+        this.upstreamUrl = upstreamUrl;
+    }
 }
