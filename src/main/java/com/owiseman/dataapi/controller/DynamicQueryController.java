@@ -48,7 +48,7 @@ public class DynamicQueryController {
         return ResponseEntity.ok("Route unregistered successfully");
     }
 
-    @RequestMapping(value = "/query", method = {RequestMethod.GET, RequestMethod.POST,
+    @RequestMapping(value = "/query", method = { RequestMethod.POST,
             RequestMethod.PUT, RequestMethod.DELETE})
     public ResponseEntity<?> executeSQL(@RequestBody String json) {
         try {
@@ -57,10 +57,5 @@ public class DynamicQueryController {
         }catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
-    }
-
-    @GetMapping("/hello")
-    public String hello() {
-        return "Hello world!";
     }
 }
