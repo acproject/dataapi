@@ -1,5 +1,6 @@
 package com.owiseman.dataapi.service;
 
+import com.owiseman.dataapi.Router.RegisterServiceRequest;
 import com.owiseman.dataapi.Router.RouteRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -20,21 +21,39 @@ public class KongService {
     @Value("${kong.admin.url}")
     private String kongAdminUrl;
 
+    public void registerService(RegisterServiceRequest registerServiceRequest) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, String> requestServiceBody = new HashMap<>();
+        requestServiceBody.put("name", registerServiceRequest.getName());
+        requestServiceBody.put("url", registerServiceRequest.getUrl());
+        HttpEntity<Map<String, String>> requestEntity =
+                new HttpEntity<>(requestServiceBody, headers);
+        ResponseEntity<String> response =
+                restTemplate.postForEntity(kongAdminUrl + "/services",
+                requestEntity, String.class);
+    }
     public void registerRoute(RouteRequest routeRequest) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("id", routeRequest.getId());
-        requestBody.put("name", routeRequest.getName());
-        requestBody.put("uris", routeRequest.getUris());
-        requestBody.put("methods", routeRequest.getMethods());
-        requestBody.put("upstream_url", routeRequest.getUpstreamUrl());
-
-        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
-
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = restTemplate.postForEntity(kongAdminUrl + "/routes",
+
+        Map<String, Object> requestRouteBody = new HashMap<>();
+        requestRouteBody.put("name", routeRequest.getName());
+        requestRouteBody.put("paths", routeRequest.getPaths());
+        requestRouteBody.put("strip_path", routeRequest.getStrip_path());
+        requestRouteBody.put("methods", routeRequest.getMethods());
+        requestRouteBody.put("protocols", routeRequest.getProtocols());
+        String serviceName = routeRequest.getService();
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestRouteBody, headers);
+
+        ResponseEntity<String> response = restTemplate.postForEntity(kongAdminUrl
+                        + "/services/"
+                        + serviceName
+                        + "/routes",
                 requestEntity, String.class);
         if (!response.getStatusCode().is2xxSuccessful()) {
             throw new RuntimeException("Failed to register route: " + response.getBody());

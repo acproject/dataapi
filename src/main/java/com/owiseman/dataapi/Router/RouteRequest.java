@@ -30,18 +30,28 @@ import java.util.List;
  * ```
  */
 public class RouteRequest {
-    private String id;
+//    private String id;
     private String name;
-    private List<String> uris;
+    private List<String> paths;
+    private Boolean strip_path;
+    private List<String> protocols;
     private List<String> methods;
-    private String upstreamUrl;
+    private String service;
 
-    public String getId() {
-        return id;
+    public List<String> getMethods() {
+        return methods;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setMethods(List<String> methods) {
+        this.methods = methods;
+    }
+
+    public String getService() {
+        return service;
+    }
+
+    public void setService(String service) {
+        this.service = service;
     }
 
     public String getName() {
@@ -52,27 +62,27 @@ public class RouteRequest {
         this.name = name;
     }
 
-    public List<String> getUris() {
-        return uris;
+    public List<String> getPaths() {
+        return paths;
     }
 
-    public void setUris(List<String> uris) {
-        this.uris = uris;
+    public void setPaths(List<String> paths) {
+        this.paths = paths;
     }
 
-    public List<String> getMethods() {
-        return methods;
+    public Boolean getStrip_path() {
+        return strip_path;
     }
 
-    public void setMethods(List<String> methods) {
-        this.methods = methods;
+    public void setStrip_path(Boolean strip_path) {
+        this.strip_path = strip_path;
     }
 
-    public String getUpstreamUrl() {
-        return upstreamUrl;
+    public List<String> getProtocols() {
+        return protocols;
     }
 
-    public void setUpstreamUrl(String upstreamUrl) {
-        this.upstreamUrl = upstreamUrl;
+    public void setProtocols(List<String> protocols) {
+        this.protocols = protocols;
     }
 }

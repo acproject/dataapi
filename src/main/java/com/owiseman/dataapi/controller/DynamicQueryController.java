@@ -1,5 +1,6 @@
 package com.owiseman.dataapi.controller;
 
+import com.owiseman.dataapi.Router.RegisterServiceRequest;
 import com.owiseman.dataapi.Router.RouteRequest;
 import com.owiseman.dataapi.service.JooqService;
 import com.owiseman.dataapi.service.KongService;
@@ -19,20 +20,18 @@ public class DynamicQueryController {
     @Autowired
     private JooqService jooqService;
 
+    @PostMapping("/register-service")
+    public ResponseEntity<?> registerService(@RequestBody RegisterServiceRequest registerServiceRequest)
+    {
+        kongService.registerService(registerServiceRequest);
+        return ResponseEntity.ok("Service registered successfully");
+    }
+
     /**
-     * Register a route
-     * ```shell
-     *  curl -X POST http://localhost:8001/routes \
-     *     --data "name=dynamic-route" \
-     *     --data "uris[]=/api/query" \
-     *     --data "methods[]=POST" \
-     *     --data "upstream_url=http://your-backend-service/api/query"
-     * ```
-     *
      * @param routeRequest
      * @return
      */
-    @PostMapping("/register")
+    @PostMapping("/register-route")
     // todo:   @PreAuthorize("hasRole('admin')") // todo: add security
     public ResponseEntity<?> registerRoute(@RequestBody RouteRequest routeRequest)
     {
