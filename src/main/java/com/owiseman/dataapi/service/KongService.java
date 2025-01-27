@@ -12,8 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 @Service
@@ -21,6 +20,13 @@ public class KongService {
     @Value("${kong.admin.url}")
     private String kongAdminUrl;
 
+    /**
+     * {
+     *     "name": "my-service001",
+     *     "url": "http://192.168.2.4:8080/api/query"  // 直接暴露给kong真实地址
+     * }
+     * @param registerServiceRequest
+     */
     public void registerService(RegisterServiceRequest registerServiceRequest) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -35,6 +41,19 @@ public class KongService {
                 restTemplate.postForEntity(kongAdminUrl + "/services",
                 requestEntity, String.class);
     }
+
+    /**
+     * {
+     *     "name": "users",
+     *     "paths": ["/api/users"],                 // ["{paths}/{name}] 由前端拼接完成，所以这个参数不用传递
+     *     "strip_path": true,                      // 注意这里一定要为true, 所以这个参数不用传递
+     *     "methods": ["POST", "PUT", "DELETE"],
+     *     "protocols": ["http", "https"],
+     *     "service": "my-service001"
+     * }
+     * 注册完成后：就可以通过注册的路由http://localhost:8000/api/users去访问
+     * @param routeRequest
+     */
     public void registerRoute(RouteRequest routeRequest) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -43,11 +62,13 @@ public class KongService {
 
         Map<String, Object> requestRouteBody = new HashMap<>();
         requestRouteBody.put("name", routeRequest.getName());
-        requestRouteBody.put("paths", routeRequest.getPaths());
-        requestRouteBody.put("strip_path", routeRequest.getStrip_path());
+        requestRouteBody.put("strip_path", true);
         requestRouteBody.put("methods", routeRequest.getMethods());
         requestRouteBody.put("protocols", routeRequest.getProtocols());
         String serviceName = routeRequest.getService();
+        // 增加自己的注册逻辑
+        List<String> paths = Arrays.asList("/" + serviceName+"/api/" + routeRequest.getName());
+        requestRouteBody.put("paths", paths);
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestRouteBody, headers);
 
         ResponseEntity<String> response = restTemplate.postForEntity(kongAdminUrl
@@ -69,6 +90,19 @@ public class KongService {
                 throw new RuntimeException("Route not found: " + routeNameOrId);
             } else {
                 throw new RuntimeException("Failed to unregister route: " + e.getMessage());
+            }
+        }
+    }
+
+    public void unregisterService(String serviceNameOrId) {
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            restTemplate.delete(kongAdminUrl + "/services/" + serviceNameOrId);
+        }catch (HttpClientErrorException e) {
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                throw new RuntimeException("Service not found: " + serviceNameOrId);
+            } else {
+                throw new RuntimeException("Failed to unregister service: " + e.getMessage());
             }
         }
     }

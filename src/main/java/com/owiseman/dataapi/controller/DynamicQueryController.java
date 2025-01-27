@@ -47,6 +47,13 @@ public class DynamicQueryController {
         return ResponseEntity.ok("Route unregistered successfully");
     }
 
+    @DeleteMapping("/unregister-service/{serviceNameOrId}")
+    public ResponseEntity<?> unregisterService(@PathVariable String serviceNameOrId)
+    {
+        kongService.unregisterService(serviceNameOrId);
+        return ResponseEntity.ok("Service unregistered successfully");
+    }
+
     @RequestMapping(value = "/query", method = { RequestMethod.POST,
             RequestMethod.PUT, RequestMethod.DELETE})
     public ResponseEntity<?> executeSQL(@RequestBody String json) {
