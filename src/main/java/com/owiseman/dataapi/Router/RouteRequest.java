@@ -37,6 +37,15 @@ public class RouteRequest {
     private List<String> protocols;
     private List<String> methods;
     private String service;
+    private Boolean isAdmin = false;
+
+    public Boolean getAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(Boolean admin) {
+        isAdmin = admin;
+    }
 
     public List<String> getMethods() {
         return methods;

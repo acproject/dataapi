@@ -67,7 +67,13 @@ public class KongService {
         requestRouteBody.put("protocols", routeRequest.getProtocols());
         String serviceName = routeRequest.getService();
         // 增加自己的注册逻辑
-        List<String> paths = Arrays.asList("/" + serviceName+"/api/" + routeRequest.getName());
+         List<String> paths = null;
+         // 判断是否是admin，如果是admin角色，则需要增加admin路径
+        if (!routeRequest.getAdmin()) {
+          paths  = Arrays.asList("/" + serviceName + "/api/" + routeRequest.getName());
+        } else {
+            paths = Arrays.asList("/" + serviceName + "/admin/api/" + routeRequest.getName());
+        }
         requestRouteBody.put("paths", paths);
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestRouteBody, headers);
 
