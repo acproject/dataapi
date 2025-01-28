@@ -9,6 +9,7 @@ import com.owiseman.jpa.model.DataRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -32,7 +33,7 @@ public class DynamicQueryController {
      * @return
      */
     @PostMapping("/register-route")
-    // todo:   @PreAuthorize("hasRole('admin')") // todo: add security
+    @PreAuthorize("hasRole('ADMIN'， 'SUPER_USER')")
     public ResponseEntity<?> registerRoute(@RequestBody RouteRequest routeRequest)
     {
         kongService.registerRoute(routeRequest);
@@ -40,7 +41,7 @@ public class DynamicQueryController {
     }
 
     @DeleteMapping("/unregister/{routeNameOrId}")
-    // todo:   @PreAuthorize("hasRole('admin')") // todo: add security
+    @PreAuthorize("hasRole('ADMIN'， ‘SUPER_USER')")
     public ResponseEntity<?> unregisterRoute(@PathVariable String routeNameOrId)
     {
         kongService.unregisterRoute(routeNameOrId);

@@ -27,3 +27,13 @@ keycloak:
   user-resource-role-mappings: true
   public-client: false
   bearer-only: true
+  security-constraints:
+    - authRoles: ["USER", "ADMIN"]
+      securityCollections:
+        - name: Protected API
+          patterns: ["/*"]   # 保护所有路径
+#  ssl-required: ALL        # 强制启用 HTTPS
+  use-resource-role-mappings: true # 全局登出（点点登出）
+  principal-attribute: preferred_username
+  enable-basic-auth: false
+  autodetect-bearer-only: true
