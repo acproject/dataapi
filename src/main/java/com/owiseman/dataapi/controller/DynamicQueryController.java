@@ -1,7 +1,7 @@
 package com.owiseman.dataapi.controller;
 
-import com.owiseman.dataapi.Router.RegisterServiceRequest;
-import com.owiseman.dataapi.Router.RouteRequest;
+import com.owiseman.dataapi.router.RegisterServiceRequest;
+import com.owiseman.dataapi.router.RouteRequest;
 import com.owiseman.dataapi.service.JooqService;
 import com.owiseman.dataapi.service.KongService;
 import com.owiseman.jpa.model.DataRecord;

@@ -1,4 +1,4 @@
-package com.owiseman.dataapi.Router;
+package com.owiseman.dataapi.router;
 
 public class RegisterServiceRequest {
     private String name;

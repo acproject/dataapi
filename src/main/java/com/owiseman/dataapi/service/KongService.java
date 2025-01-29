@@ -1,7 +1,7 @@
 package com.owiseman.dataapi.service;
 
-import com.owiseman.dataapi.Router.RegisterServiceRequest;
-import com.owiseman.dataapi.Router.RouteRequest;
+import com.owiseman.dataapi.router.RegisterServiceRequest;
+import com.owiseman.dataapi.router.RouteRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

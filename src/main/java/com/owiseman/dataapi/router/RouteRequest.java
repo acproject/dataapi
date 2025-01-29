@@ -1,4 +1,4 @@
-package com.owiseman.dataapi.Router;
+package com.owiseman.dataapi.router;
 
 import java.util.List;
 
