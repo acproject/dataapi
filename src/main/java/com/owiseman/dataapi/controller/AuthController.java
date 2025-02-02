@@ -2,14 +2,17 @@ package com.owiseman.dataapi.controller;
 
 import com.owiseman.dataapi.dto.LoginRequest;
 import com.owiseman.dataapi.service.KeycloakUserService;
-import org.keycloak.OAuth2Constants;
+
 import org.keycloak.admin.client.Keycloak;
 
-import org.keycloak.admin.client.KeycloakBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 

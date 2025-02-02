@@ -6,6 +6,7 @@ import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
 import org.keycloak.adapters.springsecurity.authentication.KeycloakAuthenticationProvider;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.session.SessionRegistryImpl;
@@ -22,19 +23,35 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.Arrays;
+import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfig {
+public class WebSecurityConfig implements WebMvcConfigurer {
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins("http://localhost:3000")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true)
+                .maxAge(3600);
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(
                 authorize -> authorize
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/public/**").permitAll()
-                        .requestMatchers("/*/admin/**").hasRole("ADMIN， SUPER_USER")
+                        .requestMatchers("/*/admin/**").hasAnyRole("ADMIN", "SUPER_USER")
                         .requestMatchers(HttpMethod.POST, "/admin/**").hasAuthority("SCOPE_admin:write")
                         .requestMatchers(HttpMethod.GET, "/admin/**").hasAuthority("SCOPE_admin:read")
                         .requestMatchers("/*/user/**").hasRole("USER")
@@ -47,25 +64,32 @@ public class WebSecurityConfig {
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/public/login?logout")
                         .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID"));
-//                .cors(AbstractHttpConfigurer::disable);
+                        .deleteCookies("JSESSIONID"))
+                .cors(Customizer.withDefaults()
+//                        cors -> cors.configurationSource( request ->  {
+//                    CorsConfiguration config = new CorsConfiguration();
+//                    config.addAllowedOrigin(String.valueOf(Collections.singletonList("*")));  //"http://localhost:3000"
+//                    config.addAllowedHeader(String.valueOf(Collections.singletonList("*")));
+//                    config.addAllowedMethod(String.valueOf(Collections.singletonList("*")));
+//                    config.setAllowCredentials(true);
+//                    return config;
+//                })
+                );
         return http.build();
 
     }
 
-    @Bean
-    public CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOrigin("http://localhost:3000");
-        config.addAllowedOrigin("http://localhost:8088");
-        config.addAllowedOrigin("http://localhost");
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
-        config.setAllowCredentials(true);
-        source.registerCorsConfiguration("/**", config);
-        return new CorsFilter(source);
-    }
+@Bean
+public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration config = new CorsConfiguration();
+    config.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+    config.setAllowedMethods(Arrays.asList("*"));
+    config.setAllowedHeaders(Arrays.asList("*"));
+    config.setAllowCredentials(true);
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", config);
+    return source;
+}
 
     // 注册Keycloak认证提供者
     @Autowired

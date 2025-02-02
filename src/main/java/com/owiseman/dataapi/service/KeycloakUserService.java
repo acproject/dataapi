@@ -52,7 +52,7 @@ public class KeycloakUserService {
             Keycloak keycloak = KeycloakBuilder.builder()
                     .serverUrl(serverUrl)
                     .realm(realm)
-                    .grantType(OAuth2Constants.GRANT_TYPE)
+                    .grantType(OAuth2Constants.PASSWORD)
                     .clientId(clientId)
                     .clientSecret(clientSecret)
                     .username(username)
