@@ -36,7 +36,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000")
+                .allowedOrigins("http://localhost:3000","http://localhost:8000")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true)
@@ -51,8 +51,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                         .requestMatchers("/api/auth/logout").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/public/**").permitAll()
-                        .requestMatchers("/*/admin/**").hasAuthority("SCOPE_admin:write")
-                        .requestMatchers("/*/admin/**").hasAuthority("SCOPE_admin:read")
+                        .requestMatchers("/*/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/admin/**").hasAuthority("SCOPE_admin:write")
                         .requestMatchers(HttpMethod.GET, "/admin/**").hasAuthority("SCOPE_admin:read")
                         .requestMatchers("/*/user/**").hasRole("USER")
@@ -83,7 +82,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
 @Bean
 public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+    config.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:8000"));
     config.setAllowedMethods(Arrays.asList("*"));
     config.setAllowedHeaders(Arrays.asList("*"));
     config.setAllowCredentials(true);

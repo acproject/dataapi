@@ -1,8 +1,8 @@
 package com.owiseman.dataapi.service;
 
+import com.owiseman.dataapi.config.KeycloakConfig;
 import com.owiseman.dataapi.config.OAuth2ConstantsExtends;
 import com.owiseman.dataapi.dto.ResetPassword;
-import com.owiseman.dataapi.dto.UserCreateRequest;
 import com.owiseman.dataapi.dto.UserRegistrationRecord;
 import jakarta.ws.rs.core.Response;
 
@@ -13,7 +13,6 @@ import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 
 import org.keycloak.representations.idm.CredentialRepresentation;
-import org.keycloak.representations.idm.RoleRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,6 @@ import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -105,8 +103,8 @@ public class KeycloakUserService implements UserService {
         user.setEnabled(true);
         user.setUsername(userRegistrationRecord.username());
         user.setEmail(userRegistrationRecord.email());
-        user.setFirstName(userRegistrationRecord.firstName());
-        user.setLastName(userRegistrationRecord.lastName());
+        user.setFirstName(userRegistrationRecord.firstname());
+        user.setLastName(userRegistrationRecord.lastname());
         user.setEmailVerified(false);
 
         CredentialRepresentation credentialRepresentation = new CredentialRepresentation();
@@ -123,7 +121,8 @@ public class KeycloakUserService implements UserService {
                 UserRepresentation userRepresentation1 = representationList.stream().filter(userRepresentation ->
                         Objects.equals(false, userRepresentation.isEmailVerified())).findFirst().orElse(null);
                 assert  userRepresentation1 != null;
-                emailVerification(userRepresentation1.getId(),token);
+                if (user.isEmailVerified())
+                    emailVerification(userRepresentation1.getId(),token);
             }
              return userRegistrationRecord;
         }
