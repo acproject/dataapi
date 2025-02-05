@@ -2,6 +2,7 @@ package com.owiseman.dataapi.controller;
 
 import com.owiseman.dataapi.dto.UserRegistrationRecord;
 import com.owiseman.dataapi.service.KeycloakUserService;
+import com.owiseman.dataapi.service.RoleService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.keycloak.representations.idm.RoleRepresentation;
 
@@ -14,10 +15,12 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/admin/users")
-@PreAuthorize("hasRole('ADMIN'， 'SUPER_USER')")
 public class UserAdminController {
     @Autowired
     private KeycloakUserService keycloakUserService;
+
+    @Autowired
+    private RoleService roleService;
 
     @PostMapping
     public ResponseEntity<String> createUser(@RequestBody UserRegistrationRecord request, HttpServletRequest servletRequest){
@@ -56,7 +59,7 @@ public class UserAdminController {
            if (authHeader !=null && authHeader.startsWith("Bearer ")) {
                token = authHeader.substring(7);
            }
-           // todo
+           roleService.assignRole(userId, request.getName(), token);
         return ResponseEntity.noContent().build();
     }
 }
