@@ -11,7 +11,7 @@ import org.keycloak.admin.client.KeycloakBuilder;
 @Configuration
 public class KeycloakConfig {
 
-    @Value("${keycloak.auth-server-url}")
+    @Value("${keycloak.urls.token}")
     private String serverUrl;
     @Value("${keycloak.realm}")
     private String realm;

@@ -15,6 +15,7 @@ public class LoginRequest {
     private String deviceToken;
     private String deviceName;
     private String phone;
+    private String token;
     private JsonNode additionalParameters;
 
     public String getUsername() {
@@ -119,5 +120,13 @@ public class LoginRequest {
 
     public void setAdditionalParameters(JsonNode additionalParameters) {
         this.additionalParameters = additionalParameters;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

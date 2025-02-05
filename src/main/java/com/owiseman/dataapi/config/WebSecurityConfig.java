@@ -8,7 +8,6 @@ import org.keycloak.adapters.springsecurity.authentication.KeycloakAuthenticatio
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.context.annotation.Bean;
@@ -25,12 +24,11 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
-import java.util.Collections;
+
 
 @Configuration
 @EnableWebSecurity
@@ -49,6 +47,8 @@ public class WebSecurityConfig implements WebMvcConfigurer {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(
                 authorize -> authorize
+                        .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/api/auth/logout").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/public/**").permitAll()
                         .requestMatchers("/*/admin/**").hasAnyRole("ADMIN", "SUPER_USER")

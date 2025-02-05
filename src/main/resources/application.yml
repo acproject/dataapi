@@ -19,11 +19,10 @@ kong:
 
 keycloak:
   realm: myrealm
-  auth-server-url: http://localhost:9080/auth
   ssl-required: external
   resource: myclient
   credentials:
-    secret: ftHSBVz8KboFk5lIlKsvOKtFnQbhR9X7
+    secret: Bhg2XGvNfxUrg1tzhrIuICSGqFOCy4cB
   user-resource-role-mappings: true
   public-client: false
   bearer-only: true
@@ -37,3 +36,7 @@ keycloak:
   principal-attribute: preferred_username
   enable-basic-auth: false
   autodetect-bearer-only: true
+  urls:
+    auth: http://localhost:9080
+    token: http://localhost:9080/realms/myrealm/protocol/openid-connect/token
+  user-info: owiseman_user_17

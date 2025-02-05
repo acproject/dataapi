@@ -1,8 +1,10 @@
 package com.owiseman.dataapi.controller;
 
-import com.owiseman.dataapi.dto.UserCreateRequest;
+import com.owiseman.dataapi.dto.UserRegistrationRecord;
 import com.owiseman.dataapi.service.KeycloakUserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.keycloak.representations.idm.RoleRepresentation;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,24 +20,43 @@ public class UserAdminController {
     private KeycloakUserService keycloakUserService;
 
     @PostMapping
-    public ResponseEntity<String> createUser(@RequestBody UserCreateRequest request){
-        String userId = keycloakUserService.createUser(request);
-        return ResponseEntity.created(URI.create("/admin/users/" + userId)).build();
+    public ResponseEntity<String> createUser(@RequestBody UserRegistrationRecord request, HttpServletRequest servletRequest){
+         String authHeader = servletRequest.getHeader("Authorization");
+         String token = "";
+           if (authHeader !=null && authHeader.startsWith("Bearer ")) {
+               token = authHeader.substring(7);
+           }
+        var username = keycloakUserService.createUser(request, token).username();
+        return ResponseEntity.created(URI.create("/admin/users/" + username)).build();
     }
 
     @PatchMapping("/{userId}/status")
-    public ResponseEntity<String> updateUserStatus(@PathVariable String userId, @RequestParam Boolean enabled){
+    public ResponseEntity<String> updateUserStatus(@PathVariable String userId,
+                                                   @RequestParam Boolean enabled,
+                                                   HttpServletRequest servletRequest){
+        String authHeader = servletRequest.getHeader("Authorization");
+         String token = "";
+           if (authHeader !=null && authHeader.startsWith("Bearer ")) {
+               token = authHeader.substring(7);
+           }
         if (enabled) {
-            keycloakUserService.enableUser(userId);
+            keycloakUserService.enableUser(userId, token);
         } else {
-            keycloakUserService.disableUser(userId);
+            keycloakUserService.disableUser(userId, token);
         }
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{userId}/roles")
-    public ResponseEntity<Void> assignRole(@PathVariable String userId, @RequestBody RoleRepresentation request) {
-        keycloakUserService.assignRole(userId, request.getName());
+    public ResponseEntity<Void> assignRole(@PathVariable String userId,
+                                           @RequestBody RoleRepresentation request,
+                                           HttpServletRequest servletRequest) {
+         String authHeader = servletRequest.getHeader("Authorization");
+         String token = "";
+           if (authHeader !=null && authHeader.startsWith("Bearer ")) {
+               token = authHeader.substring(7);
+           }
+           // todo
         return ResponseEntity.noContent().build();
     }
 }
