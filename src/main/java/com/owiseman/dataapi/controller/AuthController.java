@@ -7,6 +7,7 @@ import com.owiseman.dataapi.service.KeycloakUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.keycloak.admin.client.Keycloak;
 
+import org.keycloak.admin.client.KeycloakBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -18,10 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/public")
 public class AuthController {
-    @Autowired
-    private Keycloak keycloak;
 
     @Autowired
     private KeycloakUserService keycloakUserService;
@@ -33,6 +32,12 @@ public class AuthController {
     private String clientId;
     @Value("${keycloak.credentials.secret}")
     private String clientSecret;
+
+     @Value("${keycloak.urls.token}")
+    private String serverUrl;
+    @Value("${keycloak.realm}")
+    private String realm;
+
 
 
     @PostMapping("/login")
@@ -55,9 +60,23 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestHeader("Authorization") String authHeader){
-       String token = authHeader.replace("Bearer ", "");
-       keycloak.tokenManager().invalidate(token);
+    public ResponseEntity<?> logout(@RequestBody LoginRequest request, HttpServletRequest servletRequest){
+
+       String token ="";
+        String authHeader = servletRequest.getHeader("Authorization");
+           if (authHeader !=null && authHeader.startsWith("Bearer ")) {
+              token=authHeader.substring(7);
+           }
+       Keycloak keycloak = KeycloakBuilder.builder()
+               .serverUrl(serverUrl)
+               .realm(realm)
+               .clientId(clientId)
+               .clientSecret(clientSecret)
+               .username(request.getUsername())
+               .password(request.getPassword())
+               .authorization(token)
+               .build();
+       keycloak.close();
        return ResponseEntity.ok().build();
     }
 }

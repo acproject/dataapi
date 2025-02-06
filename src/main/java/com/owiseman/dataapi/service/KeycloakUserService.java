@@ -1,6 +1,5 @@
 package com.owiseman.dataapi.service;
 
-import com.owiseman.dataapi.config.KeycloakConfig;
 import com.owiseman.dataapi.config.OAuth2ConstantsExtends;
 import com.owiseman.dataapi.dto.ResetPassword;
 import com.owiseman.dataapi.dto.UserRegistrationRecord;
@@ -15,6 +14,7 @@ import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.util.CollectionUtils;
@@ -28,7 +28,7 @@ public class KeycloakUserService implements UserService {
 
     @Value("${keycloak.realm}")
     private String realm;
-     @Value("${keycloak.urls.auth}")
+    @Value("${keycloak.urls.auth}")
     private String serverUrl;
     @Value("${keycloak.resource}")
     private String clientId;
@@ -36,7 +36,6 @@ public class KeycloakUserService implements UserService {
     private String clientSecret;
     @Value("${keycloak.user-info}")
     private String userInfo;
-
 
 
     public UserRepresentation authenticate(String username, String password, String token) {
@@ -58,23 +57,23 @@ public class KeycloakUserService implements UserService {
             } else {
                 throw new RuntimeException("Authentication failed");
             }
-        }catch (Exception e) {
-             throw new RuntimeException("Authentication failed");
+        } catch (Exception e) {
+            throw new RuntimeException("Authentication failed");
         }
     }
 
     // 禁用用户
     public void disableUser(String userId, String token) {
         Keycloak keycloak = KeycloakBuilder.builder()
-                    .serverUrl(serverUrl)
-                    .realm(realm)
-                    .grantType(OAuth2Constants.PASSWORD)
-                    .clientId(clientId)
-                    .clientSecret(clientSecret)
-                    .username(OAuth2ConstantsExtends.USER_ADMIN)
-                    .password(userInfo)
-                    .authorization(token)
-                    .build();
+                .serverUrl(serverUrl)
+                .realm(realm)
+                .grantType(OAuth2Constants.PASSWORD)
+                .clientId(clientId)
+                .clientSecret(clientSecret)
+                .username(OAuth2ConstantsExtends.USER_ADMIN)
+                .password(userInfo)
+                .authorization(token)
+                .build();
         UserRepresentation user = keycloak.realm(realm).users().get(userId).toRepresentation();
         user.setEnabled(false);
         keycloak.realm(realm).users().get(userId).update(user);
@@ -83,15 +82,15 @@ public class KeycloakUserService implements UserService {
 
     public void enableUser(String userId, String token) {
         Keycloak keycloak = KeycloakBuilder.builder()
-                    .serverUrl(serverUrl)
-                    .realm(realm)
-                    .grantType(OAuth2Constants.PASSWORD)
-                    .clientId(clientId)
-                    .clientSecret(clientSecret)
-                    .username(OAuth2ConstantsExtends.USER_ADMIN)
-                    .password(userInfo)
-                    .authorization(token)
-                    .build();
+                .serverUrl(serverUrl)
+                .realm(realm)
+                .grantType(OAuth2Constants.PASSWORD)
+                .clientId(clientId)
+                .clientSecret(clientSecret)
+                .username(OAuth2ConstantsExtends.USER_ADMIN)
+                .password(userInfo)
+                .authorization(token)
+                .build();
         UserRepresentation user = keycloak.realm(realm).users().get(userId).toRepresentation();
         user.setEnabled(true);
         keycloak.realm(realm).users().get(userId).update(user);
@@ -113,33 +112,44 @@ public class KeycloakUserService implements UserService {
         credentialRepresentation.setTemporary(false);
 
         UsersResource usersResource = getUsersResource(token);
-
         Response response = usersResource.create(user);
         if (Objects.equals(201, response.getStatus())) {
             List<UserRepresentation> representationList = usersResource.search(userRegistrationRecord.username(), true);
-            if(!CollectionUtils.isEmpty(representationList)) {
+            if (!CollectionUtils.isEmpty(representationList)) {
                 UserRepresentation userRepresentation1 = representationList.stream().filter(userRepresentation ->
                         Objects.equals(false, userRepresentation.isEmailVerified())).findFirst().orElse(null);
-                assert  userRepresentation1 != null;
+                assert userRepresentation1 != null;
+
                 if (user.isEmailVerified())
-                    emailVerification(userRepresentation1.getId(),token);
+                    emailVerification(userRepresentation1.getId(), token);
             }
-             return userRegistrationRecord;
+            var id = representationList.get(0).getId().toString();
+            UserRegistrationRecord userRecord = new UserRegistrationRecord(
+                    id,
+                    user.getUsername(),
+                    user.getEmail(),
+                    user.getFirstName(),
+                    user.getLastName(),
+                    ""
+            );
+            return userRecord;
+        } else if (Objects.equals(409, response.getStatus())) {
+            throw new RuntimeException("User already exists");
         }
-        return null;
+        throw new RuntimeException("Failed to create user");
     }
 
-    private UsersResource getUsersResource(String token) {
+    public UsersResource getUsersResource(String token) {
         Keycloak keycloak = KeycloakBuilder.builder()
-                    .serverUrl(serverUrl)
-                    .realm(realm)
-                    .grantType(OAuth2Constants.PASSWORD)
-                    .clientId(clientId)
-                    .clientSecret(clientSecret)
-                    .username(OAuth2ConstantsExtends.USER_ADMIN)
-                    .password(userInfo)
-                    .authorization(token)
-                    .build();
+                .serverUrl(serverUrl)
+                .realm(realm)
+                .grantType(OAuth2Constants.PASSWORD)
+                .clientId(clientId)
+                .clientSecret(clientSecret)
+                .username(OAuth2ConstantsExtends.USER_ADMIN)
+                .password(userInfo)
+                .authorization(token)
+                .build();
         return keycloak.realm(realm).users();
     }
 
