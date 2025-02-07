@@ -31,15 +31,9 @@ import java.util.concurrent.Future;
 public class ApnsService {
 
     private static final Logger log = LoggerFactory.getLogger(ApnsService.class);
-    private final ApnsConfig apnsConfig;
-
-    public ApnsService() {
-        this.apnsConfig = new ApnsConfig();
-    }
-
     @Autowired
+    private ApnsConfig apnsConfig;
     private ApnsClient apnsClient;
-
     @PostConstruct
     public void init() {
         try {

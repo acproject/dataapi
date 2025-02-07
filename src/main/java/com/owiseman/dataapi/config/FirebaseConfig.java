@@ -11,14 +11,17 @@ import java.io.InputStream;
 
 @Configuration
 public class FirebaseConfig {
-    @PostConstruct
-    public void initialize() throws IOException {
-        InputStream serviceAccount = getClass().getResourceAsStream("/firebase-service-account.json");
 
-        FirebaseOptions options = FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .build();
-
-        FirebaseApp.initializeApp(options);
+    public FirebaseConfig() {
     }
+//    @PostConstruct
+//    public void initialize() throws IOException {
+//        InputStream serviceAccount = getClass().getResourceAsStream("/firebase-service-account.json");
+//
+//        FirebaseOptions options = FirebaseOptions.builder()
+//                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+//                .build();
+//
+//        FirebaseApp.initializeApp(options);
+//    }
 }
