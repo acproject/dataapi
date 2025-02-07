@@ -36,6 +36,8 @@ public class KeycloakUserService implements UserService {
     private String clientSecret;
     @Value("${keycloak.user-info}")
     private String userInfo;
+    @Value("${keycloak.is-email-verified}")
+    private String isEmailVerified;
 
 
     public UserRepresentation authenticate(String username, String password, String token) {
@@ -104,12 +106,12 @@ public class KeycloakUserService implements UserService {
         user.setEmail(userRegistrationRecord.email());
         user.setFirstName(userRegistrationRecord.firstname());
         user.setLastName(userRegistrationRecord.lastname());
-        user.setEmailVerified(false);
+        user.setEmailVerified(Boolean.valueOf(isEmailVerified));
 
         CredentialRepresentation credentialRepresentation = new CredentialRepresentation();
         credentialRepresentation.setValue(userRegistrationRecord.password());
         credentialRepresentation.setType(CredentialRepresentation.PASSWORD);
-        credentialRepresentation.setTemporary(false);
+        credentialRepresentation.setTemporary(OAuth2ConstantsExtends.FALSE);
 
         UsersResource usersResource = getUsersResource(token);
         Response response = usersResource.create(user);

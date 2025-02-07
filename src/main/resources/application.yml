@@ -17,6 +17,7 @@ kong:
   admin:
     url: http://localhost:8001/
 
+
 keycloak:
   realm: myrealm
   ssl-required: external
@@ -40,3 +41,11 @@ keycloak:
     auth: http://localhost:9080
     token: http://localhost:9080/realms/myrealm/protocol/openid-connect/token
   user-info: owiseman_user_17
+  is-email-verified: false
+
+apns:
+  key-path: classpath:AuthKey_TCC2B6KMUH.p8
+  team-id: Y26RXXZ6VX
+  key-id: TCC2B6KMUH
+  bundle-id: com.owiseman.app
+  production: false
