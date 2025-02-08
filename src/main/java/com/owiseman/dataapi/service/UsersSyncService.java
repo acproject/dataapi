@@ -4,11 +4,11 @@ import com.owiseman.dataapi.config.OAuth2ConstantsExtends;
 import com.owiseman.dataapi.entity.SysUser;
 
 
-import com.owiseman.dataapi.entity.Tables;
+//import com.owiseman.dataapi.entity.Tables;
 
 import com.owiseman.dataapi.repository.SysUserRepository;
 import org.jooq.DSLContext;
-import org.jooq.User;
+//import org.jooq.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
