@@ -15,6 +15,7 @@ spring:
     driver-class-name: org.postgresql.Driver
 
   jpa:
+    packages-to-scan: com.owiseman.dataapi.entity
     hibernate:
       ddl-auto: update
     show-sql: true
