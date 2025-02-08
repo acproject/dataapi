@@ -5,6 +5,7 @@ import com.owiseman.dataapi.dto.ResetPassword;
 import com.owiseman.dataapi.dto.UserRegistrationRecord;
 import jakarta.ws.rs.core.Response;
 
+import org.jooq.DSLContext;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
@@ -12,16 +13,20 @@ import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 
 import org.keycloak.representations.idm.CredentialRepresentation;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
+
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class KeycloakUserService implements UserService {
@@ -39,6 +44,14 @@ public class KeycloakUserService implements UserService {
     @Value("${keycloak.is-email-verified}")
     private String isEmailVerified;
 
+    UsersSyncService usersSyncService;
+    @Autowired
+    DSLContext dslContext;
+    @Autowired
+    public KeycloakUserService() {
+
+        this.usersSyncService = new UsersSyncService(dslContext);
+    }
 
     public UserRepresentation authenticate(String username, String password, String token) {
         try {
@@ -78,6 +91,7 @@ public class KeycloakUserService implements UserService {
                 .build();
         UserRepresentation user = keycloak.realm(realm).users().get(userId).toRepresentation();
         user.setEnabled(false);
+        usersSyncService.disableUser(userId);
         keycloak.realm(realm).users().get(userId).update(user);
     }
 
@@ -95,6 +109,7 @@ public class KeycloakUserService implements UserService {
                 .build();
         UserRepresentation user = keycloak.realm(realm).users().get(userId).toRepresentation();
         user.setEnabled(true);
+        usersSyncService.enableUser(userId);
         keycloak.realm(realm).users().get(userId).update(user);
     }
 
@@ -134,6 +149,7 @@ public class KeycloakUserService implements UserService {
                     user.getLastName(),
                     ""
             );
+            usersSyncService.syncUsers(userRecord);
             return userRecord;
         } else if (Objects.equals(409, response.getStatus())) {
             throw new RuntimeException("User already exists");
@@ -162,6 +178,7 @@ public class KeycloakUserService implements UserService {
 
     @Override
     public void deleteUserById(String userId, String token) {
+        usersSyncService.deleteUser(userId);
         getUsersResource(token).delete(userId);
     }
 
@@ -193,5 +210,40 @@ public class KeycloakUserService implements UserService {
         credentialRepresentation.setType(CredentialRepresentation.PASSWORD);
         credentialRepresentation.setTemporary(false);
         userResource.resetPassword(credentialRepresentation);
+    }
+
+    @Override
+    public UserResource updateUser(String userId, String newEmail,
+                           String newFirstName, String newLastName,
+                           Optional<Map<String, List<String>>> attributes, String token) {
+        var userResource = getUsersResourceById(userId, token);
+        UserRepresentation userRepresentation = userResource.toRepresentation();
+        var sysUser = usersSyncService.getSysUserById(userId);
+        if (!newEmail.equals(userRepresentation.getEmail()) && newEmail.contains("@")) {
+            userRepresentation.setEmail(newEmail);
+            if (ObjectUtils.isEmpty(sysUser))
+                sysUser.setEmail(newEmail);
+        }
+        if (!newFirstName.equals(userRepresentation.getFirstName()) && !newFirstName.isEmpty()) {
+            userRepresentation.setFirstName(newFirstName);
+             if (ObjectUtils.isEmpty(sysUser))
+                sysUser.setFirstName(newFirstName);
+        }
+        if (!newLastName.equals(userRepresentation.getLastName()) && !newLastName.isEmpty()) {
+            userRepresentation.setLastName(newLastName);
+             if (ObjectUtils.isEmpty(sysUser))
+                sysUser.setLastName(newLastName);
+        }
+
+        if (!attributes.isEmpty()) {
+            userRepresentation.setAttributes(attributes.get());
+            if (ObjectUtils.isEmpty(sysUser))
+                sysUser.setAttributes(attributes.get());
+        }
+
+        if (ObjectUtils.isEmpty(sysUser))
+            usersSyncService.updateUserById(sysUser);
+        userResource.update(userRepresentation);
+        return userResource;
     }
 }

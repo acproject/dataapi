@@ -33,12 +33,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jooq</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.jooq</groupId>
-                    <artifactId>jooq</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -82,7 +76,7 @@
             <artifactId>keycloak-admin-client</artifactId>
             <version>22.0.4</version>
         </dependency>
-<!--        推送服务-->
+        <!--        推送服务-->
         <dependency>
             <groupId>com.eatthepath</groupId>
             <artifactId>pushy</artifactId>
@@ -123,6 +117,37 @@
             <groupId>com.owiseman</groupId>
             <artifactId>jpa-codegen-jooq</artifactId>
             <version>0.2.0</version>
+<!--            <scope>provided</scope>-->
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.persistence</groupId>
+            <artifactId>javax.persistence-api</artifactId>
+            <version>2.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.squareup</groupId>
+            <artifactId>javapoet</artifactId>
+            <version>1.13.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <version>1.3.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq</artifactId>
+            <version>3.16.5</version>
+            <scope>provided</scope>
         </dependency>
 
         <!--        <dependency>-->
