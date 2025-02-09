@@ -5,6 +5,7 @@ import com.eatthepath.pushy.apns.ApnsClientBuilder;
 import com.eatthepath.pushy.apns.util.ApnsPayloadBuilder;
 import com.eatthepath.pushy.apns.PushNotificationResponse;
 import com.eatthepath.pushy.apns.auth.ApnsSigningKey;
+import com.eatthepath.pushy.apns.util.SimpleApnsPayloadBuilder;
 import com.eatthepath.pushy.apns.util.SimpleApnsPushNotification;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.util.concurrent.FutureCallback;
@@ -23,7 +24,6 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
@@ -56,18 +56,7 @@ public class ApnsService {
     }
 
     public void sendPush(String deviceToken, String message) throws JsonProcessingException {
-        ApnsPayloadBuilder payloadBuilder = new ApnsPayloadBuilder() {
-            @Override
-            public String build() {
-                return "";
-            }
-
-            @Override
-            public String buildMdmPayload(String s) {
-                return "";
-            }
-        };
-
+        ApnsPayloadBuilder payloadBuilder = new SimpleApnsPayloadBuilder();
         payloadBuilder.setAlertBody(message);
         payloadBuilder.setSound("default");
         payloadBuilder.setBadgeNumber(1);
