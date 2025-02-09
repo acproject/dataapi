@@ -2,7 +2,13 @@ package com.owiseman.dataapi.entity;
 
 import com.owiseman.dataapi.dto.Platform;
 import com.owiseman.dataapi.util.UUIDConverter;
-import jakarta.persistence.*;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import java.time.LocalDateTime;
 
