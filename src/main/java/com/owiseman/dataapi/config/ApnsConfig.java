@@ -11,7 +11,11 @@ public class ApnsConfig {
     private String teamId;
     private String keyId;
     private String bundleId;
-    private boolean production;
+    private boolean production = false;
+
+    // 添加连接池配置参数
+    private int toThreads = Runtime.getRuntime().availableProcessors() * 2;
+    private int maxConcurrentStreams = 10_000;
 
     public Resource getKeyPath() {
         return keyPath;
@@ -56,11 +60,29 @@ public class ApnsConfig {
     public ApnsConfig() {
     }
 
-    public ApnsConfig(Resource keyPath, String teamId, String keyId, String bundleId, boolean production) {
+    public int getToThreads() {
+        return toThreads;
+    }
+
+    public void setToThreads(int toThreads) {
+        this.toThreads = toThreads;
+    }
+
+    public int getMaxConcurrentStreams() {
+        return maxConcurrentStreams;
+    }
+
+    public void setMaxConcurrentStreams(int maxConcurrentStreams) {
+        this.maxConcurrentStreams = maxConcurrentStreams;
+    }
+
+    public ApnsConfig(Resource keyPath, String teamId, String keyId, String bundleId, boolean production, int toThreads, int maxConcurrentStreams) {
         this.keyPath = keyPath;
         this.teamId = teamId;
         this.keyId = keyId;
         this.bundleId = bundleId;
         this.production = production;
+        this.toThreads = toThreads;
+        this.maxConcurrentStreams = maxConcurrentStreams;
     }
 }

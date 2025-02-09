@@ -1,31 +1,22 @@
 package com.owiseman.dataapi.service;
 
 import com.eatthepath.pushy.apns.ApnsClient;
-import com.eatthepath.pushy.apns.ApnsClientBuilder;
-import com.eatthepath.pushy.apns.util.ApnsPayloadBuilder;
 import com.eatthepath.pushy.apns.PushNotificationResponse;
-import com.eatthepath.pushy.apns.auth.ApnsSigningKey;
 import com.eatthepath.pushy.apns.util.SimpleApnsPayloadBuilder;
 import com.eatthepath.pushy.apns.util.SimpleApnsPushNotification;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.util.concurrent.FutureCallback;
 
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.owiseman.dataapi.config.ApnsConfig;
 
-import jakarta.annotation.PostConstruct;
+import com.owiseman.dataapi.repository.SysDeviceTokenRepository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class ApnsService {
@@ -33,64 +24,93 @@ public class ApnsService {
     private static final Logger log = LoggerFactory.getLogger(ApnsService.class);
     @Autowired
     private ApnsConfig apnsConfig;
+    @Autowired
     private ApnsClient apnsClient;
-    @PostConstruct
-    public void init() {
+    @Autowired
+    SysDeviceTokenRepository tokenRepository; // 令牌管理依赖
+
+    private static final int MAX_RETRIES = 3; // 最大重试次数
+    private static final long INITIAL_BACKOFF_MS = 1000; // 初始退避时间（毫秒）
+    private static int count = 0;
+
+    @Async("pushTaskExecutor") // 使用独立线程池
+    public CompletableFuture<Void> sendPush(String deviceToken, String message) {
+        // 验证令牌有效性
+        if (!tokenRepository.isValidToken(deviceToken)) {
+            log.warn("无效设备令牌: {}", deviceToken);
+            return CompletableFuture.failedFuture(new InvalidTokenException());
+        }
+
         try {
-            apnsClient = new ApnsClientBuilder()
-                    .setApnsServer(apnsConfig.isProduction()?
-                            ApnsClientBuilder.PRODUCTION_APNS_HOST:
-                            ApnsClientBuilder.DEVELOPMENT_APNS_HOST)
-                    .setSigningKey(ApnsSigningKey.loadFromPkcs8File(
-                            apnsConfig.getKeyPath().getFile(),
-                            apnsConfig.getTeamId(),
-                            apnsConfig.getKeyId()
-                    )).build();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        } catch (InvalidKeyException e) {
-            throw new RuntimeException(e);
+            final String payload = new SimpleApnsPayloadBuilder()
+                .setAlertBody(message)
+                .setSound("default")
+                .setBadgeNumber(1)
+                .build();
+
+            final SimpleApnsPushNotification notification = new SimpleApnsPushNotification(
+                deviceToken,
+                apnsConfig.getBundleId(),
+                payload);
+
+            final PushNotificationResponse<SimpleApnsPushNotification> response =
+                apnsClient.sendNotification(notification).get();
+
+            handleResponse(response, message);
+            return CompletableFuture.completedFuture(null);
+        } catch (InterruptedException | ExecutionException e) {
+            log.error("推送执行中断", e);
+            return CompletableFuture.failedFuture(e);
         }
     }
 
-    public void sendPush(String deviceToken, String message) throws JsonProcessingException {
-        ApnsPayloadBuilder payloadBuilder = new SimpleApnsPayloadBuilder();
-        payloadBuilder.setAlertBody(message);
-        payloadBuilder.setSound("default");
-        payloadBuilder.setBadgeNumber(1);
+    private void handleResponse(PushNotificationResponse<SimpleApnsPushNotification> response, String message) {
+        if (response.isAccepted()) {
+            log.info("推送成功: {}", response.getPushNotification().getToken());
+        } else {
+            log.error("推送失败: {}", response.getRejectionReason());
+            handleFailure(response, message);
+        }
+    }
 
-        String payload = payloadBuilder.build();
+    private void handleFailure(PushNotificationResponse<SimpleApnsPushNotification> response,String message) {
+        final String token = response.getPushNotification().getToken();
 
-        SimpleApnsPushNotification push = new SimpleApnsPushNotification(
-                deviceToken,
-                apnsConfig.getBundleId(),
-                payload
-        );
-        Future<PushNotificationResponse<SimpleApnsPushNotification>> future
-                = apnsClient.sendNotification(push);
+        // 处理失效令牌
+        if (response.getTokenInvalidationTimestamp() != null) {
+            tokenRepository.invalidateToken(token);
+            log.warn("标记为失效令牌: {}", token);
+        }
 
-        Futures.addCallback((ListenableFuture<? extends Object>) future, new FutureCallback() {
-            @Override
-            public void onSuccess(Object result) {
-               onSuccess(result);
+        // 重试逻辑（示例）
+        if (shouldRetry(String.valueOf(response.getRejectionReason()))) {
+            log.info("准备重试: {}", token);
+            retryPush(token, message);
+        }
+    }
+
+    private boolean shouldRetry(String reason) {
+        return !reason.contains("BadDeviceToken");
+    }
+
+    private void retryPush(String token,String message) {
+        // 实现重试逻辑
+        if (count < MAX_RETRIES) {
+            try {
+                Thread.sleep(INITIAL_BACKOFF_MS * (1 << count));
+                sendPush(token, message);
+                count++;
+            } catch (InterruptedException e) {
+                log.error("重试中断", e);
             }
+        }
+    }
 
-            public void onSuccess(PushNotificationResponse<SimpleApnsPushNotification> result) {
-                if (result.isAccepted()) {
-                    log.info("推送成功");
-                } else {
-                    log.info("推送失败");
-                }
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                log.error("APNs推送异常", t);
-            }
-        }, Executors.newCachedThreadPool());
-
+    public static class InvalidTokenException extends Exception {
+        // 构造函数
+        public InvalidTokenException() {
+            super("无效设备令牌");
+        }
     }
 
 }
