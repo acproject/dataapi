@@ -1,4 +1,4 @@
-package com.owiseman.dataapi.audit;
+package com.owiseman.dataapi.aop.audit;
 
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;

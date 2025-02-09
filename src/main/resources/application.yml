@@ -13,6 +13,20 @@ spring:
     username: postgres
     password: ac123456
     driver-class-name: org.postgresql.Driver
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      auto-commit: true
+      isolate-internal-statements: false
+      transaction-isolation: TRANSACTION_READ_COMMITTED
+  autoconfigure:
+    # 禁用自动配置，使用自定义配置 ,使用 DataSourceConfig类来完成
+    exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
+logging:
+  level:
+    org.springframework.jdbc.datasource: INFO
+    com.zaxxer.hikari: INFO
 
   jpa:
     packages-to-scan: com.owiseman.dataapi.entity
@@ -57,3 +71,7 @@ apns:
   key-id: TCC2B6KMUH
   bundle-id: com.owiseman.app
   production: false
+
+seaweedfs:
+  master:
+    url: http://localhost:9333
