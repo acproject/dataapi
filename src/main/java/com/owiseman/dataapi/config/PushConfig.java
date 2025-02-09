@@ -3,6 +3,7 @@ package com.owiseman.dataapi.config;
 import com.eatthepath.pushy.apns.ApnsClient;
 import com.eatthepath.pushy.apns.ApnsClientBuilder;
 import com.eatthepath.pushy.apns.auth.ApnsSigningKey;
+import com.owiseman.dataapi.aop.audit.LoggingMetricsListener;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -51,7 +52,7 @@ public class PushConfig {
                         config.getKeyId()
                 ))
                 .setConcurrentConnections(config.getMaxConcurrentStreams())
-                .setMetricsListener(new LogginMetricsListener()) // 监控埋点
+                .setMetricsListener(new LoggingMetricsListener()) // 监控埋点
                 .setEventLoopGroup(eventLoopGroup)
                 .build();
     }
