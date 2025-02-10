@@ -1,6 +1,6 @@
 package com.owiseman.dataapi.aop.error;
 
-public class ResponseError {
+public class ResponseError extends Exception {
     private String errorMessage;
 
         public ResponseError(String errorMessage) {
