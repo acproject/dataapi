@@ -70,4 +70,25 @@ public class SeaweedFsService implements FileService{
             throw new RuntimeException(e);
         }
     }
+
+    @Transactional
+    public void deleteFile(String userId, String fid) {
+        try {
+            // 从数据库获取要删除的数据
+            SysUserFile file = sysUserFilesRepository.findByIdAndUserId(fid, userId)
+                    .orElseThrow(() -> new FileNotFoundException("File not found or access denied"));
+            // 删除SeaweedFS文件
+            deleteFromSeaweedFS(file.getFid());
+            // 删除数据库记录
+            sysUserFilesRepository.deleteByIdAndUserId(fid, userId);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+     private void deleteFromSeaweedFS(String fid) {
+            String volumeUrl = seaweedFSClient.getVolumeUrl(fid);
+            String deleteUrl = "http://" + volumeUrl + "/" + fid;
+            new RestTemplate().delete(deleteUrl);
+        }
 }
