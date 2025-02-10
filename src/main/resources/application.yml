@@ -22,6 +22,10 @@ spring:
   autoconfigure:
     # 禁用自动配置，使用自定义配置 ,使用 DataSourceConfig类来完成
     exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+  servlet:
+    multipart:
+      max-file-size: 2GB
+      max-request-size: 2GB
 
 logging:
   level:
