@@ -1,5 +1,9 @@
 package com.owiseman.dataapi.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.owiseman.dataapi.dto.KongData;
+import com.owiseman.dataapi.dto.KongResponse;
 import com.owiseman.dataapi.router.RegisterServiceRequest;
 import com.owiseman.dataapi.router.RouteRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -72,6 +76,25 @@ public class KongService {
         requestRouteBody.put("methods", routeRequest.getMethods());
         requestRouteBody.put("protocols", routeRequest.getProtocols());
         String serviceName = routeRequest.getService();
+        var routes = getRoutes(null, null);
+        ObjectMapper objectMapper = new ObjectMapper();
+        if (routes.getStatusCode().is2xxSuccessful()) {
+            try {
+                KongResponse response = objectMapper.readValue(routes.getBody().toString(), KongResponse.class);
+                String target = routeRequest.getName();
+
+                for (KongData kongData : response.getData()) {
+                    if (kongData.getName().equals(target)) {
+                        // 如果找到了,先注销现有的
+                        unregisterRoute(kongData.getName());
+                        break;
+                    }
+                }
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
         // 增加自己的注册逻辑
         List<String> paths = null;
         // 判断是否是admin，如果是admin角色，则需要增加admin路径
