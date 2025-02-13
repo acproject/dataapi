@@ -4,6 +4,7 @@ import com.owiseman.dataapi.dto.LoginRequest;
 import com.owiseman.dataapi.service.KeycloakTokenService;
 import com.owiseman.dataapi.service.KeycloakUserService;
 
+import com.owiseman.dataapi.util.HttpHeaderUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.keycloak.admin.client.Keycloak;
 
@@ -27,55 +28,46 @@ public class AuthController {
     @Autowired
     private KeycloakTokenService keycloakTokenService;
 
-     @Value("${keycloak.resource}")
+    @Value("${keycloak.resource}")
     private String clientId;
     @Value("${keycloak.credentials.secret}")
     private String clientSecret;
 
-     @Value("${keycloak.urls.token}")
+    @Value("${keycloak.urls.token}")
     private String serverUrl;
     @Value("${keycloak.realm}")
     private String realm;
 
 
-
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletRequest servletRequest){
-       try{
-           String authHeader = servletRequest.getHeader("Authorization");
-           if (authHeader !=null && authHeader.startsWith("Bearer ")) {
-               request.setToken(authHeader.substring(7));
-           }
-           HttpHeaders headers = new HttpHeaders();
-           headers.setBearerAuth(request.getToken());
+    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletRequest servletRequest) {
+        try {
+            var token = HttpHeaderUtil.getTokenFromHeader(servletRequest);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(token);
 
-           var user = keycloakUserService.authenticate(request.getUsername(), request.getPassword(),
-            request.getToken());
+            var user = keycloakUserService.authenticate(request.getUsername(), request.getPassword(),
+                    token);
             return ResponseEntity
                     .ok().headers(headers).body(user);
-        }catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body("Login failed");
         }
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestBody LoginRequest request, HttpServletRequest servletRequest){
-
-       String token ="";
-        String authHeader = servletRequest.getHeader("Authorization");
-           if (authHeader !=null && authHeader.startsWith("Bearer ")) {
-              token=authHeader.substring(7);
-           }
-       Keycloak keycloak = KeycloakBuilder.builder()
-               .serverUrl(serverUrl)
-               .realm(realm)
-               .clientId(clientId)
-               .clientSecret(clientSecret)
-               .username(request.getUsername())
-               .password(request.getPassword())
-               .authorization(token)
-               .build();
-       keycloak.close();
-       return ResponseEntity.ok().build();
+    public ResponseEntity<?> logout(@RequestBody LoginRequest request, HttpServletRequest servletRequest) {
+        var token = HttpHeaderUtil.getTokenFromHeader(servletRequest);
+        Keycloak keycloak = KeycloakBuilder.builder()
+                .serverUrl(serverUrl)
+                .realm(realm)
+                .clientId(clientId)
+                .clientSecret(clientSecret)
+                .username(request.getUsername())
+                .password(request.getPassword())
+                .authorization(token)
+                .build();
+        keycloak.close();
+        return ResponseEntity.ok().build();
     }
 }

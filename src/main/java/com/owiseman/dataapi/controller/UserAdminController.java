@@ -5,6 +5,7 @@ import com.owiseman.dataapi.dto.UserDto;
 import com.owiseman.dataapi.dto.UserRegistrationRecord;
 import com.owiseman.dataapi.service.KeycloakUserService;
 import com.owiseman.dataapi.service.RoleService;
+import com.owiseman.dataapi.util.HttpHeaderUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.keycloak.representations.idm.RoleRepresentation;
 
@@ -29,11 +30,7 @@ public class UserAdminController {
 
     @PostMapping("update")
     public ResponseEntity<?> updateUser(@RequestBody UserRepresentation request, HttpServletRequest servletRequest) {
-        String authHeader = servletRequest.getHeader("Authorization");
-        String token = "";
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-        }
+        var token = HttpHeaderUtil.getTokenFromHeader(servletRequest);
         try {
             var user = keycloakUserService.updateUser(request.getId(), request.getEmail(),
                     request.getFirstName(), request.getLastName(),
@@ -46,11 +43,7 @@ public class UserAdminController {
 
     @PostMapping("/create")
     public ResponseEntity<?> createUser(@RequestBody UserRegistrationRecord request, HttpServletRequest servletRequest) {
-        String authHeader = servletRequest.getHeader("Authorization");
-        String token = "";
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-        }
+        var token = HttpHeaderUtil.getTokenFromHeader(servletRequest);
         try {
             var user = keycloakUserService.createUser(request, token);
             return ResponseEntity.ok().body(user);
@@ -61,11 +54,7 @@ public class UserAdminController {
 
     @GetMapping
     public List<UserRepresentation> getAllUsers(HttpServletRequest servletRequest) {
-        String authHeader = servletRequest.getHeader("Authorization");
-        String token = "";
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-        }
+        var token = HttpHeaderUtil.getTokenFromHeader(servletRequest);
         return keycloakUserService.getUsersResource(token).list();
     }
 
@@ -74,11 +63,7 @@ public class UserAdminController {
                                                  @RequestParam(defaultValue = "10") int size,
                                                  HttpServletRequest servletRequest
     ) {
-        String authHeader = servletRequest.getHeader("Authorization");
-        String token = "";
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-        }
+        var token = HttpHeaderUtil.getTokenFromHeader(servletRequest);
         int first = (page - 1) * size;
         int max = size;
         int total = keycloakUserService.getUsersResource(token).count();
@@ -92,11 +77,7 @@ public class UserAdminController {
     public ResponseEntity<?> updateUserStatus(@PathVariable String userId,
                                               @RequestParam Boolean enabled,
                                               HttpServletRequest servletRequest) {
-        String authHeader = servletRequest.getHeader("Authorization");
-        String token = "";
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-        }
+        var token = HttpHeaderUtil.getTokenFromHeader(servletRequest);
         if (enabled) {
             keycloakUserService.enableUser(userId, token);
         } else {
@@ -109,22 +90,14 @@ public class UserAdminController {
     public ResponseEntity<Void> assignRole(@PathVariable String userId,
                                            @RequestBody RoleRepresentation request,
                                            HttpServletRequest servletRequest) {
-        String authHeader = servletRequest.getHeader("Authorization");
-        String token = "";
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-        }
+        var token = HttpHeaderUtil.getTokenFromHeader(servletRequest);
         roleService.assignRole(userId, request.getName(), token);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{userId}")
     public void deleteUser(@PathVariable String userId,HttpServletRequest servletRequest) {
-        String authHeader = servletRequest.getHeader("Authorization");
-        String token = "";
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-        }
+        var token = HttpHeaderUtil.getTokenFromHeader(servletRequest);
         keycloakUserService.deleteUserById(userId, token);
     }
 }
