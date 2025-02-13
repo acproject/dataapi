@@ -21,25 +21,31 @@ public class KeycloakClientController {
     @Autowired
     private KeycloakRealmService keycloakRealmService;
 
-//    @PutMapping("/update/{clientId}")
-//    public ResponseEntity<KeycloakClientDto> updateClient(
-//            @PathVariable String clientId,
-//            @RequestBody ClientRepresentation clientRep) {
-//        return ResponseEntity.ok(keycloakRealmService.updateClient(clientId, clientRep));
-//    }
+    @PutMapping("/update/{clientId}")
+    public ResponseEntity<KeycloakClientDto> updateClient(
+            @PathVariable String clientId,
+            @RequestBody ClientRepresentation clientRep,
+            HttpServletRequest servletRequest
+            ) {
+        return ResponseEntity.ok(keycloakRealmService.updateClient(clientId, clientRep, getTokenFromHeader(servletRequest)));
+    }
 
 
-//    @PostMapping("/create")
-//    public ResponseEntity<KeycloakClientDto> createClient(@RequestBody ClientRepresentation clientRepresentation) {
-//        return ResponseEntity.ok(keycloakRealmService.createClient(clientRepresentation));
-//    }
+    @PostMapping("/create")
+    public ResponseEntity<KeycloakClientDto> createClient(
+            @RequestBody ClientRepresentation clientRepresentation,
+            HttpServletRequest servletRequest
+            ) {
+        return ResponseEntity.ok(keycloakRealmService.createClient(clientRepresentation, getTokenFromHeader(servletRequest)));
+    }
 
-//    @GetMapping
-//    public ResponseEntity<PageResult<ClientRepresentation>> findClientsByPage (
-//            @RequestParam(defaultValue = "1") int page,
-//        @RequestParam(defaultValue = "10") int size) {
-//        return ResponseEntity.ok(keycloakRealmService.findClientsByPage(page, size));
-//    }
+    @GetMapping("/paginated")
+    public ResponseEntity<PageResult<ClientRepresentation>> findClientsByPage (
+            @RequestParam(defaultValue = "1") int page,
+        @RequestParam(defaultValue = "10") int size,
+            HttpServletRequest servletRequest) {
+        return ResponseEntity.ok(keycloakRealmService.findClientsByPage(page, size, getTokenFromHeader(servletRequest)));
+    }
 
     @GetMapping()
     public ResponseEntity<List<ClientRepresentation>> findAllClients(HttpServletRequest servletRequest) {
