@@ -1,11 +1,11 @@
 package com.owiseman.dataapi.config;
 
-import jakarta.ws.rs.HttpMethod;
 import org.keycloak.adapters.KeycloakConfigResolver;
 import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
 import org.keycloak.adapters.springsecurity.authentication.KeycloakAuthenticationProvider;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.session.SessionRegistryImpl;
@@ -52,6 +52,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
 //                        .requestMatchers(HttpMethod.POST, "/admin/**").hasAuthority("SCOPE_admin:write")
 //                        .requestMatchers(HttpMethod.GET, "/admin/**").hasAuthority("SCOPE_admin:read")
                         .requestMatchers("/*/user/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/clients").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement( session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))

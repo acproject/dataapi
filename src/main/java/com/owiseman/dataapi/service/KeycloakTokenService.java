@@ -60,5 +60,33 @@ public class KeycloakTokenService {
 
     }
 
+    public TokenResponse getTokenResponse(String username, String password) {
+        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+        formData.add("client_id", clientId);
+        formData.add("client_secret", clientSecret);
+        formData.add("grant_type", OAuth2Constants.CLIENT_CREDENTIALS);
+        formData.add("username", username);
+        formData.add("password", password);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        HttpEntity<MultiValueMap<String, String>> request =
+                new HttpEntity<>(formData, headers);
+
+        ResponseEntity<TokenResponse> response = restTemplate.postForEntity(
+                tokenUrl,
+                request,
+                TokenResponse.class
+        );
+
+        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+            return response.getBody();
+        } else {
+            throw new RuntimeException("Failed to get access token:" + response.getStatusCode());
+        }
+
+    }
+
+
 
 }

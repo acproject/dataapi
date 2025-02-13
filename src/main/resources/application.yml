@@ -1,4 +1,7 @@
 spring:
+#  profiles:
+#    - dev
+#    - use-keycloak-server
   application:
     name: data-api
   security:
@@ -67,6 +70,7 @@ keycloak:
     auth: http://localhost:9080
     token: http://localhost:9080/realms/myrealm/protocol/openid-connect/token
   user-info: owiseman_user_17
+  client-info: admin123456
   is-email-verified: false
 
 apns:
