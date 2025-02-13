@@ -18,15 +18,23 @@ import com.owiseman.dataapi.dto.UserRegistrationRecord;
 @Service
 public class UsersSyncService {
 
-    private final DSLContext dslContext;
-
-    @Autowired
-    public UsersSyncService(DSLContext dslContext) {
-        this.dslContext = dslContext;
-    }
+//    private final DSLContext dslContext;
+//
+//    @Autowired
+//    public UsersSyncService(DSLContext dslContext) {
+//        this.dslContext = dslContext;
+//    }
 
     @Autowired
     SysUserRepository sysUserRepository;
+
+//    public UsersSyncService(DSLContext dslContext) {
+//        this.dslContext = dslContext;
+//    }
+
+    public UsersSyncService() {
+    }
+
     @Async
     public void syncUsers(UserRegistrationRecord userRegistrationRecord) {
         assert userRegistrationRecord != null;
@@ -55,6 +63,7 @@ public class UsersSyncService {
         sysUserRepository.save(sysUser);
     }
 
+    @Async
     public SysUser getSysUserById(String userId) {
 //      return   dslContext.selectFrom(Tables.SYSUSER.TABLE)
 //                .where(Tables.SYSUSER.ID.eq(userId))
@@ -63,6 +72,7 @@ public class UsersSyncService {
 
     }
 
+    @Async
     public SysUser updateUserById(SysUser sysUser) {
 //         dslContext.update(Tables.SYSUSER.TABLE)
 //                 .set(Tables.SYSUSER.ID, sysUser.getId())
@@ -84,6 +94,7 @@ public class UsersSyncService {
              throw new RuntimeException("no sysUser exist !");
     }
 
+    @Async
     public void deleteUser(String userId) {
 //        dslContext.deleteFrom(Tables.SYSUSER.TABLE)
 //                .where(Tables.SYSUSER.ID.eq(userId))
@@ -91,6 +102,7 @@ public class UsersSyncService {
         sysUserRepository.deleteById(userId);
     }
 
+    @Async
     public void enableUser(String userId) {
 //       dslContext.update(Tables.SYSUSER.TABLE)
 //               .set(Tables.SYSUSER.ENABLED, Boolean.TRUE)
@@ -98,6 +110,7 @@ public class UsersSyncService {
         sysUserRepository.findById(userId).get().setEnabled(true);
     }
 
+    @Async
     public void disableUser(String userId) {
 //       dslContext.update(Tables.SYSUSER.TABLE)
 //               .set(Tables.SYSUSER.ENABLED, Boolean.FALSE)

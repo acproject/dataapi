@@ -5,7 +5,7 @@ import com.owiseman.dataapi.dto.ResetPassword;
 import com.owiseman.dataapi.dto.UserRegistrationRecord;
 import jakarta.ws.rs.core.Response;
 
-import org.jooq.DSLContext;
+//import org.jooq.DSLContext;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
@@ -44,13 +44,13 @@ public class KeycloakUserService implements UserService {
     @Value("${keycloak.is-email-verified}")
     private String isEmailVerified;
 
-    UsersSyncService usersSyncService;
-    @Autowired
-    DSLContext dslContext;
+    private UsersSyncService usersSyncService;
+//    @Autowired
+//    DSLContext dslContext;
     @Autowired
     public KeycloakUserService() {
 
-        this.usersSyncService = new UsersSyncService(dslContext);
+        this.usersSyncService = new UsersSyncService();
     }
 
     public UserRepresentation authenticate(String username, String password, String token) {

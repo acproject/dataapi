@@ -2,13 +2,11 @@ package com.owiseman.dataapi.controller;
 
 import com.owiseman.dataapi.dto.KeycloakClientDto;
 import com.owiseman.dataapi.dto.PageResult;
-import com.owiseman.dataapi.service.KeycloakRealmService;
+import com.owiseman.dataapi.service.KeycloakClientService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,7 +17,7 @@ import java.util.List;
 public class KeycloakClientController {
 
     @Autowired
-    private KeycloakRealmService keycloakRealmService;
+    private KeycloakClientService keycloakRealmService;
 
     @PutMapping("/update/{clientId}")
     public ResponseEntity<KeycloakClientDto> updateClient(

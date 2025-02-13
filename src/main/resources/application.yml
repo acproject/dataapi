@@ -48,6 +48,9 @@ kong:
 
 
 keycloak:
+  master: master
+  master-password: owiseman.k.17
+  master-client: admin-cli
   realm: myrealm
   ssl-required: external
   resource: myclient
