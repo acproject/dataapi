@@ -37,6 +37,9 @@ public class SysUser {
     @Column
     private Boolean enabled;
 
+    private String realmName;
+    private String clientId;
+
     public String getId() {
         return id;
     }
@@ -121,6 +124,36 @@ public class SysUser {
         this.enabled = enabled;
     }
 
+    public SysUser(String id, String username, String firstName, String lastName, String email, Boolean emailVerified, Map<String, List<String>> attributes, Long createdTimestamp, Boolean enabled, String realmName, String clientId) {
+        this.id = id;
+        this.username = username;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.emailVerified = emailVerified;
+        this.attributes = attributes;
+        this.createdTimestamp = createdTimestamp;
+        this.enabled = enabled;
+        this.realmName = realmName;
+        this.clientId = clientId;
+    }
+
     public SysUser() {
+    }
+
+    public String getRealmName() {
+        return realmName;
+    }
+
+    public void setRealmName(String realmName) {
+        this.realmName = realmName;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
     }
 }

@@ -86,7 +86,6 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-core</artifactId>
-
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -182,7 +181,17 @@
             <version>0.7.3.RELEASE</version>
         </dependency>
 
-
+        <!-- Wasmtime Java API -->
+        <dependency>
+            <groupId>org.teavm</groupId>
+            <artifactId>teavm-interop</artifactId>
+            <version>0.9.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.teavm</groupId>
+            <artifactId>teavm-platform</artifactId>
+            <version>0.9.0</version>
+        </dependency>
         <!--        <dependency>-->
         <!--            <groupId>org.springframework.boot</groupId>-->
         <!--            <artifactId>spring-boot-configuration-processor</artifactId>-->
