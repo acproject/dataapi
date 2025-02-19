@@ -30,8 +30,8 @@ public class AuthController {
 
     @Value("${keycloak.resource}")
     private String clientId;
-    @Value("${keycloak.credentials.secret}")
-    private String clientSecret;
+//    @Value("${keycloak.credentials.secret}")
+//    private String clientSecret;
 
     @Value("${keycloak.urls.token}")
     private String serverUrl;
@@ -62,7 +62,7 @@ public class AuthController {
                 .serverUrl(serverUrl)
                 .realm(realm)
                 .clientId(clientId)
-                .clientSecret(clientSecret)
+//                .clientSecret(clientSecret)
                 .username(request.getUsername())
                 .password(request.getPassword())
                 .authorization(token)

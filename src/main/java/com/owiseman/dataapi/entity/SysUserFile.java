@@ -5,7 +5,6 @@ import com.owiseman.dataapi.util.UUIDConverter;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 
 @Entity

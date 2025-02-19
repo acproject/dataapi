@@ -8,9 +8,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-#          issuer-uri: http://localhost:9080/auth/realms/myrealm
-          # jwk-set-uri 可以省略，Spring 会根据 issuer-uri 自动推导
-           jwk-set-uri: http://localhost:9080/realms/myrealm/protocol/openid-connect/certs
+           jwk-set-uri: http://localhost:9080/realms/master/protocol/openid-connect/certs
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
@@ -25,6 +23,8 @@ spring:
   autoconfigure:
     # 禁用自动配置，使用自定义配置 ,使用 DataSourceConfig类来完成
     exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+  jooq:
+    sql-dialect: POSTGRES
   servlet:
     multipart:
       max-file-size: 2GB
@@ -35,27 +35,26 @@ logging:
     org.springframework.jdbc.datasource: INFO
     com.zaxxer.hikari: INFO
 
-  jpa:
-    packages-to-scan: com.owiseman.dataapi.entity
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+#  jpa:
+#    packages-to-scan: com.owiseman.dataapi.entity
+#    hibernate:
+#      ddl-auto: update
+#    show-sql: true
+#    properties:
+#      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+
+
 kong:
   admin:
     url: http://localhost:8001/
 
 
 keycloak:
-  master: master
-  master-password: owiseman.k.17
-  master-client: admin-cli
-  realm: myrealm
+  realm: master
   ssl-required: external
-  resource: myclient
-  credentials:
-    secret: Bhg2XGvNfxUrg1tzhrIuICSGqFOCy4cB
+  resource: admin-cli  # or admin_client
+#  credentials:
+#    secret: OCFmD1ra2346Y9Uu6SKAvpGY9mjMk6A2  # Bhg2XGvNfxUrg1tzhrIuICSGqFOCy4cB
   user-resource-role-mappings: true
   public-client: false
   bearer-only: true
@@ -71,9 +70,8 @@ keycloak:
   autodetect-bearer-only: true
   urls:
     auth: http://localhost:9080
-    token: http://localhost:9080/realms/myrealm/protocol/openid-connect/token
-  user-info: owiseman_user_17
-  client-info: admin123456
+    token: http://localhost:9080/realms/master/protocol/openid-connect/token
+  client-info:  owiseman.k.17
   is-email-verified: false
 
 apns:

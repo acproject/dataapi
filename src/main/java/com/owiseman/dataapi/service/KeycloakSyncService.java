@@ -4,6 +4,7 @@ import com.owiseman.dataapi.entity.SysKeycloakClient;
 import com.owiseman.dataapi.entity.SysKeycloakRealm;
 import com.owiseman.dataapi.repository.KeycloakClientRepository;
 import com.owiseman.dataapi.repository.KeycloakRealmRepository;
+import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -11,10 +12,17 @@ import org.springframework.util.ObjectUtils;
 
 @Service
 public class KeycloakSyncService {
+    private final KeycloakClientRepository keycloakClientRepository;
+    private final KeycloakRealmRepository keycloakRealmRepository;
+
+
     @Autowired
-    private KeycloakClientRepository keycloakClientRepository;
-    @Autowired
-    private KeycloakRealmRepository keycloakRealmRepository;
+    public KeycloakSyncService(KeycloakRealmRepository keycloakRealmRepository,
+                               KeycloakClientRepository keycloakClientRepository
+    ) {
+        this.keycloakRealmRepository = keycloakRealmRepository;
+        this.keycloakClientRepository = keycloakClientRepository;
+    }
 
     @Async
     public void syncClient(SysKeycloakClient sysKeycloakClients) {

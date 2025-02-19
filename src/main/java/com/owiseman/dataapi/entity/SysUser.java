@@ -9,7 +9,6 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 
-
 import java.util.List;
 import java.util.Map;
 
@@ -21,23 +20,24 @@ public class SysUser {
     private String id;
     @Column(name = "username")
     private String username;
-    @Column
+    @Column(nullable = true)
     private String firstName;
-    @Column
+    @Column(nullable = true)
     private String lastName;
     @Column
     private String email;
-    @Column
+    @Column(nullable = true)
     private Boolean emailVerified;
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb")
+    @Column(columnDefinition = "jsonb", nullable = true)
     private Map<String, List<String>> attributes;
-    @Column
+    @Column(nullable = true)
     private Long createdTimestamp;
-    @Column
+    @Column(nullable = true)
     private Boolean enabled;
-
+    @Column(nullable = true)
     private String realmName;
+    @Column(nullable = true)
     private String clientId;
 
     public String getId() {

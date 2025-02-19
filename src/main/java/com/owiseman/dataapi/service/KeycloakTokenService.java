@@ -4,13 +4,16 @@ import com.owiseman.dataapi.config.OAuth2ConstantsExtends;
 import com.owiseman.dataapi.dto.TokenResponse;
 import org.keycloak.OAuth2Constants;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -21,10 +24,10 @@ public class KeycloakTokenService {
     @Value("${keycloak.resource}")
     private String clientId;
 
-    @Value("${keycloak.credentials.secret}")
-    private String clientSecret;
+//    @Value("${keycloak.credentials.secret}")
+//    private String clientSecret;
 
-    @Value("${keycloak.user-info}")
+    @Value("${keycloak.client-info}")
     private String userInfo;
 
     private final RestTemplate restTemplate;
@@ -33,12 +36,12 @@ public class KeycloakTokenService {
         this.restTemplate = new RestTemplate();
     }
 
-    public TokenResponse getTokenResponse(Optional<String> username, Optional<String> password) {
+    public TokenResponse getTokenResponse(Optional<String> username, Optional<String> password, Optional<String> clientSecret, Optional<String> grantType) {
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("client_id", clientId);
-        formData.add("client_secret", clientSecret);
-        formData.add("grant_type", OAuth2Constants.CLIENT_CREDENTIALS);
-        formData.add("username", username.isEmpty()?  OAuth2ConstantsExtends.USER_ADMIN : username.get());
+        if (!clientSecret.isEmpty()) formData.add("client_secret", clientSecret.get());
+        formData.add("grant_type", grantType.isEmpty()? OAuth2ConstantsExtends.CLIENT_CREDENTIALS : grantType.get());
+        formData.add("username", username.isEmpty()?  OAuth2ConstantsExtends.ADMIN : username.get());
         formData.add("password", password.isEmpty()? userInfo : password.get());
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -60,13 +63,13 @@ public class KeycloakTokenService {
 
     }
 
-    public TokenResponse getTokenResponse(String username, String password) {
+    public TokenResponse getTokenResponse() {
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("client_id", clientId);
-        formData.add("client_secret", clientSecret);
-        formData.add("grant_type", OAuth2Constants.CLIENT_CREDENTIALS);
-        formData.add("username", username);
-        formData.add("password", password);
+//        formData.add("client_secret", clientSecret);
+        formData.add("grant_type", OAuth2ConstantsExtends.CLIENT_CREDENTIALS);
+        formData.add("username", OAuth2ConstantsExtends.ADMIN);
+        formData.add("password", userInfo);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 

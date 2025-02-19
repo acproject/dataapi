@@ -1,5 +1,6 @@
 package com.owiseman.dataapi.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -9,20 +10,34 @@ import jakarta.persistence.Table;
 public class SysKeycloakClient {
     @Id
     private String id;
+    @Column(nullable = true)
     private String realmName;
+    @Column(nullable = true)
     private String clientId;
+    @Column(nullable = true)
     private String secret;
+    @Column(nullable = true)
     private String name;
+    @Column(nullable = true)
     private String description;
+    @Column(nullable = true)
     private String type;
+    @Column(nullable = true)
     private String rootUrl;
+    @Column(nullable = true)
     private String adminUrl;
+    @Column(nullable = true)
     private String baseUrl;
+    @Column(nullable = true)
     private Boolean surrogateAuthRequired;
+    @Column(nullable = true)
     private Boolean enabled;
+    @Column(nullable = true)
     private Boolean alwaysDisplayInConsole;
+    @Column(nullable = true)
     private String clientAuthenticatorType;
-    private String registrationAccessToke;
+    @Column(nullable = true)
+    private String registrationAccessToken;
 
     public SysKeycloakClient() {
     }
@@ -31,7 +46,7 @@ public class SysKeycloakClient {
                              String description, String type, String rootUrl, String adminUrl,
                              String baseUrl, Boolean surrogateAuthRequired, Boolean enabled,
                              Boolean alwaysDisplayInConsole,
-                             String clientAuthenticatorType, String registrationAccessToke) {
+                             String clientAuthenticatorType, String registrationAccessToken) {
         this.id = id;
         this.realmName = realmName;
         this.clientId = clientId;
@@ -46,7 +61,7 @@ public class SysKeycloakClient {
         this.enabled = enabled;
         this.alwaysDisplayInConsole = alwaysDisplayInConsole;
         this.clientAuthenticatorType = clientAuthenticatorType;
-        this.registrationAccessToke = registrationAccessToke;
+        this.registrationAccessToken = registrationAccessToken;
     }
 
     public String getId() {
@@ -154,11 +169,11 @@ public class SysKeycloakClient {
     }
 
     public String getRegistrationAccessToke() {
-        return registrationAccessToke;
+        return registrationAccessToken;
     }
 
-    public void setRegistrationAccessToke(String registrationAccessToke) {
-        this.registrationAccessToke = registrationAccessToke;
+    public void setRegistrationAccessToke(String registrationAccessToken) {
+        this.registrationAccessToken = registrationAccessToken;
     }
 
     public String getRealmName() {

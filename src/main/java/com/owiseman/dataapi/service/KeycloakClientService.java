@@ -5,7 +5,6 @@ import com.owiseman.dataapi.dto.KeycloakClientDto;
 import com.owiseman.dataapi.dto.PageResult;
 import com.owiseman.dataapi.entity.SysKeycloakClient;
 import jakarta.ws.rs.core.Response;
-import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.ClientResource;
@@ -37,24 +36,20 @@ public class KeycloakClientService {
     private String serverUrl;
     @Value("${keycloak.resource}")
     private String clientId;
-    @Value("${keycloak.credentials.secret}")
-    private String clientSecret;
-
-    private KeycloakSyncService keycloakSyncService;
+//    @Value("${keycloak.credentials.secret}")
+//    private String clientSecret;
 
     @Autowired
-    public KeycloakClientService() {
-        this.keycloakSyncService = new KeycloakSyncService();
-    }
+    private KeycloakSyncService keycloakSyncService;
 
     private Keycloak getKeycloak(String token) {
         Keycloak keycloak = KeycloakBuilder.builder()
                 .serverUrl(serverUrl)
                 .realm(realm)
-                .grantType(OAuth2Constants.PASSWORD)
+                .grantType(OAuth2ConstantsExtends.PASSWORD)
                 .clientId(clientId)
-                .clientSecret(clientSecret)
-                .username(OAuth2ConstantsExtends.CLIENT_ADMIN)
+//                .clientSecret(clientSecret)
+                .username(OAuth2ConstantsExtends.ADMIN)
                 .password(clientInfo)
                 .authorization(token)
                 .build();

@@ -4,40 +4,67 @@ import com.owiseman.dataapi.util.UUIDConverter;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "sys_keycloak_realms")
+@Table(name = "sys_keycloak_realm")
 public class SysKeycloakRealm {
     @Id
-    @GeneratedValue(generator = "uuid")
-    @Convert(converter = UUIDConverter.class)
     private String id;
+    @Column(nullable = true)
     private String realm;
+    @Column(nullable = true)
     private String displayName;
+    @Column(nullable = true)
     private String displayNameHtml;
+    @Column(nullable = true)
     private Integer notBefore;
+    @Column(nullable = true)
     private String defaultSignatureAlgorithm;
+    @Column(nullable = true)
     private Boolean revokeRefreshToken;
+    @Column(nullable = true)
     private Integer refreshTokenMaxReuse;
+    @Column(nullable = true)
     private Integer accessTokenLifespan;
+    @Column(nullable = true)
     private Integer accessTokenLifespanForImplicitFlow;
+    @Column(nullable = true)
     private Integer ssoSessionIdleTimeout;
+    @Column(nullable = true)
     private Integer ssoSessionMaxLifespan;
+    @Column(nullable = true)
     private Integer ssoSessionIdleTimeoutRememberMe;
+    @Column(nullable = true)
     private Integer ssoSessionMaxLifespanRememberMe;
+    @Column(nullable = true)
     private Integer offlineSessionIdleTimeout;
+    @Column(nullable = true)
     private Boolean offlineSessionMaxLifespanEnabled;
+    @Column(nullable = true)
     private Integer offlineSessionMaxLifespan;
+    @Column(nullable = true)
     private Integer clientSessionIdleTimeout;
+    @Column(nullable = true)
     private Integer clientSessionMaxLifespan;
+    @Column(nullable = true)
     private Integer clientOfflineSessionIdleTimeout;
+    @Column(nullable = true)
     private Integer clientOfflineSessionMaxLifespan;
+    @Column(nullable = true)
     private Integer accessCodeLifespan;
+    @Column(nullable = true)
     private Integer accessCodeLifespanUserAction;
+    @Column(nullable = true)
     private Integer accessCodeLifespanLogin;
+    @Column(nullable = true)
     private Integer actionTokenGeneratedByAdminLifespan;
+    @Column(nullable = true)
     private Integer actionTokenGeneratedByUserLifespan;
+    @Column(nullable = true)
     private Integer oauth2DeviceCodeLifespan;
+    @Column(nullable = true)
     private Integer oauth2DevicePollingInterval;
+    @Column(nullable = true)
     private Boolean enabled;
+    @Column(nullable = true)
     private String sslRequired;
 
     public SysKeycloakRealm() {

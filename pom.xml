@@ -70,7 +70,7 @@
         <dependency>
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-admin-client</artifactId>
-            <version>22.0.4</version>
+            <version>26.0.4</version>
         </dependency>
         <!--        推送服务-->
         <dependency>
@@ -218,10 +218,10 @@
             <!--                    </annotationProcessorPaths>-->
             <!--                </configuration>-->
             <!--            </plugin>-->
-            <plugin>
-                <groupId>org.graalvm.buildtools</groupId>
-                <artifactId>native-maven-plugin</artifactId>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.graalvm.buildtools</groupId>-->
+<!--                <artifactId>native-maven-plugin</artifactId>-->
+<!--            </plugin>-->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>

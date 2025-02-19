@@ -6,7 +6,6 @@ import com.owiseman.dataapi.dto.UserRegistrationRecord;
 import jakarta.ws.rs.core.Response;
 
 //import org.jooq.DSLContext;
-import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.UserResource;
@@ -37,10 +36,10 @@ public class KeycloakUserService implements UserService {
     private String serverUrl;
     @Value("${keycloak.resource}")
     private String clientId;
-    @Value("${keycloak.credentials.secret}")
-    private String clientSecret;
-    @Value("${keycloak.user-info}")
-    private String userInfo;
+//    @Value("${keycloak.credentials.secret}")
+//    private String clientSecret;
+    @Value("${keycloak.client-info}")
+    private String clientInfo;
     @Value("${keycloak.is-email-verified}")
     private String isEmailVerified;
 
@@ -58,9 +57,9 @@ public class KeycloakUserService implements UserService {
             Keycloak keycloak = KeycloakBuilder.builder()
                     .serverUrl(serverUrl)
                     .realm(realm)
-                    .grantType(OAuth2Constants.PASSWORD)
+                    .grantType(OAuth2ConstantsExtends.PASSWORD)
                     .clientId(clientId)
-                    .clientSecret(clientSecret)
+//                    .clientSecret(clientSecret)
                     .username(username)
                     .password(password)
                     .authorization(token)
@@ -82,11 +81,11 @@ public class KeycloakUserService implements UserService {
         Keycloak keycloak = KeycloakBuilder.builder()
                 .serverUrl(serverUrl)
                 .realm(realm)
-                .grantType(OAuth2Constants.PASSWORD)
+                .grantType(OAuth2ConstantsExtends.PASSWORD)
                 .clientId(clientId)
-                .clientSecret(clientSecret)
-                .username(OAuth2ConstantsExtends.USER_ADMIN)
-                .password(userInfo)
+//                .clientSecret(clientSecret)
+                .username(OAuth2ConstantsExtends.ADMIN)
+                .password(clientInfo)
                 .authorization(token)
                 .build();
         UserRepresentation user = keycloak.realm(realm).users().get(userId).toRepresentation();
@@ -100,11 +99,11 @@ public class KeycloakUserService implements UserService {
         Keycloak keycloak = KeycloakBuilder.builder()
                 .serverUrl(serverUrl)
                 .realm(realm)
-                .grantType(OAuth2Constants.PASSWORD)
+                .grantType(OAuth2ConstantsExtends.PASSWORD)
                 .clientId(clientId)
-                .clientSecret(clientSecret)
-                .username(OAuth2ConstantsExtends.USER_ADMIN)
-                .password(userInfo)
+//                .clientSecret(clientSecret)
+                .username(OAuth2ConstantsExtends.ADMIN)
+                .password(clientInfo)
                 .authorization(token)
                 .build();
         UserRepresentation user = keycloak.realm(realm).users().get(userId).toRepresentation();
@@ -161,11 +160,11 @@ public class KeycloakUserService implements UserService {
         Keycloak keycloak = KeycloakBuilder.builder()
                 .serverUrl(serverUrl)
                 .realm(realm)
-                .grantType(OAuth2Constants.PASSWORD)
+                .grantType(OAuth2ConstantsExtends.PASSWORD)
                 .clientId(clientId)
-                .clientSecret(clientSecret)
-                .username(OAuth2ConstantsExtends.USER_ADMIN)
-                .password(userInfo)
+//                .clientSecret(clientSecret)
+                .username(OAuth2ConstantsExtends.ADMIN)
+                .password(clientInfo)
                 .authorization(token)
                 .build();
         return keycloak.realm(realm).users();

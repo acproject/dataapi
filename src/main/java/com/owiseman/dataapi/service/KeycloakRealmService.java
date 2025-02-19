@@ -4,42 +4,44 @@ import com.owiseman.dataapi.config.OAuth2ConstantsExtends;
 import com.owiseman.dataapi.dto.KeycloakRealmDto;
 import com.owiseman.dataapi.entity.SysKeycloakRealm;
 import jakarta.ws.rs.NotFoundException;
-import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.representations.idm.RealmRepresentation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Service
 @Transactional
 public class KeycloakRealmService {
-    @Value("${keycloak.master}")
-    private String masterRealm;
+    @Value("${keycloak.realm}")
+    private String realm;
 
-    @Value("${keycloak.master-password}")
-    private String masterPassword;
+    @Value("${keycloak.client-info}")
+    private String password;
 
     @Value("${keycloak.urls.auth}")
     private String serverUrl;
-    @Value("${keycloak.master-client}")
+    @Value("${keycloak.resource}")
     private String clientId;
+    private final Integer ACCESS_TOKEN_LIFESPAN = 10*60; // 10分钟
 
+    @Autowired
     private KeycloakSyncService keycloakSyncService;
-
-    public KeycloakRealmService() {
-        keycloakSyncService = new KeycloakSyncService();
-    }
 
     private Keycloak getKeycloak(String token) {
         Keycloak keycloak = KeycloakBuilder.builder()
                 .serverUrl(serverUrl)
-                .realm(masterRealm)
-                .grantType(OAuth2Constants.PASSWORD)
+                .realm(realm)
+                .grantType(OAuth2ConstantsExtends.PASSWORD)
                 .clientId(clientId)
-                .username(OAuth2ConstantsExtends.MASTER_ADMIN)
-                .password(masterPassword)
+                .username(OAuth2ConstantsExtends.ADMIN)
+                .password(password)
                 .authorization(token)
                 .build();
         return keycloak;
@@ -54,8 +56,12 @@ public class KeycloakRealmService {
         keycloak.realms().create(realm);
         // 同步到数据库
         SysKeycloakRealm sysKeycloakRealm = new SysKeycloakRealm();
+//        sysKeycloakRealm.setId(realmResource.getId());
+        sysKeycloakRealm.setId(UUID.randomUUID().toString());
         sysKeycloakRealm.setRealm(realmName);
+        sysKeycloakRealm.setDisplayName(realmName);
         sysKeycloakRealm.setEnabled(OAuth2ConstantsExtends.TRUE);
+        sysKeycloakRealm.setAccessCodeLifespan(ACCESS_TOKEN_LIFESPAN);
         keycloakSyncService.syncRealm(sysKeycloakRealm);
         return record;
     }
@@ -71,7 +77,7 @@ public class KeycloakRealmService {
         }
     }
 
-    public void updateRealm(String realmName, SysKeycloakRealm sysKeycloakRealms, String token) {
+    public void updateRealm(KeycloakRealmDto keycloakRealmDto, SysKeycloakRealm sysKeycloakRealms, String token) {
         Keycloak keycloak = getKeycloak(token);
         try {
            RealmRepresentation realm =  new RealmRepresentation();
@@ -102,9 +108,9 @@ public class KeycloakRealmService {
            realm.setActionTokenGeneratedByUserLifespan(sysKeycloakRealms.getActionTokenGeneratedByUserLifespan());
             // 同步到数据库
             keycloakSyncService.syncRealm(sysKeycloakRealms);
-            keycloak.realm(realmName).update(realm);
+            keycloak.realm(keycloakRealmDto.getName()).update(realm);
         } catch (NotFoundException e) {
-            throw new RuntimeException("Realm not exist: " + realmName);
+            throw new RuntimeException("Realm not exist: " + keycloakRealmDto.getName());
         }
     }
 

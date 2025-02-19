@@ -5,6 +5,7 @@ import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
 import org.keycloak.adapters.springsecurity.authentication.KeycloakAuthenticationProvider;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -33,6 +34,8 @@ import java.util.Arrays;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig implements WebMvcConfigurer {
+    @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
+    private String jwtSetUri;
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
@@ -48,21 +51,24 @@ public class WebSecurityConfig implements WebMvcConfigurer {
         http.authorizeHttpRequests(
                 authorize -> authorize
                         .requestMatchers("/public/**").permitAll()
-                        .requestMatchers("/*/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
 //                        .requestMatchers(HttpMethod.POST, "/admin/**").hasAuthority("SCOPE_admin:write")
 //                        .requestMatchers(HttpMethod.GET, "/admin/**").hasAuthority("SCOPE_admin:read")
-                        .requestMatchers("/*/user/**").hasRole("USER")
+                        .requestMatchers("/user/**").hasRole("USER")
                         .requestMatchers(HttpMethod.GET, "/clients").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement( session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .oauth2ResourceServer(oauth2 ->
-                        oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
+                        oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())
+                                .jwkSetUri(jwtSetUri)
+                        ))
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/public/login?logout")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID"))
+
                 .cors(Customizer.withDefaults()
 //                        cors -> cors.configurationSource( request ->  {
 //                    CorsConfiguration config = new CorsConfiguration();

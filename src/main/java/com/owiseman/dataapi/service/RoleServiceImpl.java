@@ -21,10 +21,10 @@ public class RoleServiceImpl implements RoleService {
     private String serverUrl;
     @Value("${keycloak.resource}")
     private String clientId;
-    @Value("${keycloak.credentials.secret}")
-    private String clientSecret;
-    @Value("${keycloak.user-info}")
-    private String userInfo;
+//    @Value("${keycloak.credentials.secret}")
+//    private String clientSecret;
+    @Value("${keycloak.client-info}")
+    private String clientInfo;
 
     @Autowired
     private UserService userService;
@@ -42,9 +42,9 @@ public class RoleServiceImpl implements RoleService {
                     .realm(realm)
                     .grantType(OAuth2Constants.PASSWORD)
                     .clientId(clientId)
-                    .clientSecret(clientSecret)
-                    .username(OAuth2ConstantsExtends.USER_ADMIN)
-                    .password(userInfo)
+//                    .clientSecret(clientSecret)
+                    .username(OAuth2ConstantsExtends.ADMIN)
+                    .password(clientInfo)
                     .authorization(token)
                     .build();
         return keycloak.realm(realm).roles();
