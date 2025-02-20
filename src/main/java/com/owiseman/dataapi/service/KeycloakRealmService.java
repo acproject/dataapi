@@ -66,7 +66,7 @@ public class KeycloakRealmService {
         return record;
     }
 
-    public void deleteRealm(String realmName, String token) {
+    public void deleteRealmByName(String realmName, String token) {
         Keycloak keycloak = getKeycloak(token);
         try {
             // 同步到数据库

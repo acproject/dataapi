@@ -5,10 +5,7 @@ import com.owiseman.dataapi.service.KeycloakAdminUtils;
 import com.owiseman.dataapi.service.KeycloakRealmService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static com.owiseman.dataapi.util.HttpHeaderUtil.getTokenFromHeader;
 
@@ -23,6 +20,12 @@ public class KeycloakRealmController {
         String token = getTokenFromHeader(servletRequest);
         if (keycloakRealmDto.getEnabled() != null)
             keycloakRealmService.createRealm(keycloakRealmDto.getName(), token);
+    }
+
+    @DeleteMapping("/{realmName}")
+    public void deleteRealm(@PathVariable String realmName, HttpServletRequest servletRequest) {
+        String token = getTokenFromHeader(servletRequest);
+        keycloakRealmService.deleteRealmByName(realmName, token);
     }
 
 }

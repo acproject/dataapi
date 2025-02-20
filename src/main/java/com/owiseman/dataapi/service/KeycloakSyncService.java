@@ -44,7 +44,7 @@ public class KeycloakSyncService {
     @Async
     public void syncDeleteClient(String clientId) {
         if (!ObjectUtils.isEmpty(clientId)) {
-            keycloakClientRepository.deleteById(clientId);
+            keycloakClientRepository.deleteByIdOrClientId(clientId);
         }
 
     }
@@ -52,7 +52,7 @@ public class KeycloakSyncService {
     @Async
     public void syncDeleteRealm(String realmName) {
         if (!ObjectUtils.isEmpty(realmName)) {
-            keycloakRealmRepository.deleteById(realmName);
+            keycloakRealmRepository.deleteByIdOrName(realmName);
         }
 
     }

@@ -13,18 +13,18 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @SpringBootTest
 class DataapiApplicationTests {
 
-//    @Test
-//    void testDeserialization() throws Exception {
-//        String json = "{\"name\":\"test001\",\"enabled\":true}";
-//        KeycloakRealmDto dto = new ObjectMapper().readValue(json, KeycloakRealmDto.class);
-//        assertThat(dto.getName()).isEqualTo("test001");  // 验证字段值
-//    }
-////
-//    @Autowired
-//    private KeycloakRealmRepository repository;
+    @Test
+    void testDeserialization() throws Exception {
+        String json = "{\"name\":\"test001\",\"enabled\":true}";
+        KeycloakRealmDto dto = new ObjectMapper().readValue(json, KeycloakRealmDto.class);
+        assertThat(dto.getName()).isEqualTo("test001");  // 验证字段值
+    }
 //
-//    @Test
-//    void shouldInjectRepository() {
-//       assertNotNull(repository);
-//    }
+    @Autowired
+    private KeycloakRealmRepository repository;
+
+    @Test
+    void shouldInjectRepository() {
+       assertNotNull(repository);
+    }
 }

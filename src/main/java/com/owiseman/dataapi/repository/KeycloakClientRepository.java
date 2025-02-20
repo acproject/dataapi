@@ -40,9 +40,9 @@ public class KeycloakClientRepository{
                 .execute();
     }
 
-    public void deleteById(String clientId) {
+    public void deleteByIdOrClientId(String clientId) {
         dslContext.deleteFrom(Tables.SYSKEYCLOAKCLIENT.TABLE)
-                .where(Tables.SYSKEYCLOAKCLIENT.ID.eq(clientId))
+                .where(Tables.SYSKEYCLOAKCLIENT.ID.eq(clientId).or(Tables.SYSKEYCLOAKCLIENT.CLIENTID.eq(clientId)))
                 .execute();
     }
 }

@@ -2,7 +2,6 @@ package com.owiseman.dataapi.config;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import jakarta.annotation.PostConstruct;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 

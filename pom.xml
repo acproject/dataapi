@@ -117,7 +117,7 @@
         <dependency>
             <groupId>com.owiseman</groupId>
             <artifactId>jpa-codegen-jooq</artifactId>
-            <version>0.2.0</version>
+            <version>0.2.2</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.jooq</groupId>
@@ -205,6 +205,12 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>${project.build.outputDirectory}/schema</directory>
+                <targetPath>schema</targetPath>
+            </resource>
+        </resources>
         <plugins>
             <!--            <plugin>-->
             <!--                <groupId>org.apache.maven.plugins</groupId>-->

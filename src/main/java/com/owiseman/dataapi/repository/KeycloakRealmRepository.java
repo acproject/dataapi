@@ -45,9 +45,9 @@ public class KeycloakRealmRepository {
                 .execute();
     }
 
-    public void deleteById(String id) {
+    public void deleteByIdOrName(String id) {
         dslContext.deleteFrom(Tables.SYSKEYCLOAKREALM.TABLE)
-                .where(Tables.SYSKEYCLOAKREALM.ID.eq(id))
+                .where(Tables.SYSKEYCLOAKREALM.ID.eq(id).or(Tables.SYSKEYCLOAKREALM.REALM.eq(id)))
                 .execute();
     }
 
