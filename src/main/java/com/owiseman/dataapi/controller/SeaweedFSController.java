@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/files")
@@ -32,11 +33,25 @@ public class SeaweedFSController {
     private SysUserFilesRepository sysUserFilesRepository;
 
     @PostMapping("/upload")
-    public ResponseEntity<?> uploadFile(@RequestParam("useId") String userId,
-                                        @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> uploadFile(@RequestParam("userId") String userId,
+                                      @RequestParam("file") MultipartFile file,
+                                      @RequestParam(required = false) String parentId) {
         try {
-            SysUserFile uploadFile = seaweedFsService.uploadFile(userId, file);
+            SysUserFile uploadFile = seaweedFsService.uploadFile(userId, file, Optional.of(parentId));
             return new ResponseEntity<>(uploadFile, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new FileExceptionHandler()
+                    .handleIOError().getStatusCode());
+        }
+    }
+
+    @PostMapping("/directory")
+    public ResponseEntity<?> createDirectory(@RequestParam("userId") String userId,
+                                           @RequestParam("dirName") String dirName,
+                                           @RequestParam(required = false) String parentId) {
+        try {
+            SysUserFile directory = seaweedFsService.createDirectory(userId, dirName, parentId);
+            return new ResponseEntity<>(directory, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(new FileExceptionHandler()
                     .handleIOError().getStatusCode());

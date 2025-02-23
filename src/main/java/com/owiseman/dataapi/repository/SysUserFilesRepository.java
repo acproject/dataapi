@@ -194,4 +194,27 @@ public class SysUserFilesRepository {
                 .where(ID.eq(id).and(USERID.eq(userId)))
                 .execute();
     }
+    // 查找用户的根目录
+    public Optional<SysUserFile> findRootDirectoryByUserId(String userId) {
+        return dslContext.selectFrom(TABLE)
+                .where(USERID.eq(userId)
+                        .and(PARENTID.isNull())
+                        .and(ISDIRECTORY.eq(true)))
+                .fetchOptionalInto(SysUserFile.class);
+    }
+
+    // 查找目录下的所有文件和子目录
+    public List<SysUserFile> findByParentId(String parentId) {
+        return dslContext.selectFrom(TABLE)
+                .where(PARENTID.eq(parentId))
+                .fetchInto(SysUserFile.class);
+    }
+
+    // 根据路径查找文件或目录
+    public Optional<SysUserFile> findByPath(String userId, String path) {
+        return dslContext.selectFrom(TABLE)
+                .where(USERID.eq(userId)
+                        .and(PATH.eq(path)))
+                .fetchOptionalInto(SysUserFile.class);
+    }
 }

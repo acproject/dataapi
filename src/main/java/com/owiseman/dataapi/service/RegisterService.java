@@ -4,12 +4,15 @@ import com.owiseman.dataapi.dto.KeycloakRealmDto;
 import com.owiseman.dataapi.dto.RegisterDto;
 import com.owiseman.dataapi.dto.TokenResponse;
 import com.owiseman.dataapi.dto.UserRegistrationRecord;
+import com.owiseman.dataapi.entity.SysUserFile;
+import com.owiseman.dataapi.repository.SysUserFilesRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +28,9 @@ public class RegisterService {
 
     @Autowired
     private KeycloakTokenService keycloakTokenService;
+
+    @Autowired
+    private SysUserFilesRepository sysUserFilesRepository;
 
     @Transactional
     public void register(@Valid RegisterDto registerDto) {
@@ -66,6 +72,9 @@ public class RegisterService {
                     adminToken
             );
 
+            // 5. 创建用户的根目录
+            createUserRootDirectory(createdUser.id(), realmName);
+
         } catch (Exception e) {
             // 如果创建过程中出现错误，回滚所有操作
             if (realmDto != null) {
@@ -76,5 +85,19 @@ public class RegisterService {
             }
             throw new RuntimeException("注册失败: " + e.getMessage());
         }
+    }
+
+    private void createUserRootDirectory(String userId, String realmName) {
+        // 创建用户的根目录
+        SysUserFile rootDir = new SysUserFile();
+        rootDir.setUserId(userId);
+        rootDir.setFileName(realmName);
+        rootDir.setFid("root_" + realmName);
+        rootDir.setSize(0L);
+        rootDir.setUploadTime(LocalDateTime.now());
+        rootDir.setDirectory(true);
+        rootDir.setPath("/" + realmName); // 根目录路径
+        rootDir.setParentId(null); // 根目录没有父目录
+        sysUserFilesRepository.save(rootDir);
     }
 }

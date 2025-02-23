@@ -18,6 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class SeaweedFsService implements FileService{
@@ -29,7 +31,7 @@ public class SeaweedFsService implements FileService{
 
     @Override
     @Transactional
-    public SysUserFile uploadFile(String userId, MultipartFile file) {
+    public SysUserFile uploadFile(String userId, MultipartFile file, Optional<String> parentId) {
         AssignResponse assign = seaweedFSClient.assign();
         try {
             String fid = seaweedFSClient.upload(assign, file);
@@ -39,10 +41,52 @@ public class SeaweedFsService implements FileService{
             meta.setFileName(file.getOriginalFilename());
             meta.setSize(file.getSize());
             meta.setUploadTime(LocalDateTime.now());
+            meta.setDirectory(false);
+            
+            // 设置父目录和路径
+            if (parentId != null) {
+                SysUserFile parentDir = sysUserFilesRepository.findByIdAndUserId(parentId.get(), userId)
+                        .orElseThrow(() -> new RuntimeException("父目录不存在"));
+                meta.setParentId(parentId.get());
+                meta.setPath(parentDir.getPath() + "/" + file.getOriginalFilename());
+            } else {
+                // 如果没有父目录，则放在用户根目录下
+                SysUserFile rootDir = sysUserFilesRepository.findRootDirectoryByUserId(userId)
+                        .orElseThrow(() -> new RuntimeException("用户根目录不存在"));
+                meta.setParentId(rootDir.getId());
+                meta.setPath(rootDir.getPath() + "/" + file.getOriginalFilename());
+            }
+            
             return sysUserFilesRepository.save(meta);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    // 添加创建目录的方法
+    @Transactional
+    public SysUserFile createDirectory(String userId, String dirName, String parentId) {
+        SysUserFile directory = new SysUserFile();
+        directory.setUserId(userId);
+        directory.setFileName(dirName);
+        directory.setFid("dir_" + UUID.randomUUID().toString()); // 目录使用特殊的 fid 前缀
+        directory.setSize(0L);
+        directory.setUploadTime(LocalDateTime.now());
+        directory.setDirectory(true);
+        
+        if (parentId != null) {
+            SysUserFile parentDir = sysUserFilesRepository.findByIdAndUserId(parentId, userId)
+                    .orElseThrow(() -> new RuntimeException("父目录不存在"));
+            directory.setParentId(parentId);
+            directory.setPath(parentDir.getPath() + "/" + dirName);
+        } else {
+            SysUserFile rootDir = sysUserFilesRepository.findRootDirectoryByUserId(userId)
+                    .orElseThrow(() -> new RuntimeException("用户根目录不存在"));
+            directory.setParentId(rootDir.getId());
+            directory.setPath(rootDir.getPath() + "/" + dirName);
+        }
+        
+        return sysUserFilesRepository.save(directory);
     }
 
     @Override

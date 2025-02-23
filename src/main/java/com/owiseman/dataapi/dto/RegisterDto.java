@@ -14,6 +14,8 @@ public record RegisterDto(
     String email,
 
     @NotBlank(message = "组织名不能为空")
+    @Pattern(regexp = "^[a-zA-Z][a-zA-Z0-9]*$",
+            message = "组织名只能包含英文字符和数字，并且不能以数字或特殊符号开头")
     String organization,
 
     @NotBlank(message = "电话号码不能为空")

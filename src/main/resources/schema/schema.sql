@@ -128,3 +128,8 @@ CREATE TABLE IF NOT EXISTS sys_users (
     realm_name VARCHAR(255),
     client_id VARCHAR(255)
 );
+
+ALTER TABLE sys_user_files
+  ADD COLUMN parent_id VARCHAR(255),
+  ADD COLUMN is_directory BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN path VARCHAR(1024);
