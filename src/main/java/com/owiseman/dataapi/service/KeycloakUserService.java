@@ -44,8 +44,6 @@ public class KeycloakUserService implements UserService {
     private String isEmailVerified;
 
     private UsersSyncService usersSyncService;
-//    @Autowired
-//    DSLContext dslContext;
     @Autowired
     public KeycloakUserService() {
 
@@ -244,5 +242,19 @@ public class KeycloakUserService implements UserService {
             usersSyncService.updateUserById(sysUser);
         userResource.update(userRepresentation);
         return userResource;
+    }
+
+    public void assignAdminRole(String userId, String token) {
+        UserResource userResource = getUsersResourceById(userId, token);
+        RolesResource rolesResource = keycloak.realm(realm).roles();
+        RoleRepresentation adminRole = rolesResource.get("admin").toRepresentation();
+        userResource.roles().realmLevel().add(Collections.singletonList(adminRole));
+    }
+
+    public void updateUserAttributes(String userId, Map<String, List<String>> attributes, String token) {
+        UserResource userResource = getUsersResourceById(userId, token);
+        UserRepresentation user = userResource.toRepresentation();
+        user.setAttributes(attributes);
+        userResource.update(user);
     }
 }

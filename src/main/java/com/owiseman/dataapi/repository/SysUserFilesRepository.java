@@ -1,25 +1,185 @@
 package com.owiseman.dataapi.repository;
 
+import com.owiseman.dataapi.dto.PageResult;
 import com.owiseman.dataapi.entity.SysUserFile;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import com.owiseman.jpa.util.PaginationHelper;
+import org.jooq.Condition;
+import org.jooq.DSLContext;
+import org.jooq.SortField;
+import org.jooq.impl.DSL;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
+import static com.owiseman.dataapi.entity.Tables.SYSUSERFILE.*;
 
 @Repository
-public interface SysUserFilesRepository extends JpaRepository<SysUserFile, UUID> {
+public class SysUserFilesRepository {
+    @Autowired
+    private DSLContext dslContext;
 
-    Optional<SysUserFile> findByIdAndUserId(String fid, String userId);
+    public SysUserFile save(SysUserFile userFile) {
+        dslContext.insertInto(TABLE)
+                .set(ID, userFile.getId())
+                .set(USERID, userFile.getUserId())
+                .set(FID, userFile.getFid())
+                .set(FILENAME, userFile.getFileName())
+                .set(SIZE, userFile.getSize())
+                .set(UPLOADTIME, userFile.getUploadTime())
+                .execute();
+        return userFile;
+    }
 
-    List<SysUserFile> findByUserId(String userId);
+    public void update(SysUserFile userFile) {
+        dslContext.update(TABLE)
+                .set(USERID, userFile.getUserId())
+                .set(FID, userFile.getFid())
+                .set(FILENAME, userFile.getFileName())
+                .set(SIZE, userFile.getSize())
+                .set(UPLOADTIME, userFile.getUploadTime())
+                .where(ID.eq(userFile.getId()))
+                .execute();
+    }
 
-    // 删除用户文件
-    @Modifying
-    @Query("DELETE FROM SysUserFile f WHERE f.fid = :fid AND f.userId =: userId")
-    void deleteByIdAndUserId(@Param("fid") String fid, @Param("userId") String userId);
+    public void deleteById(String id) {
+        dslContext.deleteFrom(TABLE)
+                .where(ID.eq(id))
+                .execute();
+    }
+
+    public Optional<SysUserFile> findById(String id) {
+        return dslContext.selectFrom(TABLE)
+                .where(ID.eq(id))
+                .fetchOptionalInto(SysUserFile.class);
+    }
+
+    public List<SysUserFile> findAll() {
+        return dslContext.selectFrom(TABLE)
+                .fetchInto(SysUserFile.class);
+    }
+
+    public PageResult<SysUserFile> findAllWithPagination(int pageNumber, int pageSize) {
+        List<SysUserFile> files = PaginationHelper.getPaginatedData(
+                dslContext,
+                DSL.noCondition(),
+                TABLE.getName(),
+                pageSize,
+                pageNumber,
+                SysUserFile.class
+        );
+
+        int total = dslContext.selectCount()
+                .from(TABLE)
+                .where(DSL.noCondition())
+                .fetchOne(0, Integer.class);
+
+        return new PageResult<>(files, pageNumber, pageSize, total);
+    }
+
+    // 根据用户ID查询文件
+    public List<SysUserFile> findByUserId(String userId) {
+        return dslContext.selectFrom(TABLE)
+                .where(USERID.eq(userId))
+                .fetchInto(SysUserFile.class);
+    }
+
+    // 根据文件名模糊查询
+    public List<SysUserFile> findByFileNameLike(String pattern) {
+        return dslContext.selectFrom(TABLE)
+                .where(FILENAME.likeIgnoreCase("%" + pattern + "%"))
+                .fetchInto(SysUserFile.class);
+    }
+
+    // 根据用户ID分页查询文件
+    public PageResult<SysUserFile> findByUserIdWithPagination(String userId, int pageNumber, int pageSize) {
+        Condition condition = USERID.eq(userId);
+
+        List<SysUserFile> files = PaginationHelper.getPaginatedData(
+                dslContext,
+                condition,
+                TABLE.getName(),
+                pageSize,
+                pageNumber,
+                SysUserFile.class
+        );
+
+        int total = dslContext.selectCount()
+                .from(TABLE)
+                .where(condition)
+                .fetchOne(0, Integer.class);
+
+        return new PageResult<>(files, pageNumber, pageSize, total);
+    }
+
+    // 根据文件名模糊分页查询
+    public PageResult<SysUserFile> findByFileNameLikeWithPagination(String pattern, int pageNumber, int pageSize) {
+        Condition condition = FILENAME.likeIgnoreCase("%" + pattern + "%");
+
+        List<SysUserFile> files = PaginationHelper.getPaginatedData(
+                dslContext,
+                condition,
+                TABLE.getName(),
+                pageSize,
+                pageNumber,
+                SysUserFile.class
+        );
+
+        int total = dslContext.selectCount()
+                .from(TABLE)
+                .where(condition)
+                .fetchOne(0, Integer.class);
+
+        return new PageResult<>(files, pageNumber, pageSize, total);
+    }
+    // 添加排序参数扩展
+    public PageResult<SysUserFile> findByUserIdWithPagination(String userId,
+                                                              int pageNumber,
+                                                              int pageSize,
+                                                              SortField<?>... sortFields) {
+        Condition condition = USERID.eq(userId);
+
+        List<SysUserFile> files = PaginationHelper.getPaginatedData(
+                dslContext,
+                condition,
+                TABLE.getName(),
+                pageSize,
+                pageNumber,
+                SysUserFile.class,
+                sortFields // 传递排序参数
+        );
+
+        int total = dslContext.selectCount()
+                .from(TABLE)
+                .where(condition)
+                .fetchOne(0, Integer.class);
+
+        return new PageResult<>(files, pageNumber, pageSize, total);
+    }
+
+
+    @Transactional
+    public void batchInsert(List<SysUserFile> files) {
+        files.forEach(this::save);
+    }
+
+    public PageResult<SysUserFile> findByConditionWithPagination(Condition condition, int pageNumber, int pageSize) {
+        List<SysUserFile> files = PaginationHelper.getPaginatedData(
+                dslContext,
+                condition,
+                TABLE.getName(),
+                pageSize,
+                pageNumber,
+                SysUserFile.class
+        );
+
+        int total = dslContext.selectCount()
+                .from(TABLE)
+                .where(condition)
+                .fetchOne(0, Integer.class);
+
+        return new PageResult<>(files, pageNumber, pageSize, total);
+    }
 }
