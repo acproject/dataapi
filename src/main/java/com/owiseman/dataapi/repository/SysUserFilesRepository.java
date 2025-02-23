@@ -182,4 +182,16 @@ public class SysUserFilesRepository {
 
         return new PageResult<>(files, pageNumber, pageSize, total);
     }
+
+    public Optional<SysUserFile> findByIdAndUserId(String id, String userId) {
+        return dslContext.selectFrom(TABLE)
+                .where(ID.eq(id).and(USERID.eq(userId)))
+                .fetchOptionalInto(SysUserFile.class);
+    }
+
+    public  void deleteByIdAndUserId(String id, String userId) {
+        dslContext.deleteFrom(TABLE)
+                .where(ID.eq(id).and(USERID.eq(userId)))
+                .execute();
+    }
 }

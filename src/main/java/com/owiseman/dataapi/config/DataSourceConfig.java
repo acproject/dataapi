@@ -2,6 +2,7 @@ package com.owiseman.dataapi.config;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import jakarta.annotation.PostConstruct;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 
@@ -12,11 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
-
 import javax.sql.DataSource;
+import java.util.Arrays;
 
 @Configuration
 public class DataSourceConfig {
@@ -24,6 +26,15 @@ public class DataSourceConfig {
 
     @Autowired
     private Environment env;
+
+    @PostConstruct
+    public void printProperties() {
+        System.out.println("Active profiles: " + Arrays.toString(env.getActiveProfiles()));
+        System.out.println("Property sources: " + ((AbstractEnvironment) env).getPropertySources());
+
+        System.out.println("spring.datasource.url: " + env.getProperty("spring.datasource.url"));
+        System.out.println("All properties: " + ((AbstractEnvironment) env).getPropertySources());
+    }
 
     @Bean
     public DataSource dataSource() {

@@ -8,11 +8,13 @@ import jakarta.ws.rs.core.Response;
 //import org.jooq.DSLContext;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.admin.client.resource.RolesResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 
 import org.keycloak.representations.idm.CredentialRepresentation;
 
+import org.keycloak.representations.idm.RoleRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,11 +23,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class KeycloakUserService implements UserService {
@@ -246,6 +244,16 @@ public class KeycloakUserService implements UserService {
 
     public void assignAdminRole(String userId, String token) {
         UserResource userResource = getUsersResourceById(userId, token);
+         Keycloak keycloak = KeycloakBuilder.builder()
+                .serverUrl(serverUrl)
+                .realm(realm)
+                .grantType(OAuth2ConstantsExtends.PASSWORD)
+                .clientId(clientId)
+//                .clientSecret(clientSecret)
+                .username(OAuth2ConstantsExtends.ADMIN)
+                .password(clientInfo)
+                .authorization(token)
+                .build();
         RolesResource rolesResource = keycloak.realm(realm).roles();
         RoleRepresentation adminRole = rolesResource.get("admin").toRepresentation();
         userResource.roles().realmLevel().add(Collections.singletonList(adminRole));

@@ -8,6 +8,7 @@ import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -132,5 +133,20 @@ public class KeycloakRealmRepository {
                         .where(ID.eq(id)))
                     .collect(Collectors.toList())
         ).execute();
+    }
+
+    @Transactional
+    public void deleteById(String id) {
+        dslContext.deleteFrom(TABLE)
+            .where(ID.eq(id))
+            .execute();
+    }
+
+    public void deleteByIdOrName(String idOrName) {
+        if (!ObjectUtils.isEmpty(idOrName)) {
+            dslContext.deleteFrom(TABLE)
+                .where(ID.eq(idOrName).or(REALM.eq(idOrName)))
+                .execute();
+        }
     }
 }
