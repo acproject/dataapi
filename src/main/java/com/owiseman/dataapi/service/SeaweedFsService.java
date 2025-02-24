@@ -1,17 +1,14 @@
 package com.owiseman.dataapi.service;
 
-import com.owiseman.dataapi.config.SeaweedFSClient;
-import com.owiseman.dataapi.dto.AssignResponse;
 import com.owiseman.dataapi.entity.SysUserFile;
 import com.owiseman.dataapi.repository.SysUserFilesRepository;
+import com.owiseman.dataapi.service.storage.ObjectStorageService;
+import com.owiseman.dataapi.service.storage.StorageServiceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 
@@ -22,29 +19,35 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class SeaweedFsService implements FileService{
-
+public class SeaweedFsService implements FileService {
     @Autowired
-    private SeaweedFSClient seaweedFSClient;
+    private StorageServiceFactory storageFactory;
+    
     @Autowired
     private SysUserFilesRepository sysUserFilesRepository;
+
+    @Value("${storage.default-type:seaweedfs}")
+    private String defaultStorageType;
 
     @Override
     @Transactional
     public SysUserFile uploadFile(String userId, MultipartFile file, Optional<String> parentId) {
-        AssignResponse assign = seaweedFSClient.assign();
         try {
-            String fid = seaweedFSClient.upload(assign, file);
+            ObjectStorageService storageService = storageFactory.getService(defaultStorageType);
+            String fileId = storageService.upload(file);
+            
             SysUserFile meta = new SysUserFile();
+            meta.setId(UUID.randomUUID().toString());
             meta.setUserId(userId);
-            meta.setFid(fid);
+            meta.setFid(fileId);
             meta.setFileName(file.getOriginalFilename());
             meta.setSize(file.getSize());
             meta.setUploadTime(LocalDateTime.now());
             meta.setDirectory(false);
+            meta.setStorageType(defaultStorageType);
             
             // 设置父目录和路径
-            if (parentId != null) {
+            if (parentId.isPresent()) {
                 SysUserFile parentDir = sysUserFilesRepository.findByIdAndUserId(parentId.get(), userId)
                         .orElseThrow(() -> new RuntimeException("父目录不存在"));
                 meta.setParentId(parentId.get());
@@ -59,20 +62,34 @@ public class SeaweedFsService implements FileService{
             
             return sysUserFilesRepository.save(meta);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("文件上传失败", e);
         }
     }
 
-    // 添加创建目录的方法
+    @Override
+    public Resource downloadFile(String userId, String fileId) {
+        try {
+            SysUserFile file = sysUserFilesRepository.findByIdAndUserId(fileId, userId)
+                .orElseThrow(() -> new FileNotFoundException("文件不存在或无权访问"));
+            
+            ObjectStorageService storageService = storageFactory.getService(file.getStorageType());
+            return storageService.download(file.getFid());
+        } catch (IOException e) {
+            throw new RuntimeException("文件下载失败", e);
+        }
+    }
+
     @Transactional
     public SysUserFile createDirectory(String userId, String dirName, String parentId) {
         SysUserFile directory = new SysUserFile();
+        directory.setId(UUID.randomUUID().toString());
         directory.setUserId(userId);
         directory.setFileName(dirName);
-        directory.setFid("dir_" + UUID.randomUUID().toString()); // 目录使用特殊的 fid 前缀
+        directory.setFid("dir_" + UUID.randomUUID().toString());
         directory.setSize(0L);
         directory.setUploadTime(LocalDateTime.now());
         directory.setDirectory(true);
+        directory.setStorageType(defaultStorageType);
         
         if (parentId != null) {
             SysUserFile parentDir = sysUserFilesRepository.findByIdAndUserId(parentId, userId)
@@ -89,50 +106,24 @@ public class SeaweedFsService implements FileService{
         return sysUserFilesRepository.save(directory);
     }
 
-    @Override
-    public Resource downloadFile(String userId, String fid) {
-        SysUserFile file = null;
-        try {
-            file = sysUserFilesRepository.findByIdAndUserId(fid, userId)
-                    .orElseThrow(() -> new FileNotFoundException("File not found or access denied"));
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        String volumeUrl = seaweedFSClient.getVolumeUrl(file.getFid());
-        String downloadUrl = "http://" + volumeUrl + "/" + file.getFid();
-        // 获取文件流
-        ResponseEntity<Resource> response = new RestTemplate()
-                .getForEntity(downloadUrl, Resource.class);
-
-        // 设置下载文件名
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"" + file.getFileName() + "\"");
-        try {
-            return new InputStreamResource(response.getBody().getInputStream());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @Transactional
-    public void deleteFile(String userId, String fid) {
+    public void deleteFile(String userId, String fileId) {
         try {
-            // 从数据库获取要删除的数据
-            SysUserFile file = sysUserFilesRepository.findByIdAndUserId(fid, userId)
-                    .orElseThrow(() -> new FileNotFoundException("File not found or access denied"));
-            // 删除SeaweedFS文件
-            deleteFromSeaweedFS(file.getFid());
-            // 删除数据库记录
-            sysUserFilesRepository.deleteByIdAndUserId(fid, userId);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            SysUserFile file = sysUserFilesRepository.findByIdAndUserId(fileId, userId)
+                    .orElseThrow(() -> new FileNotFoundException("文件不存在或无权访问"));
+            
+            if (!file.isDirectory()) {
+                ObjectStorageService storageService = storageFactory.getService(file.getStorageType());
+                storageService.delete(file.getFid());
+            }
+            
+            sysUserFilesRepository.deleteByIdAndUserId(fileId, userId);
+        } catch (IOException e) {
+            throw new RuntimeException("文件删除失败", e);
         }
-
     }
-     private void deleteFromSeaweedFS(String fid) {
-            String volumeUrl = seaweedFSClient.getVolumeUrl(fid);
-            String deleteUrl = "http://" + volumeUrl + "/" + fid;
-            new RestTemplate().delete(deleteUrl);
-        }
+
+    private String getDefaultStorageType() {
+        return defaultStorageType;
+    }
 }

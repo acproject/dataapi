@@ -80,6 +80,8 @@ apns:
   key-id: TCC2B6KMUH
   bundle-id: com.owiseman.app
   production: false
+storage:
+  default-type: seaweedfs  # 可选值：seaweedfs, s3, aliyun
 
 seaweedfs:
   master:

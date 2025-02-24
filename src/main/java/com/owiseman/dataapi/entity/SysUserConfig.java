@@ -220,4 +220,169 @@ public class SysUserConfig {
         this.userId = userId;
         this.attributes = attributes;
     }
+
+    // AWS S3 配置
+    private String s3BucketName;
+    private String s3Region;
+    private String s3AccessKey;
+    private String s3SecretKey;
+    private String s3Endpoint;
+
+    // 阿里云 OSS 配置
+    private String ossEndpoint;
+    private String ossBucketName;
+    private String ossAccessKeyId;
+    private String ossAccessKeySecret;
+    private String ossRegion;
+
+    // SeaweedFS 配置
+    private String seaweedFsMasterUrl;
+    private Integer seaweedFsReplication;
+    private String seaweedFsCollection;
+
+    // 存储类型（seaweedfs/s3/aliyun）
+    private String storageType;
+
+    // AWS S3 的 getter/setter
+    public String getS3BucketName() {
+        return s3BucketName;
+    }
+
+    public void setS3BucketName(String s3BucketName) {
+        this.s3BucketName = s3BucketName;
+    }
+
+    public String getS3Region() {
+        return s3Region;
+    }
+
+    public void setS3Region(String s3Region) {
+        this.s3Region = s3Region;
+    }
+
+    public String getS3AccessKey() {
+        return s3AccessKey;
+    }
+
+    public void setS3AccessKey(String s3AccessKey) {
+        this.s3AccessKey = s3AccessKey;
+    }
+
+    public String getS3SecretKey() {
+        return s3SecretKey;
+    }
+
+    public void setS3SecretKey(String s3SecretKey) {
+        this.s3SecretKey = s3SecretKey;
+    }
+
+    public String getS3Endpoint() {
+        return s3Endpoint;
+    }
+
+    public void setS3Endpoint(String s3Endpoint) {
+        this.s3Endpoint = s3Endpoint;
+    }
+
+    // 阿里云 OSS 的 getter/setter
+    public String getOssEndpoint() {
+        return ossEndpoint;
+    }
+
+    public void setOssEndpoint(String ossEndpoint) {
+        this.ossEndpoint = ossEndpoint;
+    }
+
+    public String getOssBucketName() {
+        return ossBucketName;
+    }
+
+    public void setOssBucketName(String ossBucketName) {
+        this.ossBucketName = ossBucketName;
+    }
+
+    public String getOssAccessKeyId() {
+        return ossAccessKeyId;
+    }
+
+    public void setOssAccessKeyId(String ossAccessKeyId) {
+        this.ossAccessKeyId = ossAccessKeyId;
+    }
+
+    public String getOssAccessKeySecret() {
+        return ossAccessKeySecret;
+    }
+
+    public void setOssAccessKeySecret(String ossAccessKeySecret) {
+        this.ossAccessKeySecret = ossAccessKeySecret;
+    }
+
+    public String getOssRegion() {
+        return ossRegion;
+    }
+
+    public void setOssRegion(String ossRegion) {
+        this.ossRegion = ossRegion;
+    }
+
+    // SeaweedFS 的 getter/setter
+    public String getSeaweedFsMasterUrl() {
+        return seaweedFsMasterUrl;
+    }
+
+    public void setSeaweedFsMasterUrl(String seaweedFsMasterUrl) {
+        this.seaweedFsMasterUrl = seaweedFsMasterUrl;
+    }
+
+    public Integer getSeaweedFsReplication() {
+        return seaweedFsReplication;
+    }
+
+    public void setSeaweedFsReplication(Integer seaweedFsReplication) {
+        this.seaweedFsReplication = seaweedFsReplication;
+    }
+
+    public String getSeaweedFsCollection() {
+        return seaweedFsCollection;
+    }
+
+    public void setSeaweedFsCollection(String seaweedFsCollection) {
+        this.seaweedFsCollection = seaweedFsCollection;
+    }
+
+    // 存储类型的 getter/setter
+    public String getStorageType() {
+        return storageType;
+    }
+
+    public void setStorageType(String storageType) {
+        this.storageType = storageType;
+    }
+
+    // 更新构造函数，添加新字段
+    public SysUserConfig(String id,
+            String s3BucketName, String s3Region, String s3AccessKey, String s3SecretKey, String s3Endpoint,
+            String ossEndpoint, String ossBucketName, String ossAccessKeyId, String ossAccessKeySecret, String ossRegion,
+            String seaweedFsMasterUrl, Integer seaweedFsReplication, String seaweedFsCollection,
+            String storageType) {
+        this.id = id;
+        this.keycloakRealm = keycloakRealm;
+        this.keycloakClientId = keycloakClientId;
+        this.keycloakClientSecret = keycloakClientSecret;
+        this.keycloakAuthUrl = keycloakAuthUrl;
+        this.keycloakTokenUrl = keycloakTokenUrl;
+        this.apnsKeyPath = apnsKeyPath;
+        this.apnsTeamId = apnsTeamId;
+        this.apnsKeyId = apnsKeyId;
+        this.apnsBundleId = apnsBundleId;
+        this.apnsProduction = apnsProduction;
+        this.firebaseProjectId = firebaseProjectId;
+        this.firebasePrivateKey = firebasePrivateKey;
+        this.firebaseClientEmail = firebaseClientEmail;
+        this.firebaseClientId = firebaseClientId;
+        this.firebaseServiceAccountPath = firebaseServiceAccountPath;
+        this.databaseTableNamePrefix = databaseTableNamePrefix;
+        this.userId = userId;
+        this.attributes = attributes;
+    }
 }

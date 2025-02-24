@@ -138,4 +138,19 @@ public class SysUserFile {
         this.path = path;
         this.isDirectory = isDirectory;
     }
+    
+    @Column(name = "storage_type", nullable = false)
+    private String storageType;
+
+    public String getStorageType() {
+        return storageType;
+    }
+
+    public void setStorageType(String storageType) {
+        this.storageType = storageType;
+    }
+
+    public boolean isDirectory() {
+        return getDirectory();
+    }
 }
