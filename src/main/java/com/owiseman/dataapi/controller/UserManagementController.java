@@ -51,7 +51,7 @@ public class UserManagementController {
             @PathVariable String userId,
             @RequestBody String avatarUrl, HttpServletRequest httpServletRequest) {
         String token =  HttpHeaderUtil.getTokenFromHeader(httpServletRequest);
-        userManagementService.updateAvatar(userId, avatarUrl);
+        userManagementService.updateAvatar(userId, avatarUrl, token);
         return ResponseEntity.ok().build();
     }
 }

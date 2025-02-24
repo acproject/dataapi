@@ -58,7 +58,7 @@ public class UserManagementService {
     }
 
     @Transactional
-    public void updateAvatar(String userId, String avatarUrl) {
+    public void updateAvatar(String userId, String avatarUrl, String token) {
         SysUser user = sysUserRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("用户不存在"));
 
