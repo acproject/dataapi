@@ -90,9 +90,9 @@ public class SysDeviceTokenRepository {
 
     // 新增分页查询方法
     public PageResult<SysDeviceToken> findByUserIdWithPagination(String userId,
-                                                                int pageNumber,
-                                                                int pageSize,
-                                                                SortField<?>... sortFields) {
+                                                                 int pageNumber,
+                                                                 int pageSize,
+                                                                 SortField<?>... sortFields) {
         Condition condition = USERID.eq(userId);
 
         List<SysDeviceToken> tokens = dslContext.selectFrom(TABLE)
@@ -127,6 +127,12 @@ public class SysDeviceTokenRepository {
                 .execute();
     }
 
+    public Optional<String> findUserIdByToken(String token) {
+        return dslContext.select(USERID)
+                .from(TABLE)
+                .where(TOKEN.eq(token))
+                .fetchOptionalInto(String.class);
+    }
 
 
 }

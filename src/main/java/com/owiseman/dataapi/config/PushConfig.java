@@ -21,39 +21,23 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Configuration
 @EnableAsync
 public class PushConfig {
+    
     @Bean
     @ConditionalOnMissingBean
-    public EventLoopGroup apnsEventLoopGroup(ApnsConfig config) {
-        return new NioEventLoopGroup(config.getToThreads());
+    public EventLoopGroup apnsEventLoopGroup() {
+        // 使用处理器核心数的2倍作为默认线程数
+        return new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2);
     }
 
-    @Bean(name ="pushTaskExecutor")
+    @Bean(name = "pushTaskExecutor")
     public Executor pushTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(10);
         executor.setMaxPoolSize(20);
         executor.setQueueCapacity(500);
-        executor.setThreadNamePrefix("apns-push-");
+        executor.setThreadNamePrefix("push-task-");
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         executor.initialize();
         return executor;
-    }
-
-    @Bean(destroyMethod = "close")
-    public ApnsClient apnsClient(ApnsConfig config, EventLoopGroup eventLoopGroup)
-        throws IOException, NoSuchAlgorithmException, InvalidKeyException {
-        return new ApnsClientBuilder()
-                .setApnsServer(config.isProduction()?
-                        ApnsClientBuilder.PRODUCTION_APNS_HOST:
-                        ApnsClientBuilder.DEVELOPMENT_APNS_HOST)
-                .setSigningKey(ApnsSigningKey.loadFromPkcs8File(
-                        config.getKeyPath().getFile(),
-                        config.getTeamId(),
-                        config.getKeyId()
-                ))
-                .setConcurrentConnections(config.getMaxConcurrentStreams())
-                .setMetricsListener(new LoggingMetricsListener()) // 监控埋点
-                .setEventLoopGroup(eventLoopGroup)
-                .build();
     }
 }
