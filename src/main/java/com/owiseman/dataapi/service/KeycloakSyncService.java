@@ -2,9 +2,10 @@ package com.owiseman.dataapi.service;
 
 import com.owiseman.dataapi.entity.SysKeycloakClient;
 import com.owiseman.dataapi.entity.SysKeycloakRealm;
+import com.owiseman.dataapi.entity.SysUser;
 import com.owiseman.dataapi.repository.KeycloakClientRepository;
 import com.owiseman.dataapi.repository.KeycloakRealmRepository;
-import org.jooq.DSLContext;
+import com.owiseman.dataapi.repository.SysUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -14,14 +15,15 @@ import org.springframework.util.ObjectUtils;
 public class KeycloakSyncService {
     private final KeycloakClientRepository keycloakClientRepository;
     private final KeycloakRealmRepository keycloakRealmRepository;
-
+    private final SysUserRepository sysUserRepository;
 
     @Autowired
     public KeycloakSyncService(KeycloakRealmRepository keycloakRealmRepository,
-                               KeycloakClientRepository keycloakClientRepository
-    ) {
+                              KeycloakClientRepository keycloakClientRepository,
+                              SysUserRepository sysUserRepository) {
         this.keycloakRealmRepository = keycloakRealmRepository;
         this.keycloakClientRepository = keycloakClientRepository;
+        this.sysUserRepository = sysUserRepository;
     }
 
     @Async
@@ -57,4 +59,28 @@ public class KeycloakSyncService {
 
     }
 
+    @Async
+    public void syncUser(SysUser user) {
+        if (!ObjectUtils.isEmpty(user)) {
+            // 检查用户是否存在
+            sysUserRepository.findById(user.getId())
+                    .ifPresentOrElse(
+                            existingUser -> {
+                                // 如果用户存在，更新用户信息
+                                sysUserRepository.update(user);
+                            },
+                            () -> {
+                                // 如果用户不存在，创建新用户
+                                sysUserRepository.save(user);
+                            }
+                    );
+        }
+    }
+
+    @Async
+    public void syncDeleteUser(String userId) {
+        if (!ObjectUtils.isEmpty(userId)) {
+            sysUserRepository.deleteById(userId);
+        }
+    }
 }

@@ -91,5 +91,34 @@ public class KeycloakTokenService {
     }
 
 
+    public String getTokenByUsernameAndPassword(String username, String password, String realm) {
+        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+        formData.add("client_id", clientId);
+        formData.add("grant_type", OAuth2Constants.PASSWORD);
+        formData.add("username", username);
+        formData.add("password", password);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(formData, headers);
+
+        // 替换 URL 中的 realm
+        String realmTokenUrl = tokenUrl.replace("/realms/master/", "/realms/" + realm + "/");
+
+        ResponseEntity<TokenResponse> response = restTemplate.postForEntity(
+                realmTokenUrl,
+                request,
+                TokenResponse.class
+        );
+
+        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+            return response.getBody().getAccessToken();
+        } else {
+            throw new RuntimeException("认证失败: " + response.getStatusCode());
+        }
+    }
+
+
 
 }

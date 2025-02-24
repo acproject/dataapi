@@ -4,10 +4,13 @@ import com.owiseman.dataapi.dto.KeycloakRealmDto;
 import com.owiseman.dataapi.dto.RegisterDto;
 import com.owiseman.dataapi.dto.TokenResponse;
 import com.owiseman.dataapi.dto.UserRegistrationRecord;
+import com.owiseman.dataapi.entity.SysUserConfig;
 import com.owiseman.dataapi.entity.SysUserFile;
+import com.owiseman.dataapi.repository.SysUserConfigRepository;
 import com.owiseman.dataapi.repository.SysUserFilesRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -31,6 +34,15 @@ public class RegisterService {
 
     @Autowired
     private SysUserFilesRepository sysUserFilesRepository;
+
+    @Autowired
+    private SysUserConfigRepository sysUserConfigRepository;
+
+    @Value("${keycloak.urls.auth}")
+    private String keycloakAuthUrl;
+
+    @Value("${keycloak.urls.token}")
+    private String keycloakTokenUrl;
 
     @Transactional
     public void register(@Valid RegisterDto registerDto) {
@@ -72,6 +84,9 @@ public class RegisterService {
                     adminToken
             );
 
+            // 创建用户配置
+            createUserConfig(createdUser.id(), realmName);
+
             // 5. 创建用户的根目录
             createUserRootDirectory(createdUser.id(), realmName);
 
@@ -87,17 +102,56 @@ public class RegisterService {
         }
     }
 
+    private void createUserConfig(String userId, String realmName) {
+        SysUserConfig config = new SysUserConfig();
+        config.setUserId(userId);
+        config.setKeycloakRealm(realmName);
+        config.setKeycloakAuthUrl(keycloakAuthUrl);
+        // 替换 token URL 中的 master 为新的 realm 名称
+        String tokenUrl = keycloakTokenUrl.replace("/realms/master/", "/realms/" + realmName + "/");
+        config.setKeycloakTokenUrl(tokenUrl);
+        
+        // 设置数据库表前缀
+        config.setDatabaseTableNamePrefix(realmName.toLowerCase() + "_");
+        
+        sysUserConfigRepository.save(config);
+    }
+
     private void createUserRootDirectory(String userId, String realmName) {
         // 创建用户的根目录
-        SysUserFile rootDir = new SysUserFile();
-        rootDir.setUserId(userId);
-        rootDir.setFileName(realmName);
-        rootDir.setFid("root_" + realmName);
-        rootDir.setSize(0L);
-        rootDir.setUploadTime(LocalDateTime.now());
-        rootDir.setDirectory(true);
-        rootDir.setPath("/" + realmName); // 根目录路径
-        rootDir.setParentId(null); // 根目录没有父目录
-        sysUserFilesRepository.save(rootDir);
+        SysUserFile rootDir = createDirectory(userId, realmName, null, "/" + realmName);
+    
+        // 创建证书目录
+        String certPath = rootDir.getPath() + "/certificates";
+        createDirectory(userId, "certificates", rootDir.getId(), certPath);
+    
+        // 分别创建 APNS 和 Firebase 证书目录
+        String apnsPath = certPath + "/apns";
+        String firebasePath = certPath + "/firebase";
+        createDirectory(userId, "apns", rootDir.getId(), apnsPath);
+        createDirectory(userId, "firebase", rootDir.getId(), firebasePath);
+    
+        // 创建媒体文件目录
+        String mediaPath = rootDir.getPath() + "/media";
+        SysUserFile mediaDir = createDirectory(userId, "media", rootDir.getId(), mediaPath);
+    
+        // 创建媒体子目录
+        createDirectory(userId, "images", mediaDir.getId(), mediaPath + "/images");
+        createDirectory(userId, "audio", mediaDir.getId(), mediaPath + "/audio");
+        createDirectory(userId, "video", mediaDir.getId(), mediaPath + "/video");
+        createDirectory(userId, "documents", mediaDir.getId(), mediaPath + "/documents");
+    }
+
+    private SysUserFile createDirectory(String userId, String dirName, String parentId, String path) {
+        SysUserFile dir = new SysUserFile();
+        dir.setUserId(userId);
+        dir.setFileName(dirName);
+        dir.setFid("dir_" + dirName + "_" + System.currentTimeMillis());
+        dir.setSize(0L);
+        dir.setUploadTime(LocalDateTime.now());
+        dir.setDirectory(true);
+        dir.setPath(path);
+        dir.setParentId(parentId);
+        return sysUserFilesRepository.save(dir);
     }
 }

@@ -3,9 +3,11 @@ package com.owiseman.dataapi.service;
 import com.owiseman.dataapi.config.OAuth2ConstantsExtends;
 import com.owiseman.dataapi.dto.ResetPassword;
 import com.owiseman.dataapi.dto.UserRegistrationRecord;
+import com.owiseman.dataapi.entity.SysUser;
 import jakarta.ws.rs.core.Response;
 
 //import org.jooq.DSLContext;
+import org.gradle.launcher.daemon.protocol.UserResponse;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.RolesResource;
@@ -207,6 +209,12 @@ public class KeycloakUserService implements UserService {
         userResource.resetPassword(credentialRepresentation);
     }
 
+    public UserResource updateUser(SysUser sysUser, String token) {
+       return updateUser(sysUser.getId(), sysUser.getEmail(),
+                sysUser.getFirstName(), sysUser.getLastName()
+                ,Optional.of(sysUser.getAttributes()), token);
+    }
+
     @Override
     public UserResource updateUser(String userId, String newEmail,
                            String newFirstName, String newLastName,
@@ -264,5 +272,61 @@ public class KeycloakUserService implements UserService {
         UserRepresentation user = userResource.toRepresentation();
         user.setAttributes(attributes);
         userResource.update(user);
+    }
+
+    public void resetPassword(String userId, String newPassword) {
+        CredentialRepresentation credentialRepresentation = new CredentialRepresentation();
+        credentialRepresentation.setType(CredentialRepresentation.PASSWORD);
+        credentialRepresentation.setValue(newPassword);
+        credentialRepresentation.setTemporary(false);
+        
+        getUsersResourceById(userId, getAdminToken()).resetPassword(credentialRepresentation);
+    }
+
+    public void syncUser(SysUser user) {
+        UserRepresentation userRepresentation = new UserRepresentation();
+        userRepresentation.setId(user.getId());
+        userRepresentation.setUsername(user.getUsername());
+        userRepresentation.setEmail(user.getEmail());
+        userRepresentation.setFirstName(user.getFirstName());
+        userRepresentation.setLastName(user.getLastName());
+        userRepresentation.setEnabled(user.getEnabled());
+        userRepresentation.setEmailVerified(user.getEmailVerified());
+        userRepresentation.setAttributes(user.getAttributes());
+
+        getUsersResourceById(user.getId(), getAdminToken()).update(userRepresentation);
+    }
+
+
+
+    private String getAdminToken() {
+        return KeycloakBuilder.builder()
+                .serverUrl(serverUrl)
+                .realm(realm)
+                .grantType(OAuth2ConstantsExtends.PASSWORD)
+                .clientId(clientId)
+                .username(OAuth2ConstantsExtends.ADMIN)
+                .password(clientInfo)
+                .build()
+                .tokenManager()
+                .getAccessToken()
+                .getToken();
+    }
+
+    public void updateUserStatus(String userId, boolean enabled) {
+        // 获取用户资源
+        UserResource userResource = getUsersResourceById(userId, getAdminToken());
+        UserRepresentation userRepresentation = userResource.toRepresentation();
+        
+        // 更新用户状态
+        userRepresentation.setEnabled(enabled);
+        userResource.update(userRepresentation);
+        
+        // 同步到本地数据库
+        SysUser sysUser = usersSyncService.getSysUserById(userId);
+        if (!ObjectUtils.isEmpty(sysUser)) {
+            sysUser.setEnabled(enabled);
+            usersSyncService.updateUserById(sysUser);
+        }
     }
 }

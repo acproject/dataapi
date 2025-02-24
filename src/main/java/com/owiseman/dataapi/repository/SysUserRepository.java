@@ -64,9 +64,27 @@ public class SysUserRepository {
                 .execute();
     }
 
+    public void deleteByRealmName(String realmName) {
+        dslContext.deleteFrom(TABLE)
+                .where(REALMNAME.eq(realmName))
+                .execute();
+    }
+
     public Optional<SysUser> findById(String id) {
         return dslContext.selectFrom(TABLE)
                 .where(ID.eq(id))
+                .fetchOptionalInto(SysUser.class);
+    }
+
+    public Optional<SysUser> findByEmail(String email) {
+        return dslContext.selectFrom(TABLE)
+                .where(EMAIL.eq(email))
+                .fetchOptionalInto(SysUser.class);
+    }
+
+    public Optional<SysUser> findByUsername(String username) {
+        return dslContext.selectFrom(TABLE)
+                .where(USERNAME.eq(username))
                 .fetchOptionalInto(SysUser.class);
     }
 
@@ -115,4 +133,30 @@ public class SysUserRepository {
         return new PageResult<>(users, pageNumber, pageSize, total);
     }
 
+    public PageResult<SysUser> findByRealmNameWithPagination(String realmName, int pageNumber, int pageSize) {
+        Condition condition = REALMNAME.eq(realmName);
+        
+        List<SysUser> users = PaginationHelper.getPaginatedData(
+                dslContext,
+                condition,
+                TABLE.getName(),
+                pageSize,
+                pageNumber,
+                SysUser.class
+        );
+
+        int total = dslContext.selectCount()
+                .from(TABLE)
+                .where(condition)
+                .fetchOne(0, Integer.class);
+
+        return new PageResult<>(users, pageNumber, pageSize, total);
+    }
+
+    public void updateUserStatus(String userId, boolean enabled) {
+        dslContext.update(TABLE)
+                .set(ENABLED, enabled)
+                .where(ID.eq(userId))
+                .execute();
+    }
 }
