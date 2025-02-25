@@ -90,6 +90,20 @@ public class SysUserConfigRepository {
                 .fetchOptionalInto(SysUserConfig.class);
     }
 
+    public Optional<SysUserConfig> findByIdAndUserId(String id, String userId) {
+        return dslContext.selectFrom(TABLE)
+                .where(ID.eq(id))
+                .and(USERID.eq(userId))
+                .fetchOptionalInto(SysUserConfig.class);
+    }
+
+    public boolean existsByKeycloakClientId(String clientId) {
+        return dslContext.selectCount()
+                .from(TABLE)
+                .where(KEYCLOAKCLIENTID.eq(clientId))
+                .fetchOne(0, Integer.class) > 0;
+    }
+
     public List<SysUserConfig> findAll() {
         return dslContext.selectFrom(TABLE)
                 .fetchInto(SysUserConfig.class);

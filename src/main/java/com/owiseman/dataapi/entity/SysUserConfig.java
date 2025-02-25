@@ -1,5 +1,6 @@
 package com.owiseman.dataapi.entity;
 
+import com.owiseman.dataapi.dto.Platform;
 import com.owiseman.dataapi.util.UUIDConverter;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -15,6 +16,11 @@ public class SysUserConfig {
     @GeneratedValue(generator = "uuid")
     @Convert(converter = UUIDConverter.class)
     private String id;
+
+    private String projectName;
+
+    @Enumerated(EnumType.STRING)
+    private Platform platform;
     // keycloak的基础配置
     private String keycloakRealm;
     private String keycloakClientId;
@@ -199,27 +205,6 @@ public class SysUserConfig {
     public SysUserConfig() {
     }
 
-    public SysUserConfig(String id, String keycloakRealm, String keycloakClientId, String keycloakClientSecret, String keycloakAuthUrl, String keycloakTokenUrl, String apnsKeyPath, String apnsTeamId, String apnsKeyId, String apnsBundleId, Boolean apnsProduction, String firebaseProjectId, String firebasePrivateKey, String firebaseClientEmail, String firebaseClientId, String firebaseServiceAccountPath, String databaseTableNamePrefix, String userId, Map<String, List<String>> attributes) {
-        this.id = id;
-        this.keycloakRealm = keycloakRealm;
-        this.keycloakClientId = keycloakClientId;
-        this.keycloakClientSecret = keycloakClientSecret;
-        this.keycloakAuthUrl = keycloakAuthUrl;
-        this.keycloakTokenUrl = keycloakTokenUrl;
-        this.apnsKeyPath = apnsKeyPath;
-        this.apnsTeamId = apnsTeamId;
-        this.apnsKeyId = apnsKeyId;
-        this.apnsBundleId = apnsBundleId;
-        this.apnsProduction = apnsProduction;
-        this.firebaseProjectId = firebaseProjectId;
-        this.firebasePrivateKey = firebasePrivateKey;
-        this.firebaseClientEmail = firebaseClientEmail;
-        this.firebaseClientId = firebaseClientId;
-        this.firebaseServiceAccountPath = firebaseServiceAccountPath;
-        this.databaseTableNamePrefix = databaseTableNamePrefix;
-        this.userId = userId;
-        this.attributes = attributes;
-    }
 
     // AWS S3 配置
     private String s3BucketName;
@@ -359,13 +344,94 @@ public class SysUserConfig {
         this.storageType = storageType;
     }
 
-    // 更新构造函数，添加新字段
-    public SysUserConfig(String id,
-            String s3BucketName, String s3Region, String s3AccessKey, String s3SecretKey, String s3Endpoint,
-            String ossEndpoint, String ossBucketName, String ossAccessKeyId, String ossAccessKeySecret, String ossRegion,
-            String seaweedFsMasterUrl, Integer seaweedFsReplication, String seaweedFsCollection,
-            String storageType) {
+    // 微信小程序配置
+    private String wechatAppId;
+    private String wechatAppSecret;
+    private String wechatMchId;
+    private String wechatApiKey;
+
+    // 支付宝小程序配置
+    private String alipayAppId;
+    private String alipayPrivateKey;
+    private String alipayPublicKey;
+    private String alipayGatewayUrl;
+
+    // 微信小程序的 getter/setter
+    public String getWechatAppId() {
+        return wechatAppId;
+    }
+
+    public void setWechatAppId(String wechatAppId) {
+        this.wechatAppId = wechatAppId;
+    }
+
+    public String getWechatAppSecret() {
+        return wechatAppSecret;
+    }
+
+    public void setWechatAppSecret(String wechatAppSecret) {
+        this.wechatAppSecret = wechatAppSecret;
+    }
+
+    public String getWechatMchId() {
+        return wechatMchId;
+    }
+
+    public void setWechatMchId(String wechatMchId) {
+        this.wechatMchId = wechatMchId;
+    }
+
+    public String getWechatApiKey() {
+        return wechatApiKey;
+    }
+
+    public void setWechatApiKey(String wechatApiKey) {
+        this.wechatApiKey = wechatApiKey;
+    }
+
+    // 支付宝小程序的 getter/setter
+    public String getAlipayAppId() {
+        return alipayAppId;
+    }
+
+    public void setAlipayAppId(String alipayAppId) {
+        this.alipayAppId = alipayAppId;
+    }
+
+    public String getAlipayPrivateKey() {
+        return alipayPrivateKey;
+    }
+
+    public void setAlipayPrivateKey(String alipayPrivateKey) {
+        this.alipayPrivateKey = alipayPrivateKey;
+    }
+
+    public String getAlipayPublicKey() {
+        return alipayPublicKey;
+    }
+
+    public void setAlipayPublicKey(String alipayPublicKey) {
+        this.alipayPublicKey = alipayPublicKey;
+    }
+
+    public String getAlipayGatewayUrl() {
+        return alipayGatewayUrl;
+    }
+
+    public void setAlipayGatewayUrl(String alipayGatewayUrl) {
+        this.alipayGatewayUrl = alipayGatewayUrl;
+    }
+
+    public SysUserConfig(String id, String projectName, Platform platform, String keycloakRealm, String keycloakClientId, String keycloakClientSecret, String keycloakAuthUrl,
+                         String keycloakTokenUrl, String apnsKeyPath, String apnsTeamId, String apnsKeyId, String apnsBundleId, Boolean apnsProduction, String firebaseProjectId,
+                         String firebasePrivateKey, String firebaseClientEmail, String firebaseClientId, String firebaseServiceAccountPath, String databaseTableNamePrefix,
+                         String userId, Map<String, List<String>> attributes, String s3BucketName, String s3Region, String s3AccessKey, String s3SecretKey, String s3Endpoint,
+                         String ossEndpoint, String ossBucketName, String ossAccessKeyId, String ossAccessKeySecret, String ossRegion, String seaweedFsMasterUrl, Integer seaweedFsReplication,
+                         String seaweedFsCollection, String storageType, String wechatAppId, String wechatAppSecret, String wechatMchId, String wechatApiKey, String alipayAppId,
+                         String alipayPrivateKey, String alipayPublicKey, String alipayGatewayUrl) {
         this.id = id;
+        this.projectName = projectName;
+        this.platform = platform;
         this.keycloakRealm = keycloakRealm;
         this.keycloakClientId = keycloakClientId;
         this.keycloakClientSecret = keycloakClientSecret;
@@ -384,5 +450,43 @@ public class SysUserConfig {
         this.databaseTableNamePrefix = databaseTableNamePrefix;
         this.userId = userId;
         this.attributes = attributes;
+        this.s3BucketName = s3BucketName;
+        this.s3Region = s3Region;
+        this.s3AccessKey = s3AccessKey;
+        this.s3SecretKey = s3SecretKey;
+        this.s3Endpoint = s3Endpoint;
+        this.ossEndpoint = ossEndpoint;
+        this.ossBucketName = ossBucketName;
+        this.ossAccessKeyId = ossAccessKeyId;
+        this.ossAccessKeySecret = ossAccessKeySecret;
+        this.ossRegion = ossRegion;
+        this.seaweedFsMasterUrl = seaweedFsMasterUrl;
+        this.seaweedFsReplication = seaweedFsReplication;
+        this.seaweedFsCollection = seaweedFsCollection;
+        this.storageType = storageType;
+        this.wechatAppId = wechatAppId;
+        this.wechatAppSecret = wechatAppSecret;
+        this.wechatMchId = wechatMchId;
+        this.wechatApiKey = wechatApiKey;
+        this.alipayAppId = alipayAppId;
+        this.alipayPrivateKey = alipayPrivateKey;
+        this.alipayPublicKey = alipayPublicKey;
+        this.alipayGatewayUrl = alipayGatewayUrl;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
+    public Platform getPlatform() {
+        return platform;
+    }
+
+    public void setPlatform(Platform platform) {
+        this.platform = platform;
     }
 }

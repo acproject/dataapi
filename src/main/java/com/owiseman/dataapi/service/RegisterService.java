@@ -140,6 +140,16 @@ public class RegisterService {
         createDirectory(userId, "audio", mediaDir.getId(), mediaPath + "/audio");
         createDirectory(userId, "video", mediaDir.getId(), mediaPath + "/video");
         createDirectory(userId, "documents", mediaDir.getId(), mediaPath + "/documents");
+
+        // 创建小程序专用目录
+        String miniProgramPath = rootDir.getPath() + "/mini_programs";
+        SysUserFile miniProgramDir = createDirectory(userId, "mini_programs", rootDir.getId(), miniProgramPath);
+
+        // 创建微信小程序子目录
+        createDirectory(userId, "wechat", miniProgramDir.getId(), miniProgramPath + "/wechat");
+
+        // 创建支付宝小程序子目录
+        createDirectory(userId, "alipay", miniProgramDir.getId(), miniProgramPath + "/alipay");
     }
 
     private SysUserFile createDirectory(String userId, String dirName, String parentId, String path) {
