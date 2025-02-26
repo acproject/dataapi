@@ -427,8 +427,8 @@ public class SysUserConfig {
                          String firebasePrivateKey, String firebaseClientEmail, String firebaseClientId, String firebaseServiceAccountPath, String databaseTableNamePrefix,
                          String userId, Map<String, List<String>> attributes, String s3BucketName, String s3Region, String s3AccessKey, String s3SecretKey, String s3Endpoint,
                          String ossEndpoint, String ossBucketName, String ossAccessKeyId, String ossAccessKeySecret, String ossRegion, String seaweedFsMasterUrl, Integer seaweedFsReplication,
-                         String seaweedFsCollection, String storageType, String wechatAppId, String wechatAppSecret, String wechatMchId, String wechatApiKey, String alipayAppId,
-                         String alipayPrivateKey, String alipayPublicKey, String alipayGatewayUrl) {
+                         String seaweedFsCollection, String storageType, String wechatAppId, String wechatAppSecret, String wechatMchId, String wechatApiKey, String wechatPayCertPath, String alipayAppId,
+                         String alipayPrivateKey, String alipayPublicKey, String alipayGatewayUrl, String aplipayCertPath, String notifyUrl, String returnUrl, String description) {
         this.id = id;
         this.projectName = projectName;
         this.platform = platform;
@@ -468,10 +468,15 @@ public class SysUserConfig {
         this.wechatAppSecret = wechatAppSecret;
         this.wechatMchId = wechatMchId;
         this.wechatApiKey = wechatApiKey;
+        this.wechatPayCertPath = wechatPayCertPath;
         this.alipayAppId = alipayAppId;
         this.alipayPrivateKey = alipayPrivateKey;
         this.alipayPublicKey = alipayPublicKey;
         this.alipayGatewayUrl = alipayGatewayUrl;
+        this.aplipayCertPath = aplipayCertPath;
+        this.notifyUrl = notifyUrl;
+        this.returnUrl = returnUrl;
+        this.description = description;
     }
 
     public String getProjectName() {
@@ -488,5 +493,54 @@ public class SysUserConfig {
 
     public void setPlatform(Platform platform) {
         this.platform = platform;
+    }
+
+    private String description;
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    private String wechatPayCertPath;
+
+    public String getWechatPayCertPath() {
+        return wechatPayCertPath;
+    }
+
+    public void setWechatPayCertPath(String wechatPayCertPath) {
+        this.wechatPayCertPath = wechatPayCertPath;
+    }
+
+    private String notifyUrl;
+    private String returnUrl;
+
+    private String aplipayCertPath;
+
+    public String getNotifyUrl() {
+        return notifyUrl;
+    }
+
+    public void setNotifyUrl(String notifyUrl) {
+        this.notifyUrl = notifyUrl;
+    }
+
+    public String getReturnUrl() {
+        return returnUrl;
+    }
+
+    public void setReturnUrl(String returnUrl) {
+        this.returnUrl = returnUrl;
+    }
+
+    public String getAplipayCertPath() {
+        return aplipayCertPath;
+    }
+
+    public void setAplipayCertPath(String aplipayCertPath) {
+        this.aplipayCertPath = aplipayCertPath;
     }
 }

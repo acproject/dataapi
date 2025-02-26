@@ -140,6 +140,8 @@ public class RegisterService {
         createDirectory(userId, "audio", mediaDir.getId(), mediaPath + "/audio");
         createDirectory(userId, "video", mediaDir.getId(), mediaPath + "/video");
         createDirectory(userId, "documents", mediaDir.getId(), mediaPath + "/documents");
+        createDirectory(userId, "avatars", mediaDir.getId(), mediaPath + "/avatars");
+        createDirectory(userId, "others", mediaDir.getId(), mediaPath + "/others");
 
         // 创建小程序专用目录
         String miniProgramPath = rootDir.getPath() + "/mini_programs";
