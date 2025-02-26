@@ -138,7 +138,7 @@ public class SysUserFile {
         this.path = path;
         this.isDirectory = isDirectory;
     }
-    
+
     @Column(name = "storage_type", nullable = false)
     private String storageType;
 
@@ -152,5 +152,83 @@ public class SysUserFile {
 
     public boolean isDirectory() {
         return getDirectory();
+    }
+
+    public static class Builder {
+        private String id;
+        private String userId;
+        private String fid;
+        private String fileName;
+        private Long size;
+        private LocalDateTime uploadTime;
+        private String parentId;
+        private String path;
+        private Boolean isDirectory = false;
+        private String storageType;
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder userId(String userId) {
+            this.userId = userId;
+            return this;
+        }
+
+        public Builder fid(String fid) {
+            this.fid = fid;
+            return this;
+        }
+
+        public Builder fileName(String fileName) {
+            this.fileName = fileName;
+            return this;
+        }
+
+        public Builder size(Long size) {
+            this.size = size;
+            return this;
+        }
+
+        public Builder uploadTime(LocalDateTime uploadTime) {
+            this.uploadTime = uploadTime;
+            return this;
+        }
+
+        public Builder parentId(String parentId) {
+            this.parentId = parentId;
+            return this;
+        }
+
+        public Builder path(String path) {
+            this.path = path;
+            return this;
+        }
+
+        public Builder isDirectory(Boolean isDirectory) {
+            this.isDirectory = isDirectory;
+            return this;
+        }
+
+        public Builder storageType(String storageType) {
+            this.storageType = storageType;
+            return this;
+        }
+
+        public SysUserFile build() {
+            SysUserFile userFile = new SysUserFile();
+            userFile.setId(id);
+            userFile.setUserId(userId);
+            userFile.setFid(fid);
+            userFile.setFileName(fileName);
+            userFile.setSize(size);
+            userFile.setUploadTime(uploadTime);
+            userFile.setParentId(parentId);
+            userFile.setPath(path);
+            userFile.setDirectory(isDirectory);
+            userFile.setStorageType(storageType);
+            return userFile;
+        }
     }
 }

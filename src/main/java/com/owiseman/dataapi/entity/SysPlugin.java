@@ -143,4 +143,75 @@ public class SysPlugin {
 
     public SysPlugin() {
     }
+
+    public static class Builder {
+        private String id;
+        private String name;
+        private String version;
+        private Integer port;
+        private PluginStatus status;
+        private String wasmPath;
+        private LocalDateTime lastHeartbeat;
+        private Map<String, List<String>> configSchema;
+        private Map<String, List<String>> runtimeConfig;
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder version(String version) {
+            this.version = version;
+            return this;
+        }
+
+        public Builder port(Integer port) {
+            this.port = port;
+            return this;
+        }
+
+        public Builder status(PluginStatus status) {
+            this.status = status;
+            return this;
+        }
+
+        public Builder wasmPath(String wasmPath) {
+            this.wasmPath = wasmPath;
+            return this;
+        }
+
+        public Builder lastHeartbeat(LocalDateTime lastHeartbeat) {
+            this.lastHeartbeat = lastHeartbeat;
+            return this;
+        }
+
+        public Builder configSchema(Map<String, List<String>> configSchema) {
+            this.configSchema = configSchema;
+            return this;
+        }
+
+        public Builder runtimeConfig(Map<String, List<String>> runtimeConfig) {
+            this.runtimeConfig = runtimeConfig;
+            return this;
+        }
+
+        public SysPlugin build() {
+            SysPlugin plugin = new SysPlugin();
+            plugin.setId(id);
+            plugin.setName(name);
+            plugin.setVersion(version);
+            plugin.setPort(port);
+            plugin.setStatus(status);
+            plugin.setWasmPath(wasmPath);
+            plugin.setLastHeartbeat(lastHeartbeat);
+            plugin.setConfigSchema(configSchema);
+            plugin.setRuntimeConfig(runtimeConfig);
+            return plugin;
+        }
+    }
 }

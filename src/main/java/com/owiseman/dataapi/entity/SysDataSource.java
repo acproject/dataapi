@@ -75,4 +75,47 @@ public class SysDataSource {
 
     public SysDataSource() {
     }
+
+    public static class Builder {
+        private String id;
+        private String type;
+        private Map<String, List<String>> config;
+        private String createdBy;
+        private Boolean lastTestResult;
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder type(String type) {
+            this.type = type;
+            return this;
+        }
+
+        public Builder config(Map<String, List<String>> config) {
+            this.config = config;
+            return this;
+        }
+
+        public Builder createdBy(String createdBy) {
+            this.createdBy = createdBy;
+            return this;
+        }
+
+        public Builder lastTestResult(Boolean lastTestResult) {
+            this.lastTestResult = lastTestResult;
+            return this;
+        }
+
+        public SysDataSource build() {
+            SysDataSource dataSource = new SysDataSource();
+            dataSource.setId(id);
+            dataSource.setType(type);
+            dataSource.setConfig(config);
+            dataSource.setCreatedBy(createdBy);
+            dataSource.setLastTestResult(lastTestResult);
+            return dataSource;
+        }
+    }
 }

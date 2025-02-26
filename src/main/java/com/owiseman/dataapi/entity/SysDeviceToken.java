@@ -85,4 +85,54 @@ public class SysDeviceToken {
 
     public SysDeviceToken() {
     }
+
+    public static class Builder {
+        private String id;
+        private String userId;
+        private String token;
+        private Platform platform;
+        private LocalDateTime lastActive;
+        private Boolean active;
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder userId(String userId) {
+            this.userId = userId;
+            return this;
+        }
+
+        public Builder token(String token) {
+            this.token = token;
+            return this;
+        }
+
+        public Builder platform(Platform platform) {
+            this.platform = platform;
+            return this;
+        }
+
+        public Builder lastActive(LocalDateTime lastActive) {
+            this.lastActive = lastActive;
+            return this;
+        }
+
+        public Builder active(Boolean active) {
+            this.active = active;
+            return this;
+        }
+
+        public SysDeviceToken build() {
+            SysDeviceToken deviceToken = new SysDeviceToken();
+            deviceToken.setId(id);
+            deviceToken.setUserId(userId);
+            deviceToken.setToken(token);
+            deviceToken.setPlatform(platform);
+            deviceToken.setLastActive(lastActive);
+            deviceToken.setActive(active);
+            return deviceToken;
+        }
+    }
 }

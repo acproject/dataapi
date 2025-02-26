@@ -95,4 +95,61 @@ public class SysAuditLog {
 
     public SysAuditLog() {
     }
+
+    public static class Builder {
+        private String id;
+        private String userId;
+        private String actionType;
+        private String targetType;
+        private String targetId;
+        private Map<String, List<String>> details;
+        private LocalDateTime timestamp;
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder userId(String userId) {
+            this.userId = userId;
+            return this;
+        }
+
+        public Builder actionType(String actionType) {
+            this.actionType = actionType;
+            return this;
+        }
+
+        public Builder targetType(String targetType) {
+            this.targetType = targetType;
+            return this;
+        }
+
+        public Builder targetId(String targetId) {
+            this.targetId = targetId;
+            return this;
+        }
+
+        public Builder details(Map<String, List<String>> details) {
+            this.details = details;
+            return this;
+        }
+
+        public Builder timestamp(LocalDateTime timestamp) {
+            this.timestamp = timestamp;
+            return this;
+        }
+
+        public SysAuditLog build() {
+            SysAuditLog auditLog = new SysAuditLog();
+            auditLog.setId(id);
+            auditLog.setUserId(userId);
+            auditLog.setActionType(actionType);
+            auditLog.setTargetType(targetType);
+            auditLog.setTargetId(targetId);
+            auditLog.setDetails(details);
+            auditLog.setTimestamp(timestamp);
+            return auditLog;
+        }
+    }
 }

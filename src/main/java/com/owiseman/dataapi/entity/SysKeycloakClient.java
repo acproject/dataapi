@@ -172,7 +172,7 @@ public class SysKeycloakClient {
         return registrationAccessToken;
     }
 
-    public void setRegistrationAccessToke(String registrationAccessToken) {
+    public void setRegistrationAccessToken(String registrationAccessToken) {
         this.registrationAccessToken = registrationAccessToken;
     }
 
@@ -182,5 +182,118 @@ public class SysKeycloakClient {
 
     public void setRealmName(String realmName) {
         this.realmName = realmName;
+    }
+
+    public static class Builder {
+        private String id;
+        private String realmName;
+        private String clientId;
+        private String secret;
+        private String name;
+        private String description;
+        private String type;
+        private String rootUrl;
+        private String adminUrl;
+        private String baseUrl;
+        private Boolean surrogateAuthRequired;
+        private Boolean enabled;
+        private Boolean alwaysDisplayInConsole;
+        private String clientAuthenticatorType;
+        private String registrationAccessToken;
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder realmName(String realmName) {
+            this.realmName = realmName;
+            return this;
+        }
+
+        public Builder clientId(String clientId) {
+            this.clientId = clientId;
+            return this;
+        }
+
+        public Builder secret(String secret) {
+            this.secret = secret;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder type(String type) {
+            this.type = type;
+            return this;
+        }
+
+        public Builder rootUrl(String rootUrl) {
+            this.rootUrl = rootUrl;
+            return this;
+        }
+
+        public Builder adminUrl(String adminUrl) {
+            this.adminUrl = adminUrl;
+            return this;
+        }
+
+        public Builder baseUrl(String baseUrl) {
+            this.baseUrl = baseUrl;
+            return this;
+        }
+
+        public Builder surrogateAuthRequired(Boolean surrogateAuthRequired) {
+            this.surrogateAuthRequired = surrogateAuthRequired;
+            return this;
+        }
+
+        public Builder enabled(Boolean enabled) {
+            this.enabled = enabled;
+            return this;
+        }
+
+        public Builder alwaysDisplayInConsole(Boolean alwaysDisplayInConsole) {
+            this.alwaysDisplayInConsole = alwaysDisplayInConsole;
+            return this;
+        }
+
+        public Builder clientAuthenticatorType(String clientAuthenticatorType) {
+            this.clientAuthenticatorType = clientAuthenticatorType;
+            return this;
+        }
+
+        public Builder registrationAccessToken(String registrationAccessToken) {
+            this.registrationAccessToken = registrationAccessToken;
+            return this;
+        }
+
+        public SysKeycloakClient build() {
+            SysKeycloakClient keycloakClient = new SysKeycloakClient();
+            keycloakClient.setId(id);
+            keycloakClient.setRealmName(realmName);
+            keycloakClient.setClientId(clientId);
+            keycloakClient.setSecret(secret);
+            keycloakClient.setName(name);
+            keycloakClient.setDescription(description);
+            keycloakClient.setType(type);
+            keycloakClient.setRootUrl(rootUrl);
+            keycloakClient.setAdminUrl(adminUrl);
+            keycloakClient.setBaseUrl(baseUrl);
+            keycloakClient.setSurrogateAuthRequired(surrogateAuthRequired);
+            keycloakClient.setEnabled(enabled);
+            keycloakClient.setAlwaysDisplayInConsole(alwaysDisplayInConsole);
+            keycloakClient.setClientAuthenticatorType(clientAuthenticatorType);
+            keycloakClient.setRegistrationAccessToken(registrationAccessToken);
+            return keycloakClient;
+        }
     }
 }

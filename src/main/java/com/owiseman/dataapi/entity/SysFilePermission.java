@@ -8,13 +8,13 @@ public class SysFilePermission {
     @Id
     @GeneratedValue(generator = "uuid")
     private String id;
-    
+
     @Column(name = "file_id")
     private String fileId;
-    
+
     @Column(name = "user_id")
     private String userId;
-    
+
     private boolean canRead;
     private boolean canWrite;
     private boolean canDelete;
@@ -87,5 +87,62 @@ public class SysFilePermission {
         this.canWrite = canWrite;
         this.canDelete = canDelete;
         this.canShare = canShare;
+    }
+
+    public static class Builder {
+        private String id;
+        private String fileId;
+        private String userId;
+        private boolean canRead;
+        private boolean canWrite;
+        private boolean canDelete;
+        private boolean canShare;
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder fileId(String fileId) {
+            this.fileId = fileId;
+            return this;
+        }
+
+        public Builder userId(String userId) {
+            this.userId = userId;
+            return this;
+        }
+
+        public Builder canRead(boolean canRead) {
+            this.canRead = canRead;
+            return this;
+        }
+
+        public Builder canWrite(boolean canWrite) {
+            this.canWrite = canWrite;
+            return this;
+        }
+
+        public Builder canDelete(boolean canDelete) {
+            this.canDelete = canDelete;
+            return this;
+        }
+
+        public Builder canShare(boolean canShare) {
+            this.canShare = canShare;
+            return this;
+        }
+
+        public SysFilePermission build() {
+            SysFilePermission filePermission = new SysFilePermission();
+            filePermission.setId(id);
+            filePermission.setFileId(fileId);
+            filePermission.setUserId(userId);
+            filePermission.setCanRead(canRead);
+            filePermission.setCanWrite(canWrite);
+            filePermission.setCanDelete(canDelete);
+            filePermission.setCanShare(canShare);
+            return filePermission;
+        }
     }
 }

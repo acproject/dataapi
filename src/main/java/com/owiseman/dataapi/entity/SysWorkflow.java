@@ -84,6 +84,57 @@ public class SysWorkflow {
         this.createAt = createAt;
         this.updateAt = updateAt;
     }
+
     public SysWorkflow() {
+    }
+
+    public static class Builder {
+        private String id;
+        private String name;
+        private Map<String, List<String>> definition;
+        private String createBy;
+        private LocalDateTime createAt;
+        private LocalDateTime updateAt;
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder definition(Map<String, List<String>> definition) {
+            this.definition = definition;
+            return this;
+        }
+
+        public Builder createBy(String createBy) {
+            this.createBy = createBy;
+            return this;
+        }
+
+        public Builder createAt(LocalDateTime createAt) {
+            this.createAt = createAt;
+            return this;
+        }
+
+        public Builder updateAt(LocalDateTime updateAt) {
+            this.updateAt = updateAt;
+            return this;
+        }
+
+        public SysWorkflow build() {
+            SysWorkflow workflow = new SysWorkflow();
+            workflow.setId(id);
+            workflow.setName(name);
+            workflow.setDefinition(definition);
+            workflow.setCreateBy(createBy);
+            workflow.setCreateAt(createAt);
+            workflow.setUpdateAt(updateAt);
+            return workflow;
+        }
     }
 }

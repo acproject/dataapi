@@ -543,4 +543,348 @@ public class SysUserConfig {
     public void setAplipayCertPath(String aplipayCertPath) {
         this.aplipayCertPath = aplipayCertPath;
     }
+
+    public static class Builder {
+        private String id;
+        private String projectName;
+        private Platform platform;
+        private String keycloakRealm;
+        private String keycloakClientId;
+        private String keycloakClientSecret;
+        private String keycloakAuthUrl;
+        private String keycloakTokenUrl;
+        private String apnsKeyPath;
+        private String apnsTeamId;
+        private String apnsKeyId;
+        private String apnsBundleId;
+        private Boolean apnsProduction;
+        private String firebaseProjectId;
+        private String firebasePrivateKey;
+        private String firebaseClientEmail;
+        private String firebaseClientId;
+        private String firebaseServiceAccountPath;
+        private String databaseTableNamePrefix;
+        private String userId;
+        private Map<String, List<String>> attributes;
+        private String s3BucketName;
+        private String s3Region;
+        private String s3AccessKey;
+        private String s3SecretKey;
+        private String s3Endpoint;
+        private String ossEndpoint;
+        private String ossBucketName;
+        private String ossAccessKeyId;
+        private String ossAccessKeySecret;
+        private String ossRegion;
+        private String seaweedFsMasterUrl;
+        private Integer seaweedFsReplication;
+        private String seaweedFsCollection;
+        private String storageType;
+        private String wechatAppId;
+        private String wechatAppSecret;
+        private String wechatMchId;
+        private String wechatApiKey;
+        private String wechatPayCertPath;
+        private String alipayAppId;
+        private String alipayPrivateKey;
+        private String alipayPublicKey;
+        private String alipayGatewayUrl;
+        private String aplipayCertPath;
+        private String notifyUrl;
+        private String returnUrl;
+        private String description;
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder projectName(String projectName) {
+            this.projectName = projectName;
+            return this;
+        }
+
+        public Builder platform(Platform platform) {
+            this.platform = platform;
+            return this;
+        }
+
+        public Builder keycloakRealm(String keycloakRealm) {
+            this.keycloakRealm = keycloakRealm;
+            return this;
+        }
+
+        public Builder keycloakClientId(String keycloakClientId) {
+            this.keycloakClientId = keycloakClientId;
+            return this;
+        }
+
+        public Builder keycloakClientSecret(String keycloakClientSecret) {
+            this.keycloakClientSecret = keycloakClientSecret;
+            return this;
+        }
+
+        public Builder keycloakAuthUrl(String keycloakAuthUrl) {
+            this.keycloakAuthUrl = keycloakAuthUrl;
+            return this;
+        }
+
+        public Builder keycloakTokenUrl(String keycloakTokenUrl) {
+            this.keycloakTokenUrl = keycloakTokenUrl;
+            return this;
+        }
+
+        public Builder apnsKeyPath(String apnsKeyPath) {
+            this.apnsKeyPath = apnsKeyPath;
+            return this;
+        }
+
+        public Builder apnsTeamId(String apnsTeamId) {
+            this.apnsTeamId = apnsTeamId;
+            return this;
+        }
+
+        public Builder apnsKeyId(String apnsKeyId) {
+            this.apnsKeyId = apnsKeyId;
+            return this;
+        }
+
+        public Builder apnsBundleId(String apnsBundleId) {
+            this.apnsBundleId = apnsBundleId;
+            return this;
+        }
+
+        public Builder apnsProduction(Boolean apnsProduction) {
+            this.apnsProduction = apnsProduction;
+            return this;
+        }
+
+        public Builder firebaseProjectId(String firebaseProjectId) {
+            this.firebaseProjectId = firebaseProjectId;
+            return this;
+        }
+
+        public Builder firebasePrivateKey(String firebasePrivateKey) {
+            this.firebasePrivateKey = firebasePrivateKey;
+            return this;
+        }
+
+        public Builder firebaseClientEmail(String firebaseClientEmail) {
+            this.firebaseClientEmail = firebaseClientEmail;
+            return this;
+        }
+
+        public Builder firebaseClientId(String firebaseClientId) {
+            this.firebaseClientId = firebaseClientId;
+            return this;
+        }
+
+        public Builder firebaseServiceAccountPath(String firebaseServiceAccountPath) {
+            this.firebaseServiceAccountPath = firebaseServiceAccountPath;
+            return this;
+        }
+
+        public Builder databaseTableNamePrefix(String databaseTableNamePrefix) {
+            this.databaseTableNamePrefix = databaseTableNamePrefix;
+            return this;
+        }
+
+        public Builder userId(String userId) {
+            this.userId = userId;
+            return this;
+        }
+
+        public Builder attributes(Map<String, List<String>> attributes) {
+            this.attributes = attributes;
+            return this;
+        }
+
+        public Builder s3BucketName(String s3BucketName) {
+            this.s3BucketName = s3BucketName;
+            return this;
+        }
+
+        public Builder s3Region(String s3Region) {
+            this.s3Region = s3Region;
+            return this;
+        }
+
+        public Builder s3AccessKey(String s3AccessKey) {
+            this.s3AccessKey = s3AccessKey;
+            return this;
+        }
+
+        public Builder s3SecretKey(String s3SecretKey) {
+            this.s3SecretKey = s3SecretKey;
+            return this;
+        }
+
+        public Builder s3Endpoint(String s3Endpoint) {
+            this.s3Endpoint = s3Endpoint;
+            return this;
+        }
+
+        public Builder ossEndpoint(String ossEndpoint) {
+            this.ossEndpoint = ossEndpoint;
+            return this;
+        }
+
+        public Builder ossBucketName(String ossBucketName) {
+            this.ossBucketName = ossBucketName;
+            return this;
+        }
+
+        public Builder ossAccessKeyId(String ossAccessKeyId) {
+            this.ossAccessKeyId = ossAccessKeyId;
+            return this;
+        }
+
+        public Builder ossAccessKeySecret(String ossAccessKeySecret) {
+            this.ossAccessKeySecret = ossAccessKeySecret;
+            return this;
+        }
+
+        public Builder ossRegion(String ossRegion) {
+            this.ossRegion = ossRegion;
+            return this;
+        }
+
+        public Builder seaweedFsMasterUrl(String seaweedFsMasterUrl) {
+            this.seaweedFsMasterUrl = seaweedFsMasterUrl;
+            return this;
+        }
+
+        public Builder seaweedFsReplication(Integer seaweedFsReplication) {
+            this.seaweedFsReplication = seaweedFsReplication;
+            return this;
+        }
+
+        public Builder seaweedFsCollection(String seaweedFsCollection) {
+            this.seaweedFsCollection = seaweedFsCollection;
+            return this;
+        }
+
+        public Builder storageType(String storageType) {
+            this.storageType = storageType;
+            return this;
+        }
+
+        public Builder wechatAppId(String wechatAppId) {
+            this.wechatAppId = wechatAppId;
+            return this;
+        }
+
+        public Builder wechatAppSecret(String wechatAppSecret) {
+            this.wechatAppSecret = wechatAppSecret;
+            return this;
+        }
+
+        public Builder wechatMchId(String wechatMchId) {
+            this.wechatMchId = wechatMchId;
+            return this;
+        }
+
+        public Builder wechatApiKey(String wechatApiKey) {
+            this.wechatApiKey = wechatApiKey;
+            return this;
+        }
+
+        public Builder wechatPayCertPath(String wechatPayCertPath) {
+            this.wechatPayCertPath = wechatPayCertPath;
+            return this;
+        }
+
+        public Builder alipayAppId(String alipayAppId) {
+            this.alipayAppId = alipayAppId;
+            return this;
+        }
+
+        public Builder alipayPrivateKey(String alipayPrivateKey) {
+            this.alipayPrivateKey = alipayPrivateKey;
+            return this;
+        }
+
+        public Builder alipayPublicKey(String alipayPublicKey) {
+            this.alipayPublicKey = alipayPublicKey;
+            return this;
+        }
+
+        public Builder alipayGatewayUrl(String alipayGatewayUrl) {
+            this.alipayGatewayUrl = alipayGatewayUrl;
+            return this;
+        }
+
+        public Builder aplipayCertPath(String aplipayCertPath) {
+            this.aplipayCertPath = aplipayCertPath;
+            return this;
+        }
+
+        public Builder notifyUrl(String notifyUrl) {
+            this.notifyUrl = notifyUrl;
+            return this;
+        }
+
+        public Builder returnUrl(String returnUrl) {
+            this.returnUrl = returnUrl;
+            return this;
+        }
+
+        public Builder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public SysUserConfig build() {
+            SysUserConfig config = new SysUserConfig();
+            config.setId(id);
+            config.setProjectName(projectName);
+            config.setPlatform(platform);
+            config.setKeycloakRealm(keycloakRealm);
+            config.setKeycloakClientId(keycloakClientId);
+            config.setKeycloakClientSecret(keycloakClientSecret);
+            config.setKeycloakAuthUrl(keycloakAuthUrl);
+            config.setKeycloakTokenUrl(keycloakTokenUrl);
+            config.setApnsKeyPath(apnsKeyPath);
+            config.setApnsTeamId(apnsTeamId);
+            config.setApnsKeyId(apnsKeyId);
+            config.setApnsBundleId(apnsBundleId);
+            config.setApnsProduction(apnsProduction);
+            config.setFirebaseProjectId(firebaseProjectId);
+            config.setFirebasePrivateKey(firebasePrivateKey);
+            config.setFirebaseClientEmail(firebaseClientEmail);
+            config.setFirebaseClientId(firebaseClientId);
+            config.setFirebaseServiceAccountPath(firebaseServiceAccountPath);
+            config.setDatabaseTableNamePrefix(databaseTableNamePrefix);
+            config.setUserId(userId);
+            config.setAttributes(attributes);
+            config.setS3BucketName(s3BucketName);
+            config.setS3Region(s3Region);
+            config.setS3AccessKey(s3AccessKey);
+            config.setS3SecretKey(s3SecretKey);
+            config.setS3Endpoint(s3Endpoint);
+            config.setOssEndpoint(ossEndpoint);
+            config.setOssBucketName(ossBucketName);
+            config.setOssAccessKeyId(ossAccessKeyId);
+            config.setOssAccessKeySecret(ossAccessKeySecret);
+            config.setOssRegion(ossRegion);
+            config.setSeaweedFsMasterUrl(seaweedFsMasterUrl);
+            config.setSeaweedFsReplication(seaweedFsReplication);
+            config.setSeaweedFsCollection(seaweedFsCollection);
+            config.setStorageType(storageType);
+            config.setWechatAppId(wechatAppId);
+            config.setWechatAppSecret(wechatAppSecret);
+            config.setWechatMchId(wechatMchId);
+            config.setWechatApiKey(wechatApiKey);
+            config.setWechatPayCertPath(wechatPayCertPath);
+            config.setAlipayAppId(alipayAppId);
+            config.setAlipayPrivateKey(alipayPrivateKey);
+            config.setAlipayPublicKey(alipayPublicKey);
+            config.setAlipayGatewayUrl(alipayGatewayUrl);
+            config.setAplipayCertPath(aplipayCertPath);
+            config.setNotifyUrl(notifyUrl);
+            config.setReturnUrl(returnUrl);
+            config.setDescription(description);
+            return config;
+        }
+    }
 }

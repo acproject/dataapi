@@ -156,4 +156,89 @@ public class SysUser {
     public void setClientId(String clientId) {
         this.clientId = clientId;
     }
+
+    public static class Builder {
+        private String id;
+        private String username;
+        private String firstName;
+        private String lastName;
+        private String email;
+        private Boolean emailVerified;
+        private Map<String, List<String>> attributes;
+        private Long createdTimestamp;
+        private Boolean enabled;
+        private String realmName;
+        private String clientId;
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder username(String username) {
+            this.username = username;
+            return this;
+        }
+
+        public Builder firstName(String firstName) {
+            this.firstName = firstName;
+            return this;
+        }
+
+        public Builder lastName(String lastName) {
+            this.lastName = lastName;
+            return this;
+        }
+
+        public Builder email(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public Builder emailVerified(Boolean emailVerified) {
+            this.emailVerified = emailVerified;
+            return this;
+        }
+
+        public Builder attributes(Map<String, List<String>> attributes) {
+            this.attributes = attributes;
+            return this;
+        }
+
+        public Builder createdTimestamp(Long createdTimestamp) {
+            this.createdTimestamp = createdTimestamp;
+            return this;
+        }
+
+        public Builder enabled(Boolean enabled) {
+            this.enabled = enabled;
+            return this;
+        }
+
+        public Builder realmName(String realmName) {
+            this.realmName = realmName;
+            return this;
+        }
+
+        public Builder clientId(String clientId) {
+            this.clientId = clientId;
+            return this;
+        }
+
+        public SysUser build() {
+            SysUser user = new SysUser();
+            user.setId(id);
+            user.setUsername(username);
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
+            user.setEmail(email);
+            user.setEmailVerified(emailVerified);
+            user.setAttributes(attributes);
+            user.setCreatedTimestamp(createdTimestamp);
+            user.setEnabled(enabled);
+            user.setRealmName(realmName);
+            user.setClientId(clientId);
+            return user;
+        }
+    }
 }
