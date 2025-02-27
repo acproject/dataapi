@@ -89,7 +89,7 @@ public class KeycloakClientService {
         sysKeycloakClient.setEnabled(clientRepresentation.isEnabled());
         sysKeycloakClient.setAlwaysDisplayInConsole(clientRepresentation.isAlwaysDisplayInConsole());
         sysKeycloakClient.setClientAuthenticatorType(clientRepresentation.getClientAuthenticatorType());
-        sysKeycloakClient.setRegistrationAccessToke(clientRepresentation.getRegistrationAccessToken());
+        sysKeycloakClient.setRegistrationAccessToken(clientRepresentation.getRegistrationAccessToken());
         sysKeycloakClient.setRealmName(realm);
         keycloakSyncService.syncClient(sysKeycloakClient);
         return new KeycloakClientDto(
@@ -160,7 +160,7 @@ public class KeycloakClientService {
         sysKeycloakClient.setEnabled(clientRepresentation.isEnabled());
         sysKeycloakClient.setAlwaysDisplayInConsole(clientRepresentation.isAlwaysDisplayInConsole());
         sysKeycloakClient.setClientAuthenticatorType(clientRepresentation.getClientAuthenticatorType());
-        sysKeycloakClient.setRegistrationAccessToke(clientRepresentation.getRegistrationAccessToken());
+        sysKeycloakClient.setRegistrationAccessToken(clientRepresentation.getRegistrationAccessToken());
         sysKeycloakClient.setRealmName(realm);
         keycloakSyncService.syncClient(sysKeycloakClient);
         return new KeycloakClientDto(
