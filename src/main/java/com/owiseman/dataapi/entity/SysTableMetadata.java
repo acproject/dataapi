@@ -33,7 +33,7 @@ public class SysTableMetadata {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb", nullable = true)
-    private Map<String, List<String>> tableDefinition;
+    private String tableDefinition;
 
     @Column(nullable = false, length = 20)
     private String status;
@@ -101,11 +101,11 @@ public class SysTableMetadata {
         this.createdBy = createdBy;
     }
 
-    public Map<String, List<String>> getTableDefinition() {
+    public String getTableDefinition() {
         return tableDefinition;
     }
 
-    public void setTableDefinition(Map<String, List<String>> tableDefinition) {
+    public void setTableDefinition(String tableDefinition) {
         this.tableDefinition = tableDefinition;
     }
 
@@ -125,7 +125,7 @@ public class SysTableMetadata {
         this.columns = columns;
     }
 
-    public SysTableMetadata(String id, String tableName, String description, LocalDateTime createdAt, LocalDateTime updatedAt, String createdBy, Map<String, List<String>> tableDefinition, String status, List<SysColumnMetadata> columns,String userId) {
+    public SysTableMetadata(String id, String tableName, String description, LocalDateTime createdAt, LocalDateTime updatedAt, String createdBy, String tableDefinition, String status, List<SysColumnMetadata> columns,String userId) {
         this.id = id;
         this.tableName = tableName;
         this.description = description;
@@ -148,7 +148,7 @@ public class SysTableMetadata {
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
         private String createdBy;
-        private Map<String, List<String>> tableDefinition;
+        private String tableDefinition;
         private String status;
         private List<SysColumnMetadata> columns;
         private String userId;
@@ -188,7 +188,7 @@ public class SysTableMetadata {
             return this;
         }
 
-        public Builder tableDefinition(Map<String, List<String>> tableDefinition) {
+        public Builder tableDefinition(String tableDefinition) {
             this.tableDefinition = tableDefinition;
             return this;
         }

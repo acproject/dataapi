@@ -6,8 +6,6 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
 
 @Entity
 @Table(name = "sys_audit_logs")
@@ -23,7 +21,7 @@ public class SysAuditLog {
     private String targetId;
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb", name = "details")
-    private Map<String, List<String>> details;
+    private String details;
 
     private LocalDateTime timestamp;
 
@@ -67,11 +65,11 @@ public class SysAuditLog {
         this.targetId = targetId;
     }
 
-    public Map<String, List<String>> getDetails() {
+    public String getDetails() {
         return details;
     }
 
-    public void setDetails(Map<String, List<String>> details) {
+    public void setDetails(String details) {
         this.details = details;
     }
 
@@ -83,7 +81,7 @@ public class SysAuditLog {
         this.timestamp = timestamp;
     }
 
-    public SysAuditLog(String id, String userId, String actionType, String targetType, String targetId, Map<String, List<String>> details, LocalDateTime timestamp) {
+    public SysAuditLog(String id, String userId, String actionType, String targetType, String targetId, String details, LocalDateTime timestamp) {
         this.id = id;
         this.userId = userId;
         this.actionType = actionType;
@@ -102,7 +100,7 @@ public class SysAuditLog {
         private String actionType;
         private String targetType;
         private String targetId;
-        private Map<String, List<String>> details;
+        private String details;
         private LocalDateTime timestamp;
 
         public Builder id(String id) {
@@ -130,7 +128,7 @@ public class SysAuditLog {
             return this;
         }
 
-        public Builder details(Map<String, List<String>> details) {
+        public Builder details(String details) {
             this.details = details;
             return this;
         }

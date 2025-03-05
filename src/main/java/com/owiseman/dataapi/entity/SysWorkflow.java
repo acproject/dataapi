@@ -6,8 +6,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
+
 
 @Entity
 @Table(name = "sys_workflows")
@@ -21,7 +20,7 @@ public class SysWorkflow {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
-    private Map<String, List<String>> definition;
+    private String definition;
 
     private String createBy;
 
@@ -44,11 +43,11 @@ public class SysWorkflow {
         this.name = name;
     }
 
-    public Map<String, List<String>> getDefinition() {
+    public String getDefinition() {
         return definition;
     }
 
-    public void setDefinition(Map<String, List<String>> definition) {
+    public void setDefinition(String definition) {
         this.definition = definition;
     }
 
@@ -76,7 +75,7 @@ public class SysWorkflow {
         this.updateAt = updateAt;
     }
 
-    public SysWorkflow(String id, String name, Map<String, List<String>> definition, String createBy, LocalDateTime createAt, LocalDateTime updateAt) {
+    public SysWorkflow(String id, String name, String definition, String createBy, LocalDateTime createAt, LocalDateTime updateAt) {
         this.id = id;
         this.name = name;
         this.definition = definition;
@@ -91,7 +90,7 @@ public class SysWorkflow {
     public static class Builder {
         private String id;
         private String name;
-        private Map<String, List<String>> definition;
+        private String definition;
         private String createBy;
         private LocalDateTime createAt;
         private LocalDateTime updateAt;
@@ -106,7 +105,7 @@ public class SysWorkflow {
             return this;
         }
 
-        public Builder definition(Map<String, List<String>> definition) {
+        public Builder definition(String definition) {
             this.definition = definition;
             return this;
         }

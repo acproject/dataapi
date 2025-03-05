@@ -26,7 +26,7 @@ public class SysColumnMetadataRepository {
     public SysColumnMetadata save(SysColumnMetadata column) {
         dslContext.insertInto(TABLE)
                 .set(ID, column.getId())
-                .set(SYSTABLEMETADATA, column.getSysTableMetadata().getId())  // 使用正确的字段名 TABLE_ID
+                .set(SYSTABLEMETADATA, column.getSysTableMetadata())  // 使用正确的字段名 TABLE_ID
                 .set(COLUMNNAME, column.getColumnName())
                 .set(DATATYPE, column.getDataType())
                 .set(PRIMARYKEY, column.isPrimaryKey())  // 修正字段名 PRIMARYKEY
@@ -42,7 +42,7 @@ public class SysColumnMetadataRepository {
         columns.forEach(column -> {
             dslContext.insertInto(TABLE)
                     .set(ID, column.getId())
-                    .set(SYSTABLEMETADATA, column.getSysTableMetadata().getId())
+                    .set(SYSTABLEMETADATA, column.getSysTableMetadata())
                     .set(COLUMNNAME, column.getColumnName())
                     .set(DATATYPE, column.getDataType())
                     .set(PRIMARYKEY, column.isPrimaryKey())
@@ -56,7 +56,7 @@ public class SysColumnMetadataRepository {
 
     public void update(SysColumnMetadata column) {
         dslContext.update(TABLE)
-                .set(SYSTABLEMETADATA, column.getSysTableMetadata().getId())
+                .set(SYSTABLEMETADATA, column.getSysTableMetadata())
                 .set(COLUMNNAME, column.getColumnName())
                 .set(DATATYPE, column.getDataType())
                 .set(PRIMARYKEY, column.isPrimaryKey())

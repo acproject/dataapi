@@ -31,11 +31,11 @@ public class SysPlugin {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb", name = "config_schema")
-    private Map<String, List<String>> configSchema;
+    private String configSchema;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb", name = "runtime_config")
-    private Map<String, List<String>> runtimeConfig;
+    private String runtimeConfig;
 
     public String getId() {
         return id;
@@ -61,23 +61,23 @@ public class SysPlugin {
         this.version = version;
     }
 
-    public Map<String, List<String>> getConfigSchema() {
+    public String getConfigSchema() {
         return configSchema;
     }
 
-    public void setConfigSchema(Map<String, List<String>> configSchema) {
+    public void setConfigSchema(String configSchema) {
         this.configSchema = configSchema;
     }
 
-    public Map<String, List<String>> getRuntimeConfig() {
+    public String getRuntimeConfig() {
         return runtimeConfig;
     }
 
-    public void setRuntimeConfig(Map<String, List<String>> runtimeConfig) {
+    public void setRuntimeConfig(String runtimeConfig) {
         this.runtimeConfig = runtimeConfig;
     }
 
-    public SysPlugin(String id, String name, String version, Map<String, List<String>> configSchema, Map<String, List<String>> runtimeConfig) {
+    public SysPlugin(String id, String name, String version, String configSchema, String runtimeConfig) {
         this.id = id;
         this.name = name;
         this.version = version;
@@ -85,8 +85,7 @@ public class SysPlugin {
         this.runtimeConfig = runtimeConfig;
     }
 
-    public SysPlugin(String id, String name, String version, PluginStatus status, String wasmPath, LocalDateTime lastHeartbeat, Map<String,
-            List<String>> configSchema, Map<String, List<String>> runtimeConfig) {
+    public SysPlugin(String id, String name, String version, PluginStatus status, String wasmPath, LocalDateTime lastHeartbeat, String configSchema, String runtimeConfig) {
         this.id = id;
         this.name = name;
         this.version = version;
@@ -129,7 +128,7 @@ public class SysPlugin {
         this.port = port;
     }
 
-    public SysPlugin(String id, String name, String version, Integer port, PluginStatus status, String wasmPath, LocalDateTime lastHeartbeat, Map<String, List<String>> configSchema, Map<String, List<String>> runtimeConfig) {
+    public SysPlugin(String id, String name, String version, Integer port, PluginStatus status, String wasmPath, LocalDateTime lastHeartbeat, String configSchema, String runtimeConfig) {
         this.id = id;
         this.name = name;
         this.version = version;
@@ -152,8 +151,8 @@ public class SysPlugin {
         private PluginStatus status;
         private String wasmPath;
         private LocalDateTime lastHeartbeat;
-        private Map<String, List<String>> configSchema;
-        private Map<String, List<String>> runtimeConfig;
+        private String configSchema;
+        private String runtimeConfig;
 
         public Builder id(String id) {
             this.id = id;
@@ -190,12 +189,12 @@ public class SysPlugin {
             return this;
         }
 
-        public Builder configSchema(Map<String, List<String>> configSchema) {
+        public Builder configSchema(String configSchema) {
             this.configSchema = configSchema;
             return this;
         }
 
-        public Builder runtimeConfig(Map<String, List<String>> runtimeConfig) {
+        public Builder runtimeConfig(String runtimeConfig) {
             this.runtimeConfig = runtimeConfig;
             return this;
         }

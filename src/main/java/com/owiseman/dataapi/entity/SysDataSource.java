@@ -19,7 +19,7 @@ public class SysDataSource {
     private String type;
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb", name = "config")
-    private Map<String, List<String>> config;
+    private String config;
 
     private String createdBy;
     @Column(name = "last_test_result")
@@ -41,11 +41,11 @@ public class SysDataSource {
         this.type = type;
     }
 
-    public Map<String, List<String>> getConfig() {
+    public String getConfig() {
         return config;
     }
 
-    public void setConfig(Map<String, List<String>> config) {
+    public void setConfig(String config) {
         this.config = config;
     }
 
@@ -65,7 +65,7 @@ public class SysDataSource {
         this.lastTestResult = lastTestResult;
     }
 
-    public SysDataSource(String id, String type, Map<String, List<String>> config, String createdBy, Boolean lastTestResult) {
+    public SysDataSource(String id, String type, String config, String createdBy, Boolean lastTestResult) {
         this.id = id;
         this.type = type;
         this.config = config;
@@ -79,7 +79,7 @@ public class SysDataSource {
     public static class Builder {
         private String id;
         private String type;
-        private Map<String, List<String>> config;
+        private String config;
         private String createdBy;
         private Boolean lastTestResult;
 
@@ -93,7 +93,7 @@ public class SysDataSource {
             return this;
         }
 
-        public Builder config(Map<String, List<String>> config) {
+        public Builder config(String config) {
             this.config = config;
             return this;
         }

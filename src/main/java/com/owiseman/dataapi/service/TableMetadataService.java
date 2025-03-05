@@ -69,7 +69,7 @@ public class TableMetadataService {
         tableMetadata.setCreatedAt(LocalDateTime.now());
         tableMetadata.setUpdatedAt(LocalDateTime.now());
         tableMetadata.setCreatedBy(userId);
-        tableMetadata.setTableDefinition(JsonUtil.convertToMap(rootNode));
+        tableMetadata.setTableDefinition(JsonUtil.JsonNodeToString(rootNode));
         tableMetadata.setStatus("ACTIVE");
         
         tableMetadataRepository.save(tableMetadata);
@@ -88,7 +88,7 @@ public class TableMetadataService {
                 
                 SysColumnMetadata columnMetadata = new SysColumnMetadata();
                 columnMetadata.setId(UUID.randomUUID().toString());
-                columnMetadata.setSysTableMetadata(tableMetadata);
+                columnMetadata.setSysTableMetadata(tableMetadata.getId());
                 columnMetadata.setColumnName(columnName);
                 columnMetadata.setDataType(dataType);
                 columnMetadata.setPrimaryKey(isPrimaryKey);
@@ -155,7 +155,7 @@ public class TableMetadataService {
             if (tableMetadataOpt.isPresent()) {
                 SysTableMetadata tableMetadata = tableMetadataOpt.get();
                 tableMetadata.setUpdatedAt(LocalDateTime.now());
-                tableMetadata.setTableDefinition(JsonUtil.convertToMap(rootNode));
+                tableMetadata.setTableDefinition(JsonUtil.JsonNodeToString(rootNode));
                 tableMetadataRepository.save(tableMetadata);
                 
                 // 3. 更新列元数据
@@ -175,7 +175,7 @@ public class TableMetadataService {
                                 
                                 SysColumnMetadata newColumn = new SysColumnMetadata();
                                 newColumn.setId(UUID.randomUUID().toString());
-                                newColumn.setSysTableMetadata(tableMetadata);
+                                newColumn.setSysTableMetadata(tableMetadata.getId());
                                 newColumn.setColumnName(columnName);
                                 newColumn.setDataType(dataType);
                                 newColumn.setPrimaryKey(isPrimaryKey);
@@ -481,7 +481,7 @@ public class TableMetadataService {
                     
                     SysColumnMetadata columnMetadata = new SysColumnMetadata();
                     columnMetadata.setId(UUID.randomUUID().toString());
-                    columnMetadata.setSysTableMetadata(tableMetadata);
+                    columnMetadata.setSysTableMetadata(tableMetadata.getId());
                     columnMetadata.setColumnName(columnName);
                     columnMetadata.setDataType(dataType);
                     columnMetadata.setPrimaryKey(isPrimaryKey);

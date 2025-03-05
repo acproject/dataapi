@@ -16,7 +16,7 @@ public class SysColumnMetadata {
 
      @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sys_table_metadata", nullable = false)
-    private SysTableMetadata sysTableMetadata;
+    private String sysTableMetadata;
 
       @Column(name = "column_name", nullable = false)
     private String columnName;
@@ -47,11 +47,11 @@ public class SysColumnMetadata {
         this.id = id;
     }
 
-    public SysTableMetadata getSysTableMetadata() {
+    public String getSysTableMetadata() {
         return sysTableMetadata;
     }
 
-    public void setSysTableMetadata(SysTableMetadata sysTableMetadata) {
+    public void setSysTableMetadata(String sysTableMetadata) {
         this.sysTableMetadata = sysTableMetadata;
     }
 
@@ -111,7 +111,7 @@ public class SysColumnMetadata {
         this.ordinalPosition = ordinalPosition;
     }
 
-    public SysColumnMetadata(String id, SysTableMetadata sysTableMetadata, String columnName, String dataType, boolean primaryKey, boolean nullable, String defaultValue, String description, int ordinalPosition) {
+    public SysColumnMetadata(String id, String sysTableMetadata, String columnName, String dataType, boolean primaryKey, boolean nullable, String defaultValue, String description, int ordinalPosition) {
         this.id = id;
         this.sysTableMetadata = sysTableMetadata;
         this.columnName = columnName;
@@ -128,7 +128,7 @@ public class SysColumnMetadata {
 
     public static class Builder {
         private String id;
-        private SysTableMetadata sysTableMetadata;
+        private String sysTableMetadata;
         private String columnName;
         private String dataType;
         private boolean primaryKey;
@@ -142,7 +142,7 @@ public class SysColumnMetadata {
             return this;
         }
 
-        public Builder sysTableMetadata(SysTableMetadata sysTableMetadata) {
+        public Builder sysTableMetadata(String sysTableMetadata) {
             this.sysTableMetadata = sysTableMetadata;
             return this;
         }

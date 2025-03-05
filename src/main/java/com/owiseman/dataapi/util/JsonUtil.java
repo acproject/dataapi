@@ -1,11 +1,18 @@
 package com.owiseman.dataapi.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 
 public class JsonUtil {
-     /**
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    /**
      * 将JSON对象转换为字符串列表的映射
      *
      * @param jsonNode 输入的JSON节点，格式示例：
@@ -48,5 +55,20 @@ public class JsonUtil {
         });
 
         return resultMap;
+    }
+
+    /**
+     * Converts a JSON string to a JsonNode object.
+     *
+     * @param json The JSON string to be converted.
+     * @return A JsonNode object representing the parsed JSON.
+     */
+
+    public  static JsonNode StringToJsonNode(String json) {
+       return objectMapper.convertValue(json, JsonNode.class);
+    }
+
+    public static String JsonNodeToString(JsonNode jsonNode) {
+        return objectMapper.convertValue(jsonNode, String.class);
     }
 }
