@@ -20,4 +20,5 @@ public interface ObjectStorageService {
     String getFileUrl(String userId, String fileId);
 
     String getStorageType();
+    void createDirectory(String userId, String path) throws IOException;
 }

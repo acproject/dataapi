@@ -13,6 +13,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -112,6 +113,18 @@ public class S3StorageService implements ObjectStorageService {
     @Override
     public String getStorageType() {
         return "s3";
+    }
+
+    @Override
+    public void createDirectory(String userId, String path) throws IOException {
+        SysUserConfig config = userConfigRepository.findByUserId(userId)
+            .orElseThrow(() -> new RuntimeException("用户配置不存在"));
+
+        if (!path.endsWith("/")) {
+            path += "/";
+        }
+
+        getS3Client(userId).putObject(config.getS3BucketName(), path, String.valueOf(new ByteArrayInputStream(new byte[0])));
     }
 
     private String generateKey(MultipartFile file) {

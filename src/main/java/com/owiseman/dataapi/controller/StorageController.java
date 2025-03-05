@@ -18,6 +18,9 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/storage")
+/**
+ * 该服务更加通用，比如S3，阿里的OSS等
+ */
 public class StorageController {
 
     private final StorageServiceFactory storageFactory;

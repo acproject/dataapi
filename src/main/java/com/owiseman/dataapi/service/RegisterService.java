@@ -8,6 +8,8 @@ import com.owiseman.dataapi.entity.SysUserConfig;
 import com.owiseman.dataapi.entity.SysUserFile;
 import com.owiseman.dataapi.repository.SysUserConfigRepository;
 import com.owiseman.dataapi.repository.SysUserFilesRepository;
+import com.owiseman.dataapi.service.storage.ObjectStorageService;
+import com.owiseman.dataapi.service.storage.StorageServiceFactory;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,11 +20,12 @@ import org.springframework.validation.annotation.Validated;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Validated
 public class RegisterService {
-    
+
     @Autowired
     private KeycloakRealmService keycloakRealmService;
 
@@ -38,13 +41,16 @@ public class RegisterService {
     @Autowired
     private SysUserConfigRepository sysUserConfigRepository;
 
+    @Autowired
+    private StorageServiceFactory storageServiceFactory;
+
     @Value("${keycloak.urls.auth}")
     private String keycloakAuthUrl;
 
     @Value("${keycloak.urls.token}")
     private String keycloakTokenUrl;
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void register(@Valid RegisterDto registerDto) {
         // 验证密码匹配
         if (!registerDto.isPasswordMatch()) {
@@ -54,6 +60,7 @@ public class RegisterService {
         // 获取管理员token
         TokenResponse adminTokenResponse = keycloakTokenService.getTokenResponse();
         String adminToken = adminTokenResponse.getAccessToken();
+        Optional<String> type = registerDto.storageType();
 
         KeycloakRealmDto realmDto = null;
         try {
@@ -85,10 +92,10 @@ public class RegisterService {
             );
 
             // 创建用户配置
-            createUserConfig(createdUser.id(), realmName);
+            createUserConfig(createdUser.id(), realmName,type);
 
             // 5. 创建用户的根目录
-            createUserRootDirectory(createdUser.id(), realmName);
+            createUserRootDirectory(createdUser.id(), realmName,type);
 
         } catch (Exception e) {
             // 如果创建过程中出现错误，回滚所有操作
@@ -102,7 +109,7 @@ public class RegisterService {
         }
     }
 
-    private void createUserConfig(String userId, String realmName) {
+    private void createUserConfig(String userId, String realmName, Optional<String> type) {
         SysUserConfig config = new SysUserConfig();
         config.setUserId(userId);
         config.setKeycloakRealm(realmName);
@@ -110,51 +117,51 @@ public class RegisterService {
         // 替换 token URL 中的 master 为新的 realm 名称
         String tokenUrl = keycloakTokenUrl.replace("/realms/master/", "/realms/" + realmName + "/");
         config.setKeycloakTokenUrl(tokenUrl);
-        
+
         // 设置数据库表前缀
         config.setDatabaseTableNamePrefix(realmName.toLowerCase() + "_");
-        
+
         sysUserConfigRepository.save(config);
     }
 
-    private void createUserRootDirectory(String userId, String realmName) {
+    private void createUserRootDirectory(String userId, String realmName, Optional<String> type) {
         // 创建用户的根目录
-        SysUserFile rootDir = createDirectory(userId, realmName, null, "/" + realmName);
-    
+        SysUserFile rootDir = createDirectory(userId, realmName, null, "/" + realmName, type);
+
         // 创建证书目录
         String certPath = rootDir.getPath() + "/certificates";
-        createDirectory(userId, "certificates", rootDir.getId(), certPath);
-    
+        createDirectory(userId, "certificates", rootDir.getId(), certPath, type);
+
         // 分别创建 APNS 和 Firebase 证书目录
         String apnsPath = certPath + "/apns";
         String firebasePath = certPath + "/firebase";
-        createDirectory(userId, "apns", rootDir.getId(), apnsPath);
-        createDirectory(userId, "firebase", rootDir.getId(), firebasePath);
-    
+        createDirectory(userId, "apns", rootDir.getId(), apnsPath, type);
+        createDirectory(userId, "firebase", rootDir.getId(), firebasePath, type);
+
         // 创建媒体文件目录
         String mediaPath = rootDir.getPath() + "/media";
-        SysUserFile mediaDir = createDirectory(userId, "media", rootDir.getId(), mediaPath);
-    
+        SysUserFile mediaDir = createDirectory(userId, "media", rootDir.getId(), mediaPath, type);
+
         // 创建媒体子目录
-        createDirectory(userId, "images", mediaDir.getId(), mediaPath + "/images");
-        createDirectory(userId, "audio", mediaDir.getId(), mediaPath + "/audio");
-        createDirectory(userId, "video", mediaDir.getId(), mediaPath + "/video");
-        createDirectory(userId, "documents", mediaDir.getId(), mediaPath + "/documents");
-        createDirectory(userId, "avatars", mediaDir.getId(), mediaPath + "/avatars");
-        createDirectory(userId, "others", mediaDir.getId(), mediaPath + "/others");
+        createDirectory(userId, "images", mediaDir.getId(), mediaPath + "/images", type);
+        createDirectory(userId, "audio", mediaDir.getId(), mediaPath + "/audio", type);
+        createDirectory(userId, "video", mediaDir.getId(), mediaPath + "/video", type);
+        createDirectory(userId, "documents", mediaDir.getId(), mediaPath + "/documents", type);
+        createDirectory(userId, "avatars", mediaDir.getId(), mediaPath + "/avatars", type);
+        createDirectory(userId, "others", mediaDir.getId(), mediaPath + "/others", type);
 
         // 创建小程序专用目录
         String miniProgramPath = rootDir.getPath() + "/mini_programs";
-        SysUserFile miniProgramDir = createDirectory(userId, "mini_programs", rootDir.getId(), miniProgramPath);
+        SysUserFile miniProgramDir = createDirectory(userId, "mini_programs", rootDir.getId(), miniProgramPath, type);
 
         // 创建微信小程序子目录
-        createDirectory(userId, "wechat", miniProgramDir.getId(), miniProgramPath + "/wechat");
+        createDirectory(userId, "wechat", miniProgramDir.getId(), miniProgramPath + "/wechat", type);
 
         // 创建支付宝小程序子目录
-        createDirectory(userId, "alipay", miniProgramDir.getId(), miniProgramPath + "/alipay");
+        createDirectory(userId, "alipay", miniProgramDir.getId(), miniProgramPath + "/alipay", type);
     }
 
-    private SysUserFile createDirectory(String userId, String dirName, String parentId, String path) {
+    private SysUserFile createDirectory(String userId, String dirName, String parentId, String path, Optional<String> type) {
         SysUserFile dir = new SysUserFile();
         dir.setUserId(userId);
         dir.setFileName(dirName);
@@ -164,6 +171,22 @@ public class RegisterService {
         dir.setDirectory(true);
         dir.setPath(path);
         dir.setParentId(parentId);
+
+        String defaultStorageType = type.orElse("seaweedfs");
+        try {
+            ObjectStorageService storageService = storageServiceFactory.getService(defaultStorageType);
+            // 调用存储服务创建实际目录（路径需要转换为存储服务格式）
+            String storagePath = path.replace("/" + dirName, "") + "/" + dirName;
+            storageService.createDirectory(userId, storagePath);
+        } catch (Exception e) {
+            // 如果存储服务操作失败，回滚数据库操作
+            sysUserFilesRepository.deleteById(dir.getId());
+            throw new RuntimeException("目录创建失败: " + e.getMessage());
+        }
         return sysUserFilesRepository.save(dir);
     }
+
+     private String normalizePath(String path) {
+       return path.startsWith("/") ? path.substring(1) : path;
+   }
 }

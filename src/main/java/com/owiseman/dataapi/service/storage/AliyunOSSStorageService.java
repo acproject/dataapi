@@ -10,6 +10,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
@@ -102,6 +103,21 @@ public class AliyunOSSStorageService implements ObjectStorageService {
     public String getStorageType() {
         return "aliyun";
     }
+
+   @Override
+    public void createDirectory(String userId, String path) {
+        SysUserConfig config = userConfigRepository.findByUserId(userId)
+            .orElseThrow(() -> new RuntimeException("用户配置不存在"));
+
+        // Ensure the path ends with a slash
+        if (!path.endsWith("/")) {
+            path += "/";
+        }
+
+        // Create a zero-length object to simulate a directory
+        getOssClient(userId).putObject(config.getOssBucketName(), path, new ByteArrayInputStream(new byte[0]));
+    }
+
 
     private String generateKey(MultipartFile file) {
         return System.currentTimeMillis() + "_" + file.getOriginalFilename();
