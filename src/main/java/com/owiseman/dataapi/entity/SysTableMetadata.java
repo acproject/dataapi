@@ -42,6 +42,17 @@ public class SysTableMetadata {
     @OrderBy("ordinalPosition")
     private List<SysColumnMetadata> columns;
 
+    private String userId;
+
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
     public String getId() {
         return id;
     }
@@ -114,7 +125,7 @@ public class SysTableMetadata {
         this.columns = columns;
     }
 
-    public SysTableMetadata(String id, String tableName, String description, LocalDateTime createdAt, LocalDateTime updatedAt, String createdBy, Map<String, List<String>> tableDefinition, String status, List<SysColumnMetadata> columns) {
+    public SysTableMetadata(String id, String tableName, String description, LocalDateTime createdAt, LocalDateTime updatedAt, String createdBy, Map<String, List<String>> tableDefinition, String status, List<SysColumnMetadata> columns,String userId) {
         this.id = id;
         this.tableName = tableName;
         this.description = description;
@@ -124,6 +135,7 @@ public class SysTableMetadata {
         this.tableDefinition = tableDefinition;
         this.status = status;
         this.columns = columns;
+        this.userId = userId;
     }
 
     public SysTableMetadata() {
@@ -139,6 +151,12 @@ public class SysTableMetadata {
         private Map<String, List<String>> tableDefinition;
         private String status;
         private List<SysColumnMetadata> columns;
+        private String userId;
+
+        public Builder userId(String userId) {
+            this.userId = userId;
+            return this;
+        }
 
         public Builder id(String id) {
             this.id = id;
@@ -196,6 +214,7 @@ public class SysTableMetadata {
             tableMetadata.setTableDefinition(tableDefinition);
             tableMetadata.setStatus(status);
             tableMetadata.setColumns(columns);
+            tableMetadata.setUserId(userId);
             return tableMetadata;
         }
     }

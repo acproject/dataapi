@@ -15,12 +15,9 @@ import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.owiseman.dataapi.entity.Tables.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,19 +31,18 @@ public class TableMetadataService {
     private final SysTableMetadataRepository tableMetadataRepository;
     private final SysColumnMetadataRepository columnMetadataRepository;
     private final DSLContext dslContext;
-    private final TableAndDataUtil tableAndDataUtil;
     private final ObjectMapper objectMapper;
+    private final TableAndDataUtil tableAndDataUtil;
 
     @Autowired
     public TableMetadataService(
             SysTableMetadataRepository tableMetadataRepository,
             SysColumnMetadataRepository columnMetadataRepository,
-            DSLContext dslContext,
-            TableAndDataUtil tableAndDataUtil) {
+            DSLContext dslContext) {
         this.tableMetadataRepository = tableMetadataRepository;
         this.columnMetadataRepository = columnMetadataRepository;
         this.dslContext = dslContext;
-        this.tableAndDataUtil = tableAndDataUtil;
+        this.tableAndDataUtil = TableAndDataUtil.getInstance();
         this.objectMapper = new ObjectMapper();
     }
 
@@ -498,5 +494,17 @@ public class TableMetadataService {
                 }
             }
         }
+    }
+
+    public boolean tableExists(String name) {
+        return dslContext.fetchExists(DSL.selectOne().from(DSL.table(name)));
+    }
+
+    public List<SysColumnMetadata> getTableColumns(String id) {
+        return columnMetadataRepository.findByTableId(id);
+    }
+
+    public PageResult<SysTableMetadata> getTablesWithPagination(int page, int size) {
+        return tableMetadataRepository.findAllWithPagination(page, size);
     }
 }

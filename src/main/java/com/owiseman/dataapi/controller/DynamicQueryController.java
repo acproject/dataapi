@@ -91,7 +91,11 @@ public class DynamicQueryController {
         try {
             DataRecord dataRecord = jooqService.executeSQL(json);
             return ResponseEntity.ok(dataRecord);
-        }catch (Exception e) {
+        } catch (IllegalArgumentException e) {
+            // 参数错误返回400
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            // 其他错误返回500
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
