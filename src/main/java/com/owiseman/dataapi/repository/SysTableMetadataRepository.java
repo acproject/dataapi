@@ -7,6 +7,8 @@ import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -86,5 +88,18 @@ public class SysTableMetadataRepository {
                 .fetchOne(0, Integer.class);
 
         return new PageResult<>(tables, pageNumber, pageSize, total);
+    }
+
+
+    public List<SysTableMetadata> findByStatusNot(String deleted) {
+        return dslContext.selectFrom(TABLE)
+                .where(STATUS.ne(deleted))
+                .fetchInto(SysTableMetadata.class);
+    }
+
+    public Optional<SysTableMetadata> findById(String id) {
+        return dslContext.selectFrom(TABLE)
+                .where(ID.eq(id))
+                .fetchOptionalInto(SysTableMetadata.class);
     }
 }
