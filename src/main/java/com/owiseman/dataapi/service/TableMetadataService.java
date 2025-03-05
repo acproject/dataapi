@@ -88,7 +88,7 @@ public class TableMetadataService {
                 
                 SysColumnMetadata columnMetadata = new SysColumnMetadata();
                 columnMetadata.setId(UUID.randomUUID().toString());
-                columnMetadata.setSysTableMetadata(tableMetadata.getId());
+                columnMetadata.setSysTableMetadata(tableMetadata);
                 columnMetadata.setColumnName(columnName);
                 columnMetadata.setDataType(dataType);
                 columnMetadata.setPrimaryKey(isPrimaryKey);
@@ -175,7 +175,7 @@ public class TableMetadataService {
                                 
                                 SysColumnMetadata newColumn = new SysColumnMetadata();
                                 newColumn.setId(UUID.randomUUID().toString());
-                                newColumn.setSysTableMetadata(tableMetadata.getId());
+                                newColumn.setSysTableMetadata(tableMetadata);
                                 newColumn.setColumnName(columnName);
                                 newColumn.setDataType(dataType);
                                 newColumn.setPrimaryKey(isPrimaryKey);
@@ -481,7 +481,7 @@ public class TableMetadataService {
                     
                     SysColumnMetadata columnMetadata = new SysColumnMetadata();
                     columnMetadata.setId(UUID.randomUUID().toString());
-                    columnMetadata.setSysTableMetadata(tableMetadata.getId());
+                    columnMetadata.setSysTableMetadata(tableMetadata);
                     columnMetadata.setColumnName(columnName);
                     columnMetadata.setDataType(dataType);
                     columnMetadata.setPrimaryKey(isPrimaryKey);

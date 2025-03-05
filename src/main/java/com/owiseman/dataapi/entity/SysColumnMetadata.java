@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "sys_column_metadata",uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"table_id", "column_name"})
+    @UniqueConstraint(columnNames = {"sys_table_metadata", "column_name"})
 })
 
 public class SysColumnMetadata {
@@ -16,7 +16,7 @@ public class SysColumnMetadata {
 
      @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sys_table_metadata", nullable = false)
-    private String sysTableMetadata;
+    private SysTableMetadata sysTableMetadata;
 
       @Column(name = "column_name", nullable = false)
     private String columnName;
@@ -47,11 +47,11 @@ public class SysColumnMetadata {
         this.id = id;
     }
 
-    public String getSysTableMetadata() {
+    public SysTableMetadata getSysTableMetadata() {
         return sysTableMetadata;
     }
 
-    public void setSysTableMetadata(String sysTableMetadata) {
+    public void setSysTableMetadata(SysTableMetadata sysTableMetadata) {
         this.sysTableMetadata = sysTableMetadata;
     }
 
@@ -111,7 +111,7 @@ public class SysColumnMetadata {
         this.ordinalPosition = ordinalPosition;
     }
 
-    public SysColumnMetadata(String id, String sysTableMetadata, String columnName, String dataType, boolean primaryKey, boolean nullable, String defaultValue, String description, int ordinalPosition) {
+    public SysColumnMetadata(String id, SysTableMetadata sysTableMetadata, String columnName, String dataType, boolean primaryKey, boolean nullable, String defaultValue, String description, int ordinalPosition) {
         this.id = id;
         this.sysTableMetadata = sysTableMetadata;
         this.columnName = columnName;
@@ -128,7 +128,7 @@ public class SysColumnMetadata {
 
     public static class Builder {
         private String id;
-        private String sysTableMetadata;
+        private SysTableMetadata sysTableMetadata;
         private String columnName;
         private String dataType;
         private boolean primaryKey;
@@ -142,7 +142,7 @@ public class SysColumnMetadata {
             return this;
         }
 
-        public Builder sysTableMetadata(String sysTableMetadata) {
+        public Builder sysTableMetadata(SysTableMetadata sysTableMetadata) {
             this.sysTableMetadata = sysTableMetadata;
             return this;
         }
