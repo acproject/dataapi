@@ -6,6 +6,7 @@ import com.owiseman.dataapi.entity.SysUser;
 
 import com.owiseman.dataapi.repository.SysUserRepository;
 
+import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -16,10 +17,10 @@ import com.owiseman.dataapi.dto.UserRegistrationRecord;
 @Service
 public class UsersSyncService {
 
-    @Autowired
     SysUserRepository sysUserRepository;
 
     public UsersSyncService() {
+        sysUserRepository=new SysUserRepository();
     }
 
     @Async

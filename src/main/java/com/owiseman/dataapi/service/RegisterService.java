@@ -10,7 +10,9 @@ import com.owiseman.dataapi.repository.SysUserConfigRepository;
 import com.owiseman.dataapi.repository.SysUserFilesRepository;
 import com.owiseman.dataapi.service.storage.ObjectStorageService;
 import com.owiseman.dataapi.service.storage.StorageServiceFactory;
+import com.owiseman.dataapi.service.storage.StorageType;
 import jakarta.validation.Valid;
+import org.keycloak.admin.client.Keycloak;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,9 @@ import java.util.Optional;
 @Service
 @Validated
 public class RegisterService {
+
+    @Autowired
+    private KeycloakAdminUtils KeycloakAdminUtils;
 
     @Autowired
     private KeycloakRealmService keycloakRealmService;
@@ -50,17 +55,21 @@ public class RegisterService {
     @Value("${keycloak.urls.token}")
     private String keycloakTokenUrl;
 
+     @Value("${keycloak.client-info}")
+    private String clientInfo;
+
     @Transactional(rollbackFor = Exception.class)
-    public void register(@Valid RegisterDto registerDto) {
+    public void register(@Valid RegisterDto registerDto, String token) {
         // 验证密码匹配
         if (!registerDto.isPasswordMatch()) {
             throw new RuntimeException("密码和确认密码不匹配");
         }
 
         // 获取管理员token
-        TokenResponse adminTokenResponse = keycloakTokenService.getTokenResponse();
-        String adminToken = adminTokenResponse.getAccessToken();
-        Optional<String> type = registerDto.storageType();
+        String adminToken = token;
+        // 获得存储类型
+        StorageType type = registerDto.storageType().isEmpty()? StorageType.seaweedfs :
+                StorageType.valueOf(registerDto.storageType().get());
 
         KeycloakRealmDto realmDto = null;
         try {
@@ -78,24 +87,25 @@ public class RegisterService {
                     registerDto.password()
             );
 
+            Keycloak keycloak = KeycloakAdminUtils.getKeyCloak(realmName, keycloakAuthUrl, "admin-cli",clientInfo, adminToken);
             // 创建用户
-            UserRegistrationRecord createdUser = keycloakUserService.createUser(userRecord, adminToken);
+            UserRegistrationRecord createdUser = keycloakUserService.createUser(userRecord, keycloak, realmDto.getName());
 
             // 3. 为用户添加管理员角色
-            keycloakUserService.assignAdminRole(createdUser.id(), adminToken);
+            keycloakUserService.assignAdminRoleForNewRealm(keycloak, createdUser.id(), realmName);
 
             // 4. 添加用户的额外属性（如电话号码）
-            keycloakUserService.updateUserAttributes(
+            keycloakUserService.updateUserAttributesForNewRealm(keycloak,
                     createdUser.id(),
                     Map.of("phone", List.of(registerDto.phone())),
-                    adminToken
+                    realmName
             );
 
             // 创建用户配置
-            createUserConfig(createdUser.id(), realmName,type);
+            createUserConfig(createdUser.id(), realmName);
 
             // 5. 创建用户的根目录
-            createUserRootDirectory(createdUser.id(), realmName,type);
+            createUserRootDirectory(createdUser.id(), realmName, Optional.ofNullable(type.getType()));
 
         } catch (Exception e) {
             // 如果创建过程中出现错误，回滚所有操作
@@ -109,7 +119,7 @@ public class RegisterService {
         }
     }
 
-    private void createUserConfig(String userId, String realmName, Optional<String> type) {
+    private void createUserConfig(String userId, String realmName) {
         SysUserConfig config = new SysUserConfig();
         config.setUserId(userId);
         config.setKeycloakRealm(realmName);

@@ -2,6 +2,7 @@ package com.owiseman.dataapi.repository;
 
 import com.owiseman.dataapi.dto.PageResult;
 import com.owiseman.dataapi.entity.SysUser;
+import com.owiseman.dataapi.util.JooqContextHolder;
 import com.owiseman.jpa.util.PaginationHelper;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
@@ -17,12 +18,11 @@ import java.util.List;
 
 @Repository
 public class SysUserRepository {
-    @Autowired
-    private DSLContext dslContext;
+    private final DSLContext dslContext;
 
     @Autowired
     public SysUserRepository() {
-
+        this.dslContext = JooqContextHolder.getDslContext();
     }
 
 

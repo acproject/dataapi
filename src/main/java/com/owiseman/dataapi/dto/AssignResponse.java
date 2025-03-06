@@ -4,6 +4,7 @@ public class AssignResponse {
     private String fid;
     private String url;
     private String publicUrl;
+    private String serverUrl;
 
     public String getFid() {
         return fid;
@@ -29,10 +30,19 @@ public class AssignResponse {
         this.publicUrl = publicUrl;
     }
 
-    public AssignResponse(String fid, String url, String publicUrl) {
+    public AssignResponse(String fid, String url, String publicUrl ,String serverUrl) {
         this.fid = fid;
         this.url = url;
         this.publicUrl = publicUrl;
+        this.serverUrl = serverUrl;
+    }
+
+    public String getServerUrl() {
+        return serverUrl;
+    }
+
+    public void setServerUrl(String serverUrl) {
+        this.serverUrl = serverUrl;
     }
 
     public AssignResponse() {

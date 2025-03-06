@@ -2,7 +2,10 @@ package com.owiseman.dataapi.controller;
 
 import com.owiseman.dataapi.dto.RegisterDto;
 import com.owiseman.dataapi.service.RegisterService;
+import com.owiseman.dataapi.util.HttpHeaderUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,8 +22,12 @@ public class RegisterController {
     private RegisterService registerService;
 
     @PostMapping
-    public ResponseEntity<?> register(@RequestBody RegisterDto registerDto) {
-        registerService.register(registerDto);
+    public ResponseEntity<?> register(@RequestBody RegisterDto registerDto,
+                                      HttpServletRequest httpServletRequest) {
+        String token = HttpHeaderUtil.getTokenFromHeader(httpServletRequest);
+        registerService.register(registerDto, token);
         return ResponseEntity.ok().body(Map.of("message", "注册成功"));
     }
+
+
 }

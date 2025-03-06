@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -67,7 +68,7 @@ public class S3StorageService implements ObjectStorageService {
     }
 
     @Override
-    public String upload(String userId, MultipartFile file) throws IOException {
+    public String upload(String userId, MultipartFile file, Optional<String> parentId) throws IOException {
         SysUserConfig config = userConfigRepository.findByUserId(userId)
             .orElseThrow(() -> new RuntimeException("用户配置不存在"));
 
@@ -112,7 +113,7 @@ public class S3StorageService implements ObjectStorageService {
 
     @Override
     public String getStorageType() {
-        return "s3";
+        return StorageType.s3.getType();
     }
 
     @Override

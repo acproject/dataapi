@@ -4,6 +4,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Optional;
 
 public interface ObjectStorageService {
     String upload(MultipartFile file) throws IOException;
@@ -11,7 +12,7 @@ public interface ObjectStorageService {
     void delete(String fileId) throws IOException;
     String getFileUrl(String fileId);
 
-    String upload(String userId, MultipartFile file) throws IOException;
+    String upload(String userId, MultipartFile file, Optional<String> parentId) throws IOException;
 
     Resource download(String userId, String fileId) throws IOException;
 

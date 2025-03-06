@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Optional;
@@ -30,11 +31,11 @@ public class KeycloakTokenService {
     @Value("${keycloak.client-info}")
     private String userInfo;
 
-    private final RestTemplate restTemplate;
-
-    public KeycloakTokenService() {
-        this.restTemplate = new RestTemplate();
-    }
+//    private final RestTemplate restTemplate;
+//
+//    public KeycloakTokenService() {
+//        this.restTemplate = new RestTemplate();
+//    }
 
     public TokenResponse getTokenResponse(Optional<String> username, Optional<String> password, Optional<String> clientSecret, Optional<String> grantType) {
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
@@ -48,7 +49,7 @@ public class KeycloakTokenService {
 
         HttpEntity<MultiValueMap<String, String>> request =
                 new HttpEntity<>(formData, headers);
-
+        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<TokenResponse> response = restTemplate.postForEntity(
                 tokenUrl,
                 request,
@@ -67,7 +68,7 @@ public class KeycloakTokenService {
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("client_id", clientId);
 //        formData.add("client_secret", clientSecret);
-        formData.add("grant_type", OAuth2ConstantsExtends.CLIENT_CREDENTIALS);
+        formData.add("grant_type", OAuth2ConstantsExtends.PASSWORD);
         formData.add("username", OAuth2ConstantsExtends.ADMIN);
         formData.add("password", userInfo);
         HttpHeaders headers = new HttpHeaders();
@@ -75,7 +76,7 @@ public class KeycloakTokenService {
 
         HttpEntity<MultiValueMap<String, String>> request =
                 new HttpEntity<>(formData, headers);
-
+        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<TokenResponse> response = restTemplate.postForEntity(
                 tokenUrl,
                 request,
@@ -105,7 +106,7 @@ public class KeycloakTokenService {
 
         // 替换 URL 中的 realm
         String realmTokenUrl = tokenUrl.replace("/realms/master/", "/realms/" + realm + "/");
-
+        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<TokenResponse> response = restTemplate.postForEntity(
                 realmTokenUrl,
                 request,
@@ -116,6 +117,47 @@ public class KeycloakTokenService {
             return response.getBody().getAccessToken();
         } else {
             throw new RuntimeException("认证失败: " + response.getStatusCode());
+        }
+    }
+
+
+    /**
+     * 获取指定用户的token
+     * 
+     * @param username 用户名
+     * @param password 密码
+     * @param realm 领域名称
+     * @return token响应
+     */
+    public TokenResponse getTokenForMasterAdminUser(String username, String password, String realm) {
+
+        
+        // 如果不是master realm，需要修改URL
+        if (!"master".equals(realm)) {
+            tokenUrl = tokenUrl.replace("/realms/master/", "/realms/" + realm + "/");
+        }
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("grant_type", "password");
+        map.add("client_id", clientId);
+        map.add("username", username);
+        map.add("password", password);
+        
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
+        
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<TokenResponse> response = restTemplate.postForEntity(
+                    tokenUrl, 
+                    request, 
+                    TokenResponse.class
+            );
+            return response.getBody();
+        } catch (HttpClientErrorException e) {
+            throw new RuntimeException("认证失败: " + e.getMessage());
         }
     }
 

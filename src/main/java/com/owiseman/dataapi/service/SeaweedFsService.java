@@ -36,7 +36,7 @@ public class SeaweedFsService implements FileService {
     public SysUserFile uploadFile(String userId, MultipartFile file, Optional<String> parentId) {
         try {
             ObjectStorageService storageService = storageFactory.getService(defaultStorageType);
-            String fileId = storageService.upload(file);
+            String fileId = storageService.upload(userId, file, parentId);
             
             SysUserFile meta = new SysUserFile();
             meta.setId(UUID.randomUUID().toString());

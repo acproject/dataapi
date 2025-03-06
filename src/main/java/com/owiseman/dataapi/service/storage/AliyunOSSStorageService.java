@@ -14,6 +14,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -61,7 +62,7 @@ public class AliyunOSSStorageService implements ObjectStorageService {
     }
 
     @Override
-    public String upload(String userId, MultipartFile file) throws IOException {
+    public String upload(String userId, MultipartFile file, Optional<String> parentId) throws IOException {
         SysUserConfig config = userConfigRepository.findByUserId(userId)
             .orElseThrow(() -> new RuntimeException("用户配置不存在"));
 
@@ -101,7 +102,7 @@ public class AliyunOSSStorageService implements ObjectStorageService {
 
     @Override
     public String getStorageType() {
-        return "aliyun";
+        return StorageType.aliyun.getType();
     }
 
    @Override

@@ -1,5 +1,6 @@
 package com.owiseman.dataapi.config;
 
+import com.owiseman.dataapi.util.JooqContextHolder;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import jakarta.annotation.PostConstruct;
@@ -13,10 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
+
 import javax.sql.DataSource;
 import java.util.Arrays;
 
@@ -58,19 +61,19 @@ public class DataSourceConfig {
         hikariConfig.addDataSourceProperty("prepStmtCacheSize", env.getProperty("spring.datasource.hikari.prep-stmt-cache-size", "250"));
         hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", env.getProperty("spring.datasource.hikari.prep-stmt-cache-sql-limit", "2048"));
         log.info("hikariConfig: injected!");
-        return new HikariDataSource(hikariConfig);
+        HikariDataSource dataSource = new HikariDataSource(hikariConfig);
+        JooqContextHolder.initDataSource(dataSource);
+        return dataSource;
     }
 
-    @Bean
-    @DependsOn("dataSource")
-    public DSLContext dslContext(DataSource dataSource) {
-        log.info("DSLContext injected!");
-        return DSL.using(dataSource, SQLDialect.POSTGRES);
-    }
+
+
 
     @Bean
     public PlatformTransactionManager transactionManager(DataSource dataSource) {
         log.info("TransactionManager injected!");
         return new DataSourceTransactionManager(dataSource);
     }
+
+
 }

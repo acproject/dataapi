@@ -2,6 +2,7 @@ package com.owiseman.dataapi.repository;
 
 import com.owiseman.dataapi.dto.PageResult;
 import com.owiseman.dataapi.entity.SysUserConfig;
+import com.owiseman.dataapi.util.JooqContextHolder;
 import com.owiseman.jpa.util.PaginationHelper;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
@@ -11,19 +12,24 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.owiseman.dataapi.entity.Tables.SYSUSERCONFIG.*;
 
 @Repository
 public class SysUserConfigRepository {
-    @Autowired
-    private DSLContext dslContext;
+
+    private final DSLContext dslContext;
 
     @Autowired
     public SysUserConfigRepository() {
+        this.dslContext = JooqContextHolder.getDslContext();
     }
 
     public SysUserConfig save(SysUserConfig config) {
+        if (config.getId() == null || config.getId().isEmpty()) {
+            config.setId(UUID.randomUUID().toString());
+        }
         dslContext.insertInto(TABLE)
                 .set(ID, config.getId())
                 .set(USERID, config.getUserId())

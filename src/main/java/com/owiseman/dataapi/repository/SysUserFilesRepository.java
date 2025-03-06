@@ -2,6 +2,7 @@ package com.owiseman.dataapi.repository;
 
 import com.owiseman.dataapi.dto.PageResult;
 import com.owiseman.dataapi.entity.SysUserFile;
+import com.owiseman.dataapi.util.JooqContextHolder;
 import com.owiseman.jpa.util.PaginationHelper;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
@@ -13,20 +14,29 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.owiseman.dataapi.entity.Tables.SYSUSERFILE.*;
 
 @Repository
 public class SysUserFilesRepository {
+    private final DSLContext dslContext;
+
     @Autowired
-    private DSLContext dslContext;
+    public SysUserFilesRepository() {
+        this.dslContext = JooqContextHolder.getDslContext();
+    }
 
     public SysUserFile save(SysUserFile userFile) {
+        if (userFile.getId() == null || userFile.getId().isEmpty()) {
+            userFile.setId(UUID.randomUUID().toString());
+        }
         dslContext.insertInto(TABLE)
                 .set(ID, userFile.getId())
                 .set(USERID, userFile.getUserId())
                 .set(FID, userFile.getFid())
                 .set(FILENAME, userFile.getFileName())
+                .set(ISDIRECTORY, userFile.isDirectory())
                 .set(SIZE, userFile.getSize())
                 .set(UPLOADTIME, userFile.getUploadTime())
                 .execute();

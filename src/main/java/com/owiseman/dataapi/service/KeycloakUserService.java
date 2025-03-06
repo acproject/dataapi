@@ -36,7 +36,7 @@ public class KeycloakUserService implements UserService {
     private String serverUrl;
     @Value("${keycloak.resource}")
     private String clientId;
-//    @Value("${keycloak.credentials.secret}")
+    //    @Value("${keycloak.credentials.secret}")
 //    private String clientSecret;
     @Value("${keycloak.client-info}")
     private String clientInfo;
@@ -44,6 +44,7 @@ public class KeycloakUserService implements UserService {
     private String isEmailVerified;
 
     private UsersSyncService usersSyncService;
+
     @Autowired
     public KeycloakUserService() {
 
@@ -154,6 +155,53 @@ public class KeycloakUserService implements UserService {
         throw new RuntimeException("Failed to create user");
     }
 
+    public UserRegistrationRecord createUser(UserRegistrationRecord userRegistrationRecord, Keycloak keycloak, String realm) {
+        UserRepresentation user = new UserRepresentation();
+        user.setEnabled(true);
+        user.setUsername(userRegistrationRecord.username());
+        user.setEmail(userRegistrationRecord.email());
+        user.setFirstName(userRegistrationRecord.firstname());
+        user.setLastName(userRegistrationRecord.lastname());
+        user.setEmailVerified(Boolean.valueOf(isEmailVerified));
+
+        CredentialRepresentation credentialRepresentation = new CredentialRepresentation();
+        credentialRepresentation.setValue(userRegistrationRecord.password());
+        credentialRepresentation.setType(CredentialRepresentation.PASSWORD);
+        credentialRepresentation.setTemporary(OAuth2ConstantsExtends.FALSE);
+
+        UsersResource usersResource = getUserResourceForNewRealm(keycloak, realm);
+        Response response = usersResource.create(user);
+        if (Objects.equals(201, response.getStatus())) {
+            List<UserRepresentation> representationList = usersResource.search(userRegistrationRecord.username(), true);
+            if (!CollectionUtils.isEmpty(representationList)) {
+                UserRepresentation userRepresentation1 = representationList.stream().filter(userRepresentation ->
+                        Objects.equals(false, userRepresentation.isEmailVerified())).findFirst().orElse(null);
+                assert userRepresentation1 != null;
+
+                if (user.isEmailVerified())
+                    emailVerification(keycloak, realm, userRepresentation1.getId());
+            }
+            var id = representationList.get(0).getId().toString();
+            UserRegistrationRecord userRecord = new UserRegistrationRecord(
+                    id,
+                    user.getUsername(),
+                    user.getEmail(),
+                    user.getFirstName(),
+                    user.getLastName(),
+                    ""
+            );
+            usersSyncService.syncUsers(userRecord);
+            return userRecord;
+        } else if (Objects.equals(409, response.getStatus())) {
+            throw new RuntimeException("User already exists");
+        }
+        throw new RuntimeException("Failed to create user");
+    }
+
+    public UsersResource getUserResourceForNewRealm(Keycloak keycloak, String realm) {
+        return keycloak.realm(realm).users();
+    }
+
     public UsersResource getUsersResource(String token) {
         Keycloak keycloak = KeycloakBuilder.builder()
                 .serverUrl(serverUrl)
@@ -185,9 +233,19 @@ public class KeycloakUserService implements UserService {
         usersResource.get(userId).sendVerifyEmail();
     }
 
+    public void emailVerification(Keycloak keycloak, String realm, String userId) {
+        UsersResource usersResource = getUserResourceForNewRealm(keycloak, realm);
+        usersResource.get(userId).sendVerifyEmail();
+    }
+
     @Override
     public UserResource getUsersResourceById(String userId, String token) {
         var usersResource = getUsersResource(token);
+        return usersResource.get(userId);
+    }
+
+    public UserResource getUsersResourceByIdForNewRealm(Keycloak keycloak, String userId, String realm) {
+        var usersResource = getUserResourceForNewRealm(keycloak, realm);
         return usersResource.get(userId);
     }
 
@@ -210,15 +268,15 @@ public class KeycloakUserService implements UserService {
     }
 
     public UserResource updateUser(SysUser sysUser, String token) {
-       return updateUser(sysUser.getId(), sysUser.getEmail(),
+        return updateUser(sysUser.getId(), sysUser.getEmail(),
                 sysUser.getFirstName(), sysUser.getLastName()
-                ,Optional.of(sysUser.getAttributes()), token);
+                , Optional.of(sysUser.getAttributes()), token);
     }
 
     @Override
     public UserResource updateUser(String userId, String newEmail,
-                           String newFirstName, String newLastName,
-                           Optional<Map<String, List<String>>> attributes, String token) {
+                                   String newFirstName, String newLastName,
+                                   Optional<Map<String, List<String>>> attributes, String token) {
         var userResource = getUsersResourceById(userId, token);
         UserRepresentation userRepresentation = userResource.toRepresentation();
         var sysUser = usersSyncService.getSysUserById(userId);
@@ -229,12 +287,12 @@ public class KeycloakUserService implements UserService {
         }
         if (!newFirstName.equals(userRepresentation.getFirstName()) && !newFirstName.isEmpty()) {
             userRepresentation.setFirstName(newFirstName);
-             if (ObjectUtils.isEmpty(sysUser))
+            if (ObjectUtils.isEmpty(sysUser))
                 sysUser.setFirstName(newFirstName);
         }
         if (!newLastName.equals(userRepresentation.getLastName()) && !newLastName.isEmpty()) {
             userRepresentation.setLastName(newLastName);
-             if (ObjectUtils.isEmpty(sysUser))
+            if (ObjectUtils.isEmpty(sysUser))
                 sysUser.setLastName(newLastName);
         }
 
@@ -250,9 +308,17 @@ public class KeycloakUserService implements UserService {
         return userResource;
     }
 
+    public void  assignAdminRoleForNewRealm(Keycloak keycloak, String userId, String realm) {
+        UserResource userResource = getUsersResourceByIdForNewRealm(keycloak, userId, realm);
+        RolesResource rolesResource = keycloak.realm(realm).roles();
+        keycloak.realm(realm).roles().create(keycloak.realm("master").roles().get("admin").toRepresentation());
+        RoleRepresentation adminRole = rolesResource.get("admin").toRepresentation();
+        userResource.roles().realmLevel().add(Collections.singletonList(adminRole));
+    }
+
     public void assignAdminRole(String userId, String token) {
         UserResource userResource = getUsersResourceById(userId, token);
-         Keycloak keycloak = KeycloakBuilder.builder()
+        Keycloak keycloak = KeycloakBuilder.builder()
                 .serverUrl(serverUrl)
                 .realm(realm)
                 .grantType(OAuth2ConstantsExtends.PASSWORD)
@@ -274,12 +340,19 @@ public class KeycloakUserService implements UserService {
         userResource.update(user);
     }
 
+    public void updateUserAttributesForNewRealm(Keycloak keycloak, String userId, Map<String, List<String>> attributes, String realm) {
+        UserResource userResource = getUsersResourceByIdForNewRealm(keycloak, userId, realm);
+        UserRepresentation user = userResource.toRepresentation();
+        user.setAttributes(attributes);
+        userResource.update(user);
+    }
+
     public void resetPassword(String userId, String newPassword) {
         CredentialRepresentation credentialRepresentation = new CredentialRepresentation();
         credentialRepresentation.setType(CredentialRepresentation.PASSWORD);
         credentialRepresentation.setValue(newPassword);
         credentialRepresentation.setTemporary(false);
-        
+
         getUsersResourceById(userId, getAdminToken()).resetPassword(credentialRepresentation);
     }
 
@@ -296,7 +369,6 @@ public class KeycloakUserService implements UserService {
 
         getUsersResourceById(user.getId(), getAdminToken()).update(userRepresentation);
     }
-
 
 
     private String getAdminToken() {
@@ -317,11 +389,11 @@ public class KeycloakUserService implements UserService {
         // 获取用户资源
         UserResource userResource = getUsersResourceById(userId, getAdminToken());
         UserRepresentation userRepresentation = userResource.toRepresentation();
-        
+
         // 更新用户状态
         userRepresentation.setEnabled(enabled);
         userResource.update(userRepresentation);
-        
+
         // 同步到本地数据库
         SysUser sysUser = usersSyncService.getSysUserById(userId);
         if (!ObjectUtils.isEmpty(sysUser)) {

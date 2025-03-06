@@ -1,7 +1,9 @@
 package com.owiseman.dataapi.service;
 
+import com.owiseman.dataapi.config.OAuth2ConstantsExtends;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
+import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.representations.idm.*;
@@ -325,6 +327,26 @@ public class KeycloakAdminUtils {
 
     String path = location.getPath();
     return path.substring(path.lastIndexOf('/') + 1);
+  }
+
+  /**
+   * 通过该方法使用admin用户给
+   * @param realm
+   * @param tokenUrl
+   * @param clientId
+   * @param masterAdminPassword
+   * @return
+   */
+  public Keycloak getKeyCloak(String realm, String tokenUrl, String clientId,String masterAdminPassword,String token) {
+    return KeycloakBuilder.builder()
+            .grantType(OAuth2ConstantsExtends.PASSWORD)
+            .clientId(clientId)
+            .realm(realm)
+            .serverUrl(tokenUrl)
+            .username(OAuth2ConstantsExtends.ADMIN)
+            .password(masterAdminPassword)
+            .authorization(token)
+            .build();
   }
 
 }

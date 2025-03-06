@@ -4,6 +4,7 @@ import com.owiseman.dataapi.config.SeaweedFSClient;
 import com.owiseman.dataapi.dto.AssignResponse;
 import com.owiseman.dataapi.entity.SysUserFile;
 import com.owiseman.dataapi.service.SeaweedFsService;
+import com.owiseman.dataapi.util.FileTypeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -12,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Optional;
 
 @Service
 public class SeaweedFSStorageService implements ObjectStorageService {
@@ -25,8 +27,7 @@ public class SeaweedFSStorageService implements ObjectStorageService {
 
     @Override
     public String upload(MultipartFile file) throws IOException {
-        AssignResponse assign = seaweedFSClient.assign();
-        return seaweedFSClient.upload(assign, file);
+        return seaweedFSClient.upload(file, seaweedFSClient.getMasterUrl(), seaweedFSClient.getValUrl() ,"/root");
     }
 
     @Override
@@ -48,8 +49,8 @@ public class SeaweedFSStorageService implements ObjectStorageService {
     }
 
     @Override
-    public String upload(String userId, MultipartFile file) throws IOException {
-        return "";
+    public String upload(String userId, MultipartFile file, Optional<String> parentId) throws IOException {
+        return FileTypeUtil.createDirectoryViaHttpFile(file, parentId.orElse("/tmp"), seaweedFSClient.getMasterUrl(), seaweedFSClient.getValUrl());
     }
 
     @Override
@@ -69,25 +70,13 @@ public class SeaweedFSStorageService implements ObjectStorageService {
 
     @Override
     public String getStorageType() {
-        return "seaweedfs";
+        return StorageType.seaweedfs.getType();
     }
 
     @Override
-    public void createDirectory(String userId, String path) throws IOException {
-        // 1. 路径规范化：确保以斜杠结尾
-        if (!path.endsWith("/")) {
-            path += "/";
-        }
-
-        // 2. 分配存储位置
-        AssignResponse assign = seaweedFSClient.assign();
-
-        // 3. 上传空文件模拟目录
-        try (ByteArrayInputStream emptyStream = new ByteArrayInputStream(new byte[0])) {
-            seaweedFSClient.upload(assign, emptyStream, path);
-        } catch (Exception e) {
-            throw new IOException("Failed to create directory: " + path, e);
-        }
-
+    public void createDirectory(String UserId, String path) throws IOException {
+        FileTypeUtil.createDirectoryViaHttp(path, seaweedFSClient.getMasterUrl(), seaweedFSClient.getValUrl());
     }
+
+
 }
