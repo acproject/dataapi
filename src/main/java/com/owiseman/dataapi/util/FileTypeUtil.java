@@ -13,11 +13,6 @@ import org.springframework.http.converter.ResourceHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -184,6 +179,9 @@ public class FileTypeUtil {
             if (!response.getStatusCode().is2xxSuccessful()) {
                 throw new RuntimeException("上传文件失败: " + response.getStatusCode());
             }
+            System.out.println("http://" + assignResponse.getServerUrl() + "/" + assignResponse.getFid() +
+                   "?path=" + URLEncoder.encode(path, StandardCharsets.UTF_8) +
+                   "&filename=" + URLEncoder.encode(file.getOriginalFilename(), StandardCharsets.UTF_8));
 
             // 3. 返回文件URL，包含完整的路径信息
             return "http://" + assignResponse.getServerUrl() + "/" + assignResponse.getFid() +

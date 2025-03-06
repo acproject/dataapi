@@ -1,9 +1,6 @@
 package com.owiseman.dataapi.service.storage;
 
 import com.owiseman.dataapi.config.SeaweedFSClient;
-import com.owiseman.dataapi.dto.AssignResponse;
-import com.owiseman.dataapi.entity.SysUserFile;
-import com.owiseman.dataapi.service.SeaweedFsService;
 import com.owiseman.dataapi.util.FileTypeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -11,7 +8,6 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Optional;
 
