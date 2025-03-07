@@ -3,6 +3,7 @@ package com.owiseman.dataapi.repository;
 import com.owiseman.dataapi.dto.PageResult;
 import com.owiseman.dataapi.entity.SysDeviceToken;
 import com.owiseman.dataapi.dto.Platform;
+import com.owiseman.dataapi.util.JooqContextHolder;
 import com.owiseman.jpa.util.PaginationHelper;
 import org.jooq.*;
 import org.jooq.impl.DSL;
@@ -19,8 +20,12 @@ import static com.owiseman.dataapi.entity.Tables.SYSDEVICETOKEN.*;
 @Repository
 public class SysDeviceTokenRepository {
 
+    private final DSLContext dslContext;
+
     @Autowired
-    private DSLContext dslContext;
+    public SysDeviceTokenRepository() {
+        this.dslContext = JooqContextHolder.getDslContext();
+    }
 
     // 基础CRUD操作
     public SysDeviceToken save(SysDeviceToken token) {

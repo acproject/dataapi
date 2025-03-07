@@ -15,11 +15,12 @@ public class SysTableMetadata {
     @Id
     @GeneratedValue(generator = "uuid")
     @Convert(converter = UUIDConverter.class)
+    @Column(name = "id")
     private String id;
 
     @Column(name = "table_name", nullable = false, unique = true)
     private String tableName;
-     @Column(length = 1000)
+     @Column(name = "description", length = 1000)
     private String description;
 
     @Column(name = "created_at", nullable = false)
@@ -32,16 +33,18 @@ public class SysTableMetadata {
     private String createdBy;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb", nullable = true)
+    @Column(name = "table_definition", columnDefinition = "jsonb", nullable = true)
     private String tableDefinition;
 
-    @Column(nullable = false, length = 20)
+    @Column(name = "status", nullable = false, length = 20)
     private String status;
 
     @OneToMany(mappedBy = "sysTableMetadata", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OrderBy("ordinalPosition")
+    @Column(name = "columns")
     private List<SysColumnMetadata> columns;
 
+    @Column(name = "user_id")
     private String userId;
 
 

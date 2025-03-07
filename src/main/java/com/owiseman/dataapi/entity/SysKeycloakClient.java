@@ -10,33 +10,33 @@ import jakarta.persistence.Table;
 public class SysKeycloakClient {
     @Id
     private String id;
-    @Column(nullable = true)
+    @Column(name = "realm_name", nullable = true)
     private String realmName;
-    @Column(nullable = true)
+    @Column(name = "client_id", nullable = true)
     private String clientId;
-    @Column(nullable = true)
+    @Column(name = "secret", nullable = true)
     private String secret;
-    @Column(nullable = true)
+    @Column(name = "name", nullable = true)
     private String name;
-    @Column(nullable = true)
+    @Column(name = "description", nullable = true)
     private String description;
-    @Column(nullable = true)
+    @Column(name = "type", nullable = true)
     private String type;
-    @Column(nullable = true)
+    @Column(name = "root_url", nullable = true)
     private String rootUrl;
-    @Column(nullable = true)
+    @Column(name = "admin_url", nullable = true)
     private String adminUrl;
-    @Column(nullable = true)
+    @Column(name = "base_url", nullable = true)
     private String baseUrl;
-    @Column(nullable = true)
+    @Column(name = "surrogate_auth_required", nullable = true)
     private Boolean surrogateAuthRequired;
-    @Column(nullable = true)
+    @Column(name = "enabled", nullable = true)
     private Boolean enabled;
-    @Column(nullable = true)
+    @Column(name = "always_display_in_console", nullable = true)
     private Boolean alwaysDisplayInConsole;
-    @Column(nullable = true)
+    @Column(name = "client_authenticator_type", nullable = true)
     private String clientAuthenticatorType;
-    @Column(nullable = true)
+    @Column(name = "registration_access_token", nullable = true)
     private String registrationAccessToken;
 
     public SysKeycloakClient() {

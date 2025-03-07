@@ -3,6 +3,7 @@ package com.owiseman.dataapi.repository;
 import com.owiseman.dataapi.dto.PageResult;
 import com.owiseman.dataapi.entity.SysColumnMetadata;
 import com.owiseman.dataapi.entity.SysTableMetadata;
+import com.owiseman.dataapi.util.JooqContextHolder;
 import com.owiseman.jpa.util.PaginationHelper;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
@@ -20,8 +21,12 @@ import static com.owiseman.dataapi.entity.Tables.SYSCOLUMNMETADATA.*;
 
 @Repository
 public class SysColumnMetadataRepository {
+    private final DSLContext dslContext;
+
     @Autowired
-    private DSLContext dslContext;
+    public SysColumnMetadataRepository() {
+        this.dslContext = JooqContextHolder.getDslContext();
+    }
 
     public SysColumnMetadata save(SysColumnMetadata column) {
         dslContext.insertInto(TABLE)

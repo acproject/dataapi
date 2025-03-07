@@ -147,7 +147,7 @@ public class KeycloakUserService implements UserService {
                     user.getLastName(),
                     ""
             );
-            usersSyncService.syncUsers(userRecord);
+            usersSyncService.syncUsers(userRecord, realm);
             return userRecord;
         } else if (Objects.equals(409, response.getStatus())) {
             throw new RuntimeException("User already exists");
@@ -190,7 +190,7 @@ public class KeycloakUserService implements UserService {
                     user.getLastName(),
                     ""
             );
-            usersSyncService.syncUsers(userRecord);
+            usersSyncService.syncUsers(userRecord,realm);
             return userRecord;
         } else if (Objects.equals(409, response.getStatus())) {
             throw new RuntimeException("User already exists");

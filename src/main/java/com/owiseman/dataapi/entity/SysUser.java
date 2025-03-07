@@ -20,24 +20,24 @@ public class SysUser {
     private String id;
     @Column(name = "username")
     private String username;
-    @Column(nullable = true)
+    @Column(name ="first_name", nullable = true)
     private String firstName;
-    @Column(nullable = true)
+    @Column(name="last_name", nullable = true)
     private String lastName;
-    @Column
+    @Column(name="email")
     private String email;
-    @Column(nullable = true)
+    @Column(name="email_verified", nullable = true)
     private Boolean emailVerified;
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb", nullable = true)
+    @Column(name = "attributes", columnDefinition = "jsonb", nullable = true)
     private Map<String, List<String>> attributes;
-    @Column(nullable = true)
+    @Column(name = "created_timestamp", nullable = true)
     private Long createdTimestamp;
-    @Column(nullable = true)
+    @Column(name = "enabled", nullable = true)
     private Boolean enabled;
-    @Column(nullable = true)
+    @Column(name = "realm_name", nullable = true)
     private String realmName;
-    @Column(nullable = true)
+    @Column(name = "client_id", nullable = true)
     private String clientId;
 
     public String getId() {
@@ -112,17 +112,6 @@ public class SysUser {
         this.enabled = enabled;
     }
 
-    public SysUser(String id, String username, String firstName, String lastName, String email, Boolean emailVerified, Map<String, List<String>> attributes, Long createdTimestamp, Boolean enabled) {
-        this.id = id;
-        this.username = username;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.emailVerified = emailVerified;
-        this.attributes = attributes;
-        this.createdTimestamp = createdTimestamp;
-        this.enabled = enabled;
-    }
 
     public SysUser(String id, String username, String firstName, String lastName, String email, Boolean emailVerified, Map<String, List<String>> attributes, Long createdTimestamp, Boolean enabled, String realmName, String clientId) {
         this.id = id;

@@ -4,21 +4,23 @@ import com.owiseman.dataapi.util.UUIDConverter;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "sys_column_metadata",uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"sys_table_metadata", "column_name"})
+@Table(name = "sys_column_metadata", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"sys_table_metadata", "column_name"})
 })
 
 public class SysColumnMetadata {
     @Id
     @GeneratedValue(generator = "uuid")
     @Convert(converter = UUIDConverter.class)
+    @Column(name = "id")
     private String id;
 
-     @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sys_table_metadata", nullable = false)
+    @Column(name = "sys_table_metadata")
     private SysTableMetadata sysTableMetadata;
 
-      @Column(name = "column_name", nullable = false)
+    @Column(name = "column_name", nullable = false)
     private String columnName;
 
     @Column(name = "data_type", nullable = false, length = 100)
@@ -27,13 +29,13 @@ public class SysColumnMetadata {
     @Column(name = "primary_key", nullable = false)
     private boolean primaryKey;
 
-    @Column(nullable = false)
+    @Column(name = "nullable", nullable = false)
     private boolean nullable;
 
     @Column(name = "default_value")
     private String defaultValue;
 
-    @Column(length = 1000)
+    @Column(name = "description", length = 1000)
     private String description;
 
     @Column(name = "ordinal_position", nullable = false)

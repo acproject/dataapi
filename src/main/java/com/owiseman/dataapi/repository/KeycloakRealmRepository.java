@@ -2,6 +2,7 @@ package com.owiseman.dataapi.repository;
 
 import com.owiseman.dataapi.dto.PageResult;
 import com.owiseman.dataapi.entity.SysKeycloakRealm;
+import com.owiseman.dataapi.util.JooqContextHolder;
 import com.owiseman.jpa.util.PaginationHelper;
 import org.jooq.*;
 import org.jooq.impl.DSL;
@@ -21,8 +22,8 @@ public class KeycloakRealmRepository {
     private final DSLContext dslContext;
 
     @Autowired
-    public KeycloakRealmRepository(DSLContext dslContext) {
-        this.dslContext = dslContext;
+    public KeycloakRealmRepository() {
+        this.dslContext = JooqContextHolder.getDslContext();
     }
 
     // 基础分页查询

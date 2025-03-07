@@ -2,6 +2,7 @@ package com.owiseman.dataapi.repository;
 
 import com.owiseman.dataapi.entity.SysKeycloakClient;
 import com.owiseman.dataapi.entity.Tables;
+import com.owiseman.dataapi.util.JooqContextHolder;
 import jakarta.validation.constraints.NotNull;
 import org.jooq.DSLContext;
 
@@ -12,12 +13,11 @@ import java.util.List;
 
 @Repository
 public class KeycloakClientRepository{
-    @Autowired
-    private  DSLContext dslContext;
+    private final DSLContext dslContext;
 
     @Autowired
     public KeycloakClientRepository() {
-
+        this.dslContext = JooqContextHolder.getDslContext();
     }
 
     public @NotNull List<SysKeycloakClient> getAllClients() {

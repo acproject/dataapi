@@ -45,14 +45,12 @@ public class SysUserRepository {
 
     public void update(SysUser user) {
         dslContext.update(TABLE)
-                .set(USERNAME, user.getUsername())
                 .set(FIRSTNAME, user.getFirstName())
                 .set(LASTNAME, user.getLastName())
                 .set(EMAIL, user.getEmail())
                 .set(EMAILVERIFIED, user.getEmailVerified())
                 .set(ATTRIBUTES, user.getAttributes())
                 .set(ENABLED, user.getEnabled())
-                .set(REALMNAME, user.getRealmName())
                 .set(CLIENTID, user.getClientId())
                 .where(ID.eq(user.getId()))
                 .execute();
@@ -83,8 +81,20 @@ public class SysUserRepository {
     }
 
     public Optional<SysUser> findByUsername(String username) {
-        return dslContext.selectFrom(TABLE)
-                .where(USERNAME.eq(username))
+        return dslContext
+                .select(
+                    ID,
+                    USERNAME,
+                    FIRSTNAME,
+                    LASTNAME,
+                    EMAIL,
+                    EMAILVERIFIED,
+                    ATTRIBUTES,
+                    CREATEDTIMESTAMP,
+                    ENABLED,
+                    REALMNAME,
+                    CLIENTID
+                ).from(TABLE).where(USERNAME.eq(username))
                 .fetchOptionalInto(SysUser.class);
     }
 

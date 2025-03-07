@@ -13,16 +13,22 @@ public class SysAuditLog {
     @Id
     @GeneratedValue(generator = "uuid")
     @Convert(converter = UUIDConverter.class)
+    @Column(name = "id")
     private String id;
 
+    @Column(name = "user_id")
     private String userId;
+    @Column(name = "action_type")
     private String actionType;
+    @Column(name = "target_type")
     private String targetType;
+    @Column(name = "target_id")
     private String targetId;
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb", name = "details")
     private String details;
 
+    @Column(name = "timestamp")
     private LocalDateTime timestamp;
 
     public String getId() {

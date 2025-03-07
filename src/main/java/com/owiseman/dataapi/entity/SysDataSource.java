@@ -14,13 +14,16 @@ public class SysDataSource {
     @Id
     @GeneratedValue(generator = "uuid")
     @Convert(converter = UUIDConverter.class)
+    @Column(name = "id")
     private String id;
 
+    @Column(name = "type")
     private String type;
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb", name = "config")
     private String config;
 
+    @Column(name = "created_by")
     private String createdBy;
     @Column(name = "last_test_result")
     private Boolean lastTestResult;

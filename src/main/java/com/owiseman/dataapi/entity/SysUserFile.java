@@ -1,9 +1,9 @@
 package com.owiseman.dataapi.entity;
 
 
+import com.owiseman.dataapi.service.storage.StorageType;
 import com.owiseman.dataapi.util.UUIDConverter;
 import jakarta.persistence.*;
-import org.checkerframework.checker.units.qual.C;
 
 import java.time.LocalDateTime;
 
@@ -21,11 +21,13 @@ public class SysUserFile {
 
     @Column(name = "user_id", nullable = false)
     private String userId;
-    @Column(nullable = false, length = 64)
+    @Column(name ="fid", nullable = false, length = 64)
     private String fid;
-    @Column(nullable = false, length = 255)
+    @Column(name ="file_name",nullable = false, length = 255)
     private String fileName;
+    @Column(name ="size")
     private Long size;
+    @Column(name ="upload_time")
     private LocalDateTime uploadTime;
 
     public String getId() {
@@ -140,7 +142,7 @@ public class SysUserFile {
     }
 
     @Column(name = "storage_type", nullable = false)
-    private String storageType;
+    private String storageType = StorageType.seaweedfs.getType();
 
     public String getStorageType() {
         return storageType;

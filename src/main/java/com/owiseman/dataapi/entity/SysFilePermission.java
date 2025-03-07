@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 public class SysFilePermission {
     @Id
     @GeneratedValue(generator = "uuid")
+    @Column(name = "id")
     private String id;
 
     @Column(name = "file_id")
@@ -15,9 +16,13 @@ public class SysFilePermission {
     @Column(name = "user_id")
     private String userId;
 
+    @Column(name = "can_read")
     private boolean canRead;
+    @Column(name = "can_write")
     private boolean canWrite;
+    @Column(name = "can_delete")
     private boolean canDelete;
+    @Column(name = "can_share")
     private boolean canShare;
 
     public String getId() {

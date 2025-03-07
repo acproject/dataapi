@@ -14,17 +14,22 @@ public class SysWorkflow {
     @Id
     @GeneratedValue(generator = "uuid")
     @Convert(converter = UUIDConverter.class)
+    @Column(name = "id")
     private String id;
 
+    @Column(name = "name")
     private String name;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb")
+    @Column(name = "definition", columnDefinition = "jsonb")
     private String definition;
 
+    @Column(name = "create_by")
     private String createBy;
 
+    @Column(name = "create_at")
     private LocalDateTime createAt;
+    @Column(name = "update_at")
     private LocalDateTime updateAt;
 
     public String getId() {

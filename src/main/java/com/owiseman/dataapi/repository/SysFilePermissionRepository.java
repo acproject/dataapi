@@ -2,6 +2,7 @@ package com.owiseman.dataapi.repository;
 
 import com.owiseman.dataapi.dto.PageResult;
 import com.owiseman.dataapi.entity.SysFilePermission;
+import com.owiseman.dataapi.util.JooqContextHolder;
 import com.owiseman.jpa.util.PaginationHelper;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
@@ -18,8 +19,12 @@ import static com.owiseman.dataapi.entity.Tables.SYSFILEPERMISSION.*;
 
 @Repository
 public class SysFilePermissionRepository {
+    private final DSLContext dslContext;
+
     @Autowired
-    private DSLContext dslContext;
+    public SysFilePermissionRepository() {
+        this.dslContext = JooqContextHolder.getDslContext();
+    }
 
     public SysFilePermission save(SysFilePermission permission) {
         dslContext.insertInto(TABLE)

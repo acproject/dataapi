@@ -15,39 +15,58 @@ public class SysUserConfig {
     @Id
     @GeneratedValue(generator = "uuid")
     @Convert(converter = UUIDConverter.class)
+    @Column(name = "id")
     private String id;
 
+    @Column(name = "project_name")
     private String projectName;
 
+    @Column(name = "platform")
     @Enumerated(EnumType.STRING)
     private Platform platform;
     // keycloak的基础配置
+    @Column(name = "keycloak_realm")
     private String keycloakRealm;
+    @Column(name = "keycloak_client_id")
     private String keycloakClientId;
+    @Column(name = "keycloak_client_secret")
     private String keycloakClientSecret;
+    @Column(name = "keycloak_auth_url")
     private String keycloakAuthUrl;
+    @Column(name = "keycloak_token_url")
     private String keycloakTokenUrl;
     // apns的基础配置
+    @Column(name = "apns_key_path")
     private String apnsKeyPath;
+    @Column(name = "apns_team_id")
     private String apnsTeamId;
+    @Column(name = "apns_key_id")
     private String apnsKeyId;
+    @Column(name = "apns_bundle_id")
     private String apnsBundleId;
+    @Column(name = "apns_production")
     private Boolean apnsProduction;
 
     // firebase的基础配置
+    @Column(name = "firebase_project_id")
     private String firebaseProjectId;
+    @Column(name = "firebase_private_key")
     private String firebasePrivateKey;
+    @Column(name = "firebase_client_email")
     private String firebaseClientEmail;
+    @Column(name = "firebase_client_id")
     private String firebaseClientId;
+    @Column(name = "firebase_service_account_path")
     private String firebaseServiceAccountPath;
     // 规则为realm名+ "_" + tableName +"_" = "realm_table_"
+    @Column(name = "database_table_name_prefix")
     private String databaseTableNamePrefix;
 
-    @Column(nullable = false)
+    @Column(name = "user_id",nullable = false)
     private String userId;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb", nullable = true)
+    @Column(name = "attributes", columnDefinition = "jsonb", nullable = true)
     private Map<String, List<String>> attributes;
 
     public String getId() {
@@ -207,25 +226,39 @@ public class SysUserConfig {
 
 
     // AWS S3 配置
+    @Column(name = "s3_bucket_name")
     private String s3BucketName;
+    @Column(name = "s3_region")
     private String s3Region;
+    @Column(name = "s3_access_key")
     private String s3AccessKey;
+    @Column(name = "s3_secret_key")
     private String s3SecretKey;
+    @Column(name = "s3_endpoint")
     private String s3Endpoint;
 
     // 阿里云 OSS 配置
+    @Column(name = "oss_endpoint")
     private String ossEndpoint;
+    @Column(name = "oss_bucket_name")
     private String ossBucketName;
+    @Column(name = "oss_access_key_id")
     private String ossAccessKeyId;
+    @Column(name = "oss_access_key_secret")
     private String ossAccessKeySecret;
+    @Column(name = "oss_region")
     private String ossRegion;
 
     // SeaweedFS 配置
+    @Column(name = "seaweedfs_master_url")
     private String seaweedFsMasterUrl;
+    @Column(name = "seaweedfs_replication")
     private Integer seaweedFsReplication;
+    @Column(name = "seaweedfs_collection")
     private String seaweedFsCollection;
 
     // 存储类型（seaweedfs/s3/aliyun）
+    @Column(name = "storage_type")
     private String storageType;
 
     // AWS S3 的 getter/setter
@@ -345,15 +378,23 @@ public class SysUserConfig {
     }
 
     // 微信小程序配置
+    @Column(name="wechat_app_id")
     private String wechatAppId;
+    @Column(name="wechat_app_secret")
     private String wechatAppSecret;
+    @Column(name="wechat_mch_id")
     private String wechatMchId;
+    @Column(name="wechat_api_key")
     private String wechatApiKey;
 
     // 支付宝小程序配置
+    @Column(name="alipay_app_id")
     private String alipayAppId;
+    @Column(name="alipay_private_key")
     private String alipayPrivateKey;
+    @Column(name="alipay_public_key")
     private String alipayPublicKey;
+    @Column(name="alipay_gateway_url")
     private String alipayGatewayUrl;
 
     // 微信小程序的 getter/setter

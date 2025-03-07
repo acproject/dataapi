@@ -2,13 +2,7 @@ package com.owiseman.dataapi.entity;
 
 import com.owiseman.dataapi.dto.Platform;
 import com.owiseman.dataapi.util.UUIDConverter;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
@@ -18,13 +12,19 @@ public class SysDeviceToken {
     @Id
     @GeneratedValue(generator = "uuid")
     @Convert(converter = UUIDConverter.class)
+    @Column(name = "id")
     private String id;
 
+    @Column(name = "user_id")
     private String userId;
+    @Column(name = "token")
     private String token;
+    @Column(name = "platform")
     @Enumerated(EnumType.STRING)
     private Platform platform;
+    @Column(name = "last_active")
     private LocalDateTime lastActive;
+    @Column(name = "active")
     private Boolean active;
 
     public String getId() {

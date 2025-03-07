@@ -16,17 +16,24 @@ public class SysPlugin {
     @Id
     @GeneratedValue(generator = "uuid")
     @Convert(converter = UUIDConverter.class)
+    @Column(name = "id")
     private String id;
 
+    @Column(name = "name")
     private String name;
+    @Column(name = "version")
     private String version;
 
+    @Column(name = "port")
     private Integer port;
 
+    @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private PluginStatus status;
 
+    @Column(name = "wasm_path")
     private String wasmPath;
+    @Column(name = "last_heartbeat")
     private LocalDateTime lastHeartbeat;
 
     @JdbcTypeCode(SqlTypes.JSON)

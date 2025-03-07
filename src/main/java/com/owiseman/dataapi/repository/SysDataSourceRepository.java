@@ -2,6 +2,7 @@ package com.owiseman.dataapi.repository;
 
 import com.owiseman.dataapi.dto.PageResult;
 import com.owiseman.dataapi.entity.SysDataSource;
+import com.owiseman.dataapi.util.JooqContextHolder;
 import com.owiseman.jpa.util.PaginationHelper;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
@@ -17,8 +18,12 @@ import static com.owiseman.dataapi.entity.Tables.SYSDATASOURCE.*;
 
 @Repository
 public class SysDataSourceRepository {
+    private final DSLContext dslContext;
+
     @Autowired
-    private DSLContext dslContext;
+    public SysDataSourceRepository() {
+        this.dslContext = JooqContextHolder.getDslContext();
+    }
 
     // 基本CRUD操作
     public SysDataSource save(SysDataSource dataSource) {

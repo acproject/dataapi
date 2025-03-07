@@ -2,6 +2,7 @@ package com.owiseman.dataapi.repository;
 
 import com.owiseman.dataapi.dto.PageResult;
 import com.owiseman.dataapi.entity.SysAuditLog;
+import com.owiseman.dataapi.util.JooqContextHolder;
 import com.owiseman.jpa.util.PaginationHelper;
 import org.jooq.*;
 import org.jooq.impl.DSL;
@@ -17,8 +18,12 @@ import static com.owiseman.dataapi.entity.Tables.SYSAUDITLOG.*;
 
 @Repository
 public class SysAuditLogRepository {
+    private final DSLContext dslContext;
+
     @Autowired
-    private DSLContext dslContext;
+    public SysAuditLogRepository() {
+        this.dslContext = JooqContextHolder.getDslContext();
+    }
 
     // 基础CRUD操作
     public SysAuditLog save(SysAuditLog log) {

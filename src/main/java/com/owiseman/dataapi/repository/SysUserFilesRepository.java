@@ -38,6 +38,7 @@ public class SysUserFilesRepository {
                 .set(FILENAME, userFile.getFileName())
                 .set(ISDIRECTORY, userFile.isDirectory())
                 .set(SIZE, userFile.getSize())
+                .set(STORAGETYPE, userFile.getStorageType())
                 .set(UPLOADTIME, userFile.getUploadTime())
                 .execute();
         return userFile;

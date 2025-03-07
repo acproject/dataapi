@@ -7,64 +7,65 @@ import jakarta.persistence.*;
 @Table(name = "sys_keycloak_realm")
 public class SysKeycloakRealm {
     @Id
+    @Column(name = "id")
     private String id;
-    @Column(nullable = true)
+    @Column(name = "realm", nullable = true)
     private String realm;
-    @Column(nullable = true)
+    @Column(name = "display_name", nullable = true)
     private String displayName;
-    @Column(nullable = true)
+    @Column(name = "display_name_html", nullable = true)
     private String displayNameHtml;
-    @Column(nullable = true)
+    @Column(name = "not_before", nullable = true)
     private Integer notBefore;
-    @Column(nullable = true)
+    @Column(name = "default_signature_algorithm", nullable = true)
     private String defaultSignatureAlgorithm;
-    @Column(nullable = true)
+    @Column(name = "revoke_refresh_token", nullable = true)
     private Boolean revokeRefreshToken;
-    @Column(nullable = true)
+    @Column(name = "refresh_token_max_reuse", nullable = true)
     private Integer refreshTokenMaxReuse;
-    @Column(nullable = true)
+    @Column(name = "access_token_lifespan", nullable = true)
     private Integer accessTokenLifespan;
-    @Column(nullable = true)
+    @Column(name = "access_token_lifespan_for_implicit_flow", nullable = true)
     private Integer accessTokenLifespanForImplicitFlow;
-    @Column(nullable = true)
+    @Column(name = "sso_session_idle_timeout", nullable = true)
     private Integer ssoSessionIdleTimeout;
-    @Column(nullable = true)
+    @Column(name = "sso_session_max_lifespan", nullable = true)
     private Integer ssoSessionMaxLifespan;
-    @Column(nullable = true)
+    @Column(name = "sso_session_idle_timeout_remember_me", nullable = true)
     private Integer ssoSessionIdleTimeoutRememberMe;
-    @Column(nullable = true)
+    @Column(name = "sso_session_max_lifespan_remember_me", nullable = true)
     private Integer ssoSessionMaxLifespanRememberMe;
-    @Column(nullable = true)
+    @Column(name = "offline_session_idle_timeout", nullable = true)
     private Integer offlineSessionIdleTimeout;
-    @Column(nullable = true)
+    @Column(name = "offline_session_max_lifespan_enabled", nullable = true)
     private Boolean offlineSessionMaxLifespanEnabled;
-    @Column(nullable = true)
+    @Column(name = "offline_session_max_lifespan", nullable = true)
     private Integer offlineSessionMaxLifespan;
-    @Column(nullable = true)
+    @Column(name = "client_session_idle_timeout", nullable = true)
     private Integer clientSessionIdleTimeout;
-    @Column(nullable = true)
+    @Column(name = "client_session_max_lifespan", nullable = true)
     private Integer clientSessionMaxLifespan;
-    @Column(nullable = true)
+    @Column(name = "client_offline_session_idle_timeout", nullable = true)
     private Integer clientOfflineSessionIdleTimeout;
-    @Column(nullable = true)
+    @Column(name = "client_offline_session_max_lifespan", nullable = true)
     private Integer clientOfflineSessionMaxLifespan;
-    @Column(nullable = true)
+    @Column(name = "access_code_lifespan", nullable = true)
     private Integer accessCodeLifespan;
-    @Column(nullable = true)
+    @Column(name = "access_code_lifespan_user_action", nullable = true)
     private Integer accessCodeLifespanUserAction;
-    @Column(nullable = true)
+    @Column(name = "access_code_lifespan_login", nullable = true)
     private Integer accessCodeLifespanLogin;
-    @Column(nullable = true)
+    @Column(name = "action_token_generated_by_admin_lifespan", nullable = true)
     private Integer actionTokenGeneratedByAdminLifespan;
-    @Column(nullable = true)
+    @Column(name = "action_token_generated_by_user_lifespan", nullable = true)
     private Integer actionTokenGeneratedByUserLifespan;
-    @Column(nullable = true)
+    @Column(name = "oauth2_device_code_lifespan", nullable = true)
     private Integer oauth2DeviceCodeLifespan;
-    @Column(nullable = true)
+    @Column(name = "oauth2_device_polling_interval", nullable = true)
     private Integer oauth2DevicePollingInterval;
-    @Column(nullable = true)
+    @Column(name = "enabled", nullable = true)
     private Boolean enabled;
-    @Column(nullable = true)
+    @Column(name = "ssl_required", nullable = true)
     private String sslRequired;
 
     public SysKeycloakRealm() {

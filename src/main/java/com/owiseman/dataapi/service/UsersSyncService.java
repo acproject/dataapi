@@ -24,7 +24,7 @@ public class UsersSyncService {
     }
 
     @Async
-    public void syncUsers(UserRegistrationRecord userRegistrationRecord) {
+    public void syncUsers(UserRegistrationRecord userRegistrationRecord, String realm) {
         assert userRegistrationRecord != null;
         SysUser sysUser = new SysUser(
                 userRegistrationRecord.id(),
@@ -35,7 +35,9 @@ public class UsersSyncService {
                 Boolean.valueOf(OAuth2ConstantsExtends.FALSE),
                 null,
                 System.currentTimeMillis(),
-                Boolean.valueOf(OAuth2ConstantsExtends.TRUE)
+                Boolean.valueOf(OAuth2ConstantsExtends.TRUE),
+                realm,
+                realm
         );
         sysUserRepository.save(sysUser);
     }
