@@ -1,8 +1,11 @@
 package com.owiseman.dataapi.repository;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.owiseman.dataapi.dto.PageResult;
 import com.owiseman.dataapi.entity.SysUser;
 import com.owiseman.dataapi.util.JooqContextHolder;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.owiseman.jpa.util.JsonMapConverter;
 import com.owiseman.jpa.util.PaginationHelper;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
@@ -10,6 +13,7 @@ import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.Map;
 import java.util.Optional;
 
 import static com.owiseman.dataapi.entity.Tables.SYSUSER.*;
@@ -27,6 +31,13 @@ public class SysUserRepository {
 
 
     public SysUser save(SysUser user) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonString = "";
+        try {
+            jsonString = objectMapper.writeValueAsString(user.getAttributes()); // 将HashMap转为JSON字符串
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
         dslContext.insertInto(TABLE)
                 .set(ID, user.getId())
                 .set(USERNAME, user.getUsername())
@@ -34,7 +45,7 @@ public class SysUserRepository {
                 .set(LASTNAME, user.getLastName())
                 .set(EMAIL, user.getEmail())
                 .set(EMAILVERIFIED, user.getEmailVerified())
-                .set(ATTRIBUTES, user.getAttributes())
+                .set(ATTRIBUTES, DSL.field("?::jsonb", Object.class, jsonString))
                 .set(CREATEDTIMESTAMP, user.getCreatedTimestamp())
                 .set(ENABLED, user.getEnabled())
                 .set(REALMNAME, user.getRealmName())
@@ -44,12 +55,20 @@ public class SysUserRepository {
     }
 
     public void update(SysUser user) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonString = "";
+        try {
+            jsonString = objectMapper.writeValueAsString(user.getAttributes()); // 将HashMap转为JSON字符串
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
         dslContext.update(TABLE)
                 .set(FIRSTNAME, user.getFirstName())
                 .set(LASTNAME, user.getLastName())
                 .set(EMAIL, user.getEmail())
                 .set(EMAILVERIFIED, user.getEmailVerified())
-                .set(ATTRIBUTES, user.getAttributes())
+                .set(ATTRIBUTES, DSL.field("?::jsonb", Object.class, jsonString))
                 .set(ENABLED, user.getEnabled())
                 .set(CLIENTID, user.getClientId())
                 .where(ID.eq(user.getId()))
@@ -132,7 +151,7 @@ public class SysUserRepository {
 
     public PageResult<SysUser> findByRealmNameWithPagination(String realmName, int pageNumber, int pageSize) {
         Condition condition = REALMNAME.eq(realmName);
-        
+
         List<SysUser> users = PaginationHelper.getPaginatedData(
                 dslContext,
                 condition,
