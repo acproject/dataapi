@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface UserService {
-    UserRegistrationRecord createUser(UserRegistrationRecord userRegistrationRecord, String token);
+    UserRegistrationRecord createUser(UserRegistrationRecord userRegistrationRecord, String token,String clientId);
     UserRepresentation getUserById(String userId, String token);
     void deleteUserById(String userId, String token);
     void emailVerification(String userId, String token);

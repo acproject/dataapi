@@ -17,7 +17,6 @@ public class SysColumnMetadata {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sys_table_metadata", nullable = false)
-    @Column(name = "sys_table_metadata")
     private SysTableMetadata sysTableMetadata;
 
     @Column(name = "column_name", nullable = false)

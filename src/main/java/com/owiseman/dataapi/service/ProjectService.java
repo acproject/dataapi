@@ -1,10 +1,13 @@
 package com.owiseman.dataapi.service;
 
+import com.owiseman.dataapi.dto.CreateKeycloakClientDto;
 import com.owiseman.dataapi.dto.KeycloakClientDto;
 import com.owiseman.dataapi.dto.ProjectCreateRequest;
 import com.owiseman.dataapi.entity.SysUserConfig;
 import com.owiseman.dataapi.repository.SysUserConfigRepository;
+import com.owiseman.dataapi.repository.SysUserRepository;
 import org.keycloak.representations.idm.ClientRepresentation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +16,11 @@ import java.util.UUID;
 
 @Service
 public class ProjectService {
+    @Autowired
+    SysUserRepository sysUserRepository;
+
+
+
     private final KeycloakClientService keycloakClientService;
     private final SysUserConfigRepository userConfigRepository;
 
@@ -39,8 +47,17 @@ public class ProjectService {
         clientRepresentation.setStandardFlowEnabled(true);
         clientRepresentation.setPublicClient(false);
         clientRepresentation.setRedirectUris(Collections.singletonList("*"));
-
-        KeycloakClientDto clientDto = keycloakClientService.createClient(clientRepresentation, token);
+        CreateKeycloakClientDto createKeycloakClientDto = new CreateKeycloakClientDto();
+        createKeycloakClientDto.setClientRepresentation(clientRepresentation);
+        createKeycloakClientDto.setPassword(request.userPassword());
+        // todo 通过 userId查找的realmName，clientID，client_secret, username
+       var user = sysUserRepository.findById(userId);
+        createKeycloakClientDto.setRealmName(user.get().getRealmName());
+        createKeycloakClientDto.setClientId(user.get().getClientId());
+        createKeycloakClientDto.setUsername(user.get().getUsername());
+        var clientSecret= userConfigRepository.findByUserId(userId).get().getKeycloakClientSecret();
+        createKeycloakClientDto.setClientSecret(clientSecret);
+        KeycloakClientDto clientDto = keycloakClientService.createClient(createKeycloakClientDto, token);
 
         // 创建用户配置
         SysUserConfig config = new SysUserConfig();

@@ -81,20 +81,7 @@ public class SysUserRepository {
     }
 
     public Optional<SysUser> findByUsername(String username) {
-        return dslContext
-                .select(
-                    ID,
-                    USERNAME,
-                    FIRSTNAME,
-                    LASTNAME,
-                    EMAIL,
-                    EMAILVERIFIED,
-                    ATTRIBUTES,
-                    CREATEDTIMESTAMP,
-                    ENABLED,
-                    REALMNAME,
-                    CLIENTID
-                ).from(TABLE).where(USERNAME.eq(username))
+        return dslContext.selectFrom(TABLE).where(USERNAME.eq(username))
                 .fetchOptionalInto(SysUser.class);
     }
 

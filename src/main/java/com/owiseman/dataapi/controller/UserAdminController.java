@@ -45,7 +45,7 @@ public class UserAdminController {
     public ResponseEntity<?> createUser(@RequestBody UserRegistrationRecord request, HttpServletRequest servletRequest) {
         var token = HttpHeaderUtil.getTokenFromHeader(servletRequest);
         try {
-            var user = keycloakUserService.createUser(request, token);
+            var user = keycloakUserService.createUser(request, token, "");
             return ResponseEntity.ok().body(user);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.toString());

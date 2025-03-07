@@ -1,5 +1,6 @@
 package com.owiseman.dataapi.controller;
 
+import com.owiseman.dataapi.dto.CreateKeycloakClientDto;
 import com.owiseman.dataapi.dto.KeycloakClientDto;
 import com.owiseman.dataapi.dto.PageResult;
 import com.owiseman.dataapi.service.KeycloakClientService;
@@ -28,16 +29,18 @@ public class KeycloakClientController {
             @RequestBody ClientRepresentation clientRep,
             HttpServletRequest servletRequest
             ) {
+        // todo 需要修改
         return ResponseEntity.ok(keycloakRealmService.updateClient(clientId, clientRep, getTokenFromHeader(servletRequest)));
     }
 
 
     @PostMapping("/create")
     public ResponseEntity<KeycloakClientDto> createClient(
-            @RequestBody ClientRepresentation clientRepresentation,
+            @RequestBody CreateKeycloakClientDto createKeycloakClientDto,
             HttpServletRequest servletRequest
             ) {
-        return ResponseEntity.ok(keycloakRealmService.createClient(clientRepresentation, getTokenFromHeader(servletRequest)));
+        return ResponseEntity.ok(
+                keycloakRealmService.createClient(createKeycloakClientDto, getTokenFromHeader(servletRequest)));
     }
 
     @GetMapping("/paginated")

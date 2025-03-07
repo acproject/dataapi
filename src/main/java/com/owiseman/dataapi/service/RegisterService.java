@@ -1,11 +1,10 @@
 package com.owiseman.dataapi.service;
 
-import com.owiseman.dataapi.dto.KeycloakRealmDto;
-import com.owiseman.dataapi.dto.RegisterDto;
-import com.owiseman.dataapi.dto.TokenResponse;
-import com.owiseman.dataapi.dto.UserRegistrationRecord;
+import com.owiseman.dataapi.config.OAuth2ConstantsExtends;
+import com.owiseman.dataapi.dto.*;
 import com.owiseman.dataapi.entity.SysUserConfig;
 import com.owiseman.dataapi.entity.SysUserFile;
+import com.owiseman.dataapi.repository.KeycloakClientRepository;
 import com.owiseman.dataapi.repository.SysUserConfigRepository;
 import com.owiseman.dataapi.repository.SysUserFilesRepository;
 import com.owiseman.dataapi.service.storage.ObjectStorageService;
@@ -13,6 +12,11 @@ import com.owiseman.dataapi.service.storage.StorageServiceFactory;
 import com.owiseman.dataapi.service.storage.StorageType;
 import jakarta.validation.Valid;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.UserResource;
+import org.keycloak.representations.idm.ClientRepresentation;
+import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.RoleRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,9 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Validated
@@ -33,6 +35,12 @@ public class RegisterService {
 
     @Autowired
     private KeycloakRealmService keycloakRealmService;
+
+    @Autowired
+    private KeycloakClientService keycloakClientService;
+
+    @Autowired
+    private KeycloakClientRepository keycloakClientRepository;
 
     @Autowired
     private KeycloakUserService keycloakUserService;
@@ -55,7 +63,7 @@ public class RegisterService {
     @Value("${keycloak.urls.token}")
     private String keycloakTokenUrl;
 
-     @Value("${keycloak.client-info}")
+    @Value("${keycloak.client-info}")
     private String clientInfo;
 
     @Transactional(rollbackFor = Exception.class)
@@ -68,14 +76,31 @@ public class RegisterService {
         // 获取管理员token
         String adminToken = token;
         // 获得存储类型
-        StorageType type = registerDto.storageType().isEmpty()? StorageType.seaweedfs :
+        StorageType type = registerDto.storageType().isEmpty() ? StorageType.seaweedfs :
                 StorageType.valueOf(registerDto.storageType().get());
 
         KeycloakRealmDto realmDto = null;
         try {
-            // 1. 创建Realm（使用组织名作为realm名）
+            //  创建Realm（使用组织名作为realm名）
             String realmName = registerDto.organization().toLowerCase().replaceAll("\\s+", "_");
+            Keycloak keycloak = KeycloakAdminUtils.getKeyCloak(realmName, keycloakAuthUrl, "admin-cli", clientInfo, adminToken);
             realmDto = keycloakRealmService.createRealm(realmName, adminToken);
+
+            // 添加一个默认的Client
+            String clientId = realmName + "-admin" + "-client";
+
+            ClientRepresentation clientRepresentation = new ClientRepresentation();
+            clientRepresentation.setName(clientId);
+            clientRepresentation.setClientId(clientId);
+            clientRepresentation.setEnabled(true);
+            clientRepresentation.setRedirectUris(new ArrayList<String>());
+            clientRepresentation.setBearerOnly(false);
+            clientRepresentation.setServiceAccountsEnabled(true);
+            clientRepresentation.setPublicClient(false);
+            clientRepresentation.setDirectAccessGrantsEnabled(true);
+
+           KeycloakClientDto keycloakClientDto =
+                   keycloakClientService.createClient(clientRepresentation, keycloak, realmName);
 
             // 2. 在新Realm中创建管理员用户
             UserRegistrationRecord userRecord = new UserRegistrationRecord(
@@ -86,20 +111,25 @@ public class RegisterService {
                     registerDto.lastName(),
                     registerDto.password()
             );
-
-            Keycloak keycloak = KeycloakAdminUtils.getKeyCloak(realmName, keycloakAuthUrl, "admin-cli",clientInfo, adminToken);
             // 创建用户
-            UserRegistrationRecord createdUser = keycloakUserService.createUser(userRecord, keycloak, realmDto.getName());
+            UserRegistrationRecord createdUser = keycloakUserService.createUser(userRecord, keycloak, realmDto.getName(), clientId);
 
-            // 3. 为用户添加管理员角色
+            //  为用户添加管理员角色
             keycloakUserService.assignAdminRoleForNewRealm(keycloak, createdUser.id(), realmName);
 
-            // 4. 添加用户的额外属性（如电话号码）
+            //  添加用户的额外属性（如电话号码）
             keycloakUserService.updateUserAttributesForNewRealm(keycloak,
                     createdUser.id(),
                     Map.of("phone", List.of(registerDto.phone())),
                     realmName
             );
+            // 更新用户密码
+            String userId = keycloak.realm(realmName).users().search(registerDto.username()).get(0).getId();
+            CredentialRepresentation password = new CredentialRepresentation();
+            password.setType(CredentialRepresentation.PASSWORD);
+            password.setValue(registerDto.password());  // 设置密码值
+            password.setTemporary(false);             // 是否临时密码（用户首次登录需修改）
+            keycloak.realm(realmName).users().get(userId).resetPassword(password);
 
             // 创建用户配置
             createUserConfig(createdUser.id(), realmName);
@@ -196,7 +226,7 @@ public class RegisterService {
         return sysUserFilesRepository.save(dir);
     }
 
-     private String normalizePath(String path) {
-       return path.startsWith("/") ? path.substring(1) : path;
-   }
+    private String normalizePath(String path) {
+        return path.startsWith("/") ? path.substring(1) : path;
+    }
 }

@@ -2,7 +2,10 @@ package com.owiseman.dataapi.service;
 
 import com.owiseman.dataapi.config.OAuth2ConstantsExtends;
 import com.owiseman.dataapi.dto.TokenResponse;
+import com.owiseman.dataapi.repository.KeycloakClientRepository;
+import com.owiseman.dataapi.repository.SysUserRepository;
 import org.keycloak.OAuth2Constants;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -15,6 +18,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.security.Key;
 import java.util.Optional;
 
 @Service
@@ -30,6 +34,12 @@ public class KeycloakTokenService {
 
     @Value("${keycloak.client-info}")
     private String userInfo;
+
+    @Autowired
+    SysUserRepository sysUserRepository;
+
+    @Autowired
+    KeycloakClientRepository keycloakClientRepository;
 
 //    private final RestTemplate restTemplate;
 //
@@ -93,11 +103,15 @@ public class KeycloakTokenService {
 
 
     public String getTokenByUsernameAndPassword(String username, String password, String realm) {
+        // 获得client Id 和client Secret
+        String clinetId = sysUserRepository.findByUsername(username).get().getClientId();
+        String clientSecret = keycloakClientRepository.findByClientId(clinetId).get().getSecret();
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("client_id", clientId);
+        formData.add("client_id", clinetId);
         formData.add("grant_type", OAuth2Constants.PASSWORD);
         formData.add("username", username);
         formData.add("password", password);
+        formData.add("client_secret", clientSecret);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);

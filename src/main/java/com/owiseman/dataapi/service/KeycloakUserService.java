@@ -112,7 +112,7 @@ public class KeycloakUserService implements UserService {
     }
 
     @Override
-    public UserRegistrationRecord createUser(UserRegistrationRecord userRegistrationRecord, String token) {
+    public UserRegistrationRecord createUser(UserRegistrationRecord userRegistrationRecord, String token, String clientId) {
         UserRepresentation user = new UserRepresentation();
         user.setEnabled(true);
         user.setUsername(userRegistrationRecord.username());
@@ -147,7 +147,7 @@ public class KeycloakUserService implements UserService {
                     user.getLastName(),
                     ""
             );
-            usersSyncService.syncUsers(userRecord, realm);
+            usersSyncService.syncUsers(userRecord, realm,clientId);
             return userRecord;
         } else if (Objects.equals(409, response.getStatus())) {
             throw new RuntimeException("User already exists");
@@ -155,7 +155,7 @@ public class KeycloakUserService implements UserService {
         throw new RuntimeException("Failed to create user");
     }
 
-    public UserRegistrationRecord createUser(UserRegistrationRecord userRegistrationRecord, Keycloak keycloak, String realm) {
+    public UserRegistrationRecord createUser(UserRegistrationRecord userRegistrationRecord, Keycloak keycloak, String realm, String clientId) {
         UserRepresentation user = new UserRepresentation();
         user.setEnabled(true);
         user.setUsername(userRegistrationRecord.username());
@@ -190,7 +190,7 @@ public class KeycloakUserService implements UserService {
                     user.getLastName(),
                     ""
             );
-            usersSyncService.syncUsers(userRecord,realm);
+            usersSyncService.syncUsers(userRecord,realm, clientId);
             return userRecord;
         } else if (Objects.equals(409, response.getStatus())) {
             throw new RuntimeException("User already exists");
