@@ -1,6 +1,7 @@
 package com.owiseman.dataapi.service;
 
 import com.owiseman.dataapi.config.OAuth2ConstantsExtends;
+import com.owiseman.dataapi.dto.TokenDto;
 import com.owiseman.dataapi.dto.TokenResponse;
 import com.owiseman.dataapi.repository.KeycloakClientRepository;
 import com.owiseman.dataapi.repository.SysUserRepository;
@@ -29,9 +30,6 @@ public class KeycloakTokenService {
 
     @Value("${keycloak.resource}")
     private String clientId;
-
-//    @Value("${keycloak.credentials.secret}")
-//    private String clientSecret;
 
     @Value("${keycloak.client-info}")
     private String userInfo;
@@ -102,8 +100,38 @@ public class KeycloakTokenService {
 
     }
 
+    public TokenDto getTokenUrlByClientCredentials(String username, String realm) {
+        // 获得client Id 和client Secret
+        String clinetId = sysUserRepository.findByUsername(username).get().getClientId();
+        String clientSecret = keycloakClientRepository.findByClientId(clinetId).get().getSecret();
+         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+        formData.add("client_id", clinetId);
+        formData.add("grant_type", OAuth2Constants.CLIENT_CREDENTIALS);
+        formData.add("client_secret", clientSecret);
 
-    public String getTokenByUsernameAndPassword(String username, String password, String realm) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(formData, headers);
+
+        // 替换 URL 中的 realm
+        String realmTokenUrl = tokenUrl.replace("/realms/master/", "/realms/" + realm + "/");
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<TokenDto> response = restTemplate.postForEntity(
+                realmTokenUrl,
+                request,
+                TokenDto.class
+        );
+
+        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+            return response.getBody();
+        } else {
+            throw new RuntimeException("认证失败: " + response.getStatusCode());
+        }
+    }
+
+
+    public TokenResponse getTokenByUsernameAndPassword(String username, String password, String realm) {
         // 获得client Id 和client Secret
         String clinetId = sysUserRepository.findByUsername(username).get().getClientId();
         String clientSecret = keycloakClientRepository.findByClientId(clinetId).get().getSecret();
@@ -129,7 +157,7 @@ public class KeycloakTokenService {
         );
 
         if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-            return response.getBody().getAccessToken();
+            return response.getBody();
         } else {
             throw new RuntimeException("认证失败: " + response.getStatusCode());
         }

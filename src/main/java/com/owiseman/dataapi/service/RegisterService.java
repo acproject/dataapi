@@ -109,7 +109,10 @@ public class RegisterService {
                     registerDto.email(),
                     registerDto.firstName(),
                     registerDto.lastName(),
-                    registerDto.password()
+                    registerDto.password(),
+                    null
+                    ,null
+                    ,null
             );
             // 创建用户
             UserRegistrationRecord createdUser = keycloakUserService.createUser(userRecord, keycloak, realmDto.getName(), clientId);

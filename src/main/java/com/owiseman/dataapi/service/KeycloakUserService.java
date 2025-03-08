@@ -4,10 +4,11 @@ import com.owiseman.dataapi.config.OAuth2ConstantsExtends;
 import com.owiseman.dataapi.dto.ResetPassword;
 import com.owiseman.dataapi.dto.UserRegistrationRecord;
 import com.owiseman.dataapi.entity.SysUser;
+import com.owiseman.dataapi.repository.KeycloakClientRepository;
+import com.owiseman.dataapi.repository.SysUserRepository;
+import com.owiseman.dataapi.util.JwtParserUtil;
 import jakarta.ws.rs.core.Response;
 
-//import org.jooq.DSLContext;
-import org.gradle.launcher.daemon.protocol.UserResponse;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.RolesResource;
@@ -24,7 +25,6 @@ import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
-
 import java.util.*;
 
 @Service
@@ -32,6 +32,7 @@ public class KeycloakUserService implements UserService {
 
     @Value("${keycloak.realm}")
     private String realm;
+
     @Value("${keycloak.urls.auth}")
     private String serverUrl;
     @Value("${keycloak.resource}")
@@ -44,6 +45,12 @@ public class KeycloakUserService implements UserService {
     private String isEmailVerified;
 
     private UsersSyncService usersSyncService;
+
+    @Autowired
+    SysUserRepository sysUserRepository;
+
+    @Autowired
+    KeycloakAdminUtils keycloakAdminUtils;
 
     @Autowired
     public KeycloakUserService() {
@@ -111,50 +118,33 @@ public class KeycloakUserService implements UserService {
         keycloak.realm(realm).users().get(userId).update(user);
     }
 
+    /**
+     * 该方法用于创建获得到client_secret后使用
+     *
+     * @param userRegistrationRecord 需要新增的用户
+     * @param token admin token
+     * @return
+     */
     @Override
-    public UserRegistrationRecord createUser(UserRegistrationRecord userRegistrationRecord, String token, String clientId) {
-        UserRepresentation user = new UserRepresentation();
-        user.setEnabled(true);
-        user.setUsername(userRegistrationRecord.username());
-        user.setEmail(userRegistrationRecord.email());
-        user.setFirstName(userRegistrationRecord.firstname());
-        user.setLastName(userRegistrationRecord.lastname());
-        user.setEmailVerified(Boolean.valueOf(isEmailVerified));
-
-        CredentialRepresentation credentialRepresentation = new CredentialRepresentation();
-        credentialRepresentation.setValue(userRegistrationRecord.password());
-        credentialRepresentation.setType(CredentialRepresentation.PASSWORD);
-        credentialRepresentation.setTemporary(OAuth2ConstantsExtends.FALSE);
-
-        UsersResource usersResource = getUsersResource(token);
-        Response response = usersResource.create(user);
-        if (Objects.equals(201, response.getStatus())) {
-            List<UserRepresentation> representationList = usersResource.search(userRegistrationRecord.username(), true);
-            if (!CollectionUtils.isEmpty(representationList)) {
-                UserRepresentation userRepresentation1 = representationList.stream().filter(userRepresentation ->
-                        Objects.equals(false, userRepresentation.isEmailVerified())).findFirst().orElse(null);
-                assert userRepresentation1 != null;
-
-                if (user.isEmailVerified())
-                    emailVerification(userRepresentation1.getId(), token);
-            }
-            var id = representationList.get(0).getId().toString();
-            UserRegistrationRecord userRecord = new UserRegistrationRecord(
-                    id,
-                    user.getUsername(),
-                    user.getEmail(),
-                    user.getFirstName(),
-                    user.getLastName(),
-                    ""
-            );
-            usersSyncService.syncUsers(userRecord, realm,clientId);
-            return userRecord;
-        } else if (Objects.equals(409, response.getStatus())) {
-            throw new RuntimeException("User already exists");
+    public UserRegistrationRecord createUser(UserRegistrationRecord userRegistrationRecord, String token) {
+        if (ObjectUtils.isEmpty(userRegistrationRecord.userId())) {
+            throw new RuntimeException("userId is empty");
         }
-        throw new RuntimeException("Failed to create user");
+        String realmName = sysUserRepository.findById(userRegistrationRecord.userId().get()).get().getRealmName();
+        String userClientId = sysUserRepository.findById(userRegistrationRecord.userId().get()).get().getClientId();
+        Keycloak keycloak = keycloakAdminUtils.getKeyCloak(realmName, serverUrl, "admin-cli", clientInfo, token);
+        return createUser(userRegistrationRecord, keycloak, realmName, userClientId);
     }
 
+    /**
+     * 该方法用于注册时的用户创建，创建的为管理员
+     *
+     * @param userRegistrationRecord
+     * @param keycloak
+     * @param realm
+     * @param clientId
+     * @return
+     */
     public UserRegistrationRecord createUser(UserRegistrationRecord userRegistrationRecord, Keycloak keycloak, String realm, String clientId) {
         UserRepresentation user = new UserRepresentation();
         user.setEnabled(true);
@@ -188,9 +178,12 @@ public class KeycloakUserService implements UserService {
                     user.getEmail(),
                     user.getFirstName(),
                     user.getLastName(),
-                    ""
+                    "",
+                    null,
+                    null,
+                    null
             );
-            usersSyncService.syncUsers(userRecord,realm, clientId);
+            usersSyncService.syncUsers(userRecord, realm, clientId);
             return userRecord;
         } else if (Objects.equals(409, response.getStatus())) {
             throw new RuntimeException("User already exists");
@@ -308,7 +301,7 @@ public class KeycloakUserService implements UserService {
         return userResource;
     }
 
-    public void  assignAdminRoleForNewRealm(Keycloak keycloak, String userId, String realm) {
+    public void assignAdminRoleForNewRealm(Keycloak keycloak, String userId, String realm) {
         UserResource userResource = getUsersResourceByIdForNewRealm(keycloak, userId, realm);
         RolesResource rolesResource = keycloak.realm(realm).roles();
         keycloak.realm(realm).roles().create(keycloak.realm("master").roles().get("admin").toRepresentation());

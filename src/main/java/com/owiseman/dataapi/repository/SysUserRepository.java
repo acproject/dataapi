@@ -1,19 +1,18 @@
 package com.owiseman.dataapi.repository;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.owiseman.dataapi.dto.PageResult;
 import com.owiseman.dataapi.entity.SysUser;
 import com.owiseman.dataapi.util.JooqContextHolder;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.owiseman.dataapi.util.JsonUtil;
 import com.owiseman.jpa.util.JsonMapConverter;
 import com.owiseman.jpa.util.PaginationHelper;
+
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.Map;
 import java.util.Optional;
 
 import static com.owiseman.dataapi.entity.Tables.SYSUSER.*;
@@ -31,13 +30,7 @@ public class SysUserRepository {
 
 
     public SysUser save(SysUser user) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonString = "";
-        try {
-            jsonString = objectMapper.writeValueAsString(user.getAttributes()); // 将HashMap转为JSON字符串
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        String jsonString = JsonMapConverter.MapToJsonString(user.getAttributes());
         dslContext.insertInto(TABLE)
                 .set(ID, user.getId())
                 .set(USERNAME, user.getUsername())
@@ -55,13 +48,7 @@ public class SysUserRepository {
     }
 
     public void update(SysUser user) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonString = "";
-        try {
-            jsonString = objectMapper.writeValueAsString(user.getAttributes()); // 将HashMap转为JSON字符串
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        String jsonString = JsonMapConverter.MapToJsonString(user.getAttributes());
 
         dslContext.update(TABLE)
                 .set(FIRSTNAME, user.getFirstName())

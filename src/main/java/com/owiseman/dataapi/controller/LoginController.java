@@ -1,6 +1,8 @@
 package com.owiseman.dataapi.controller;
 
 import com.owiseman.dataapi.dto.LoginDto;
+import com.owiseman.dataapi.dto.TokenResponse;
+import com.owiseman.dataapi.entity.SysUser;
 import com.owiseman.dataapi.service.LoginService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +22,18 @@ public class LoginController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginDto loginDto) {
-        String token = loginService.login(loginDto);
+        TokenResponse token = loginService.login(loginDto);
         return ResponseEntity.ok(Map.of(
-            "token", token,
+            "data", token,
+            "message", "登录成功"
+        ));
+    }
+
+    @PostMapping("/norm_user_login")
+    public ResponseEntity<?> normUserLogin(@Valid @RequestBody LoginDto loginDto) {
+        SysUser user = loginService.normUserLogin(loginDto);
+        return ResponseEntity.ok(Map.of(
+            "data", user,
             "message", "登录成功"
         ));
     }
