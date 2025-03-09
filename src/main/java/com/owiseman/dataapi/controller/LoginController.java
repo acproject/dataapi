@@ -24,9 +24,7 @@ public class LoginController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginDto loginDto) {
-        var loginResponse  = loginService.login(loginDto);
-        LoginResponseDto loginResponseDto = new LoginResponseDto();
-        loginResponseDto.setTokenResponse(loginResponse);
+        var loginResponseDto  = loginService.login(loginDto);
         return ResponseEntity.ok(Map.of(
             "data", loginResponseDto,
             "message", "登录成功"

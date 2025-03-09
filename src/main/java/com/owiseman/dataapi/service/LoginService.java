@@ -1,12 +1,15 @@
 package com.owiseman.dataapi.service;
 
 import com.owiseman.dataapi.dto.LoginDto;
+import com.owiseman.dataapi.dto.LoginResponseDto;
 import com.owiseman.dataapi.dto.NormLoginDto;
 import com.owiseman.dataapi.dto.TokenResponse;
 import com.owiseman.dataapi.entity.SysUser;
 import com.owiseman.dataapi.entity.SysUserConfig;
 import com.owiseman.dataapi.repository.SysUserConfigRepository;
 import com.owiseman.dataapi.repository.SysUserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +19,7 @@ import java.util.Map;
 
 @Service
 public class LoginService {
+    private static final Logger log = LoggerFactory.getLogger(LoginService.class);
     @Autowired
     private KeycloakTokenService keycloakTokenService;
 
@@ -25,7 +29,7 @@ public class LoginService {
     @Autowired
     private SysUserConfigRepository sysUserConfigRepository;
 
-    public TokenResponse login(LoginDto loginDto) {
+    public LoginResponseDto login(LoginDto loginDto) {
         // 判断是用户名还是邮箱登录
         SysUser user;
         if (loginDto.principal().contains("@")) {
@@ -54,8 +58,10 @@ public class LoginService {
 
         // 更新登录信息
         updateUserAuthInfo(user, config);
-
-        return token;
+        LoginResponseDto loginResponseDto = new LoginResponseDto();
+        loginResponseDto.setSysUserConfig(config);
+        loginResponseDto.setTokenResponse(token);
+        return loginResponseDto;
     }
 
     public TokenResponse normUserLogin(NormLoginDto normLoginDto) {

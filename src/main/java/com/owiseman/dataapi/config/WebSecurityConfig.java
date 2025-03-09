@@ -48,11 +48,13 @@ public class WebSecurityConfig implements WebMvcConfigurer {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        final String[] roles = {"ADMIN", "USER"};
         http.authorizeHttpRequests(
                 authorize -> authorize
                         .requestMatchers("/public/**").permitAll()
                         .requestMatchers("/temporary/api/**").permitAll()
-                        .requestMatchers("/api/auth").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers("/api/auth").hasAnyRole(roles)
+                        .requestMatchers("/api/auth/normUserLogin").hasRole("USER")
                         .requestMatchers("/admin/users").hasRole("ADMIN")
 //                        .requestMatchers(HttpMethod.POST, "/admin/**").hasAuthority("SCOPE_admin:write")
 //                        .requestMatchers(HttpMethod.GET, "/admin/**").hasAuthority("SCOPE_admin:read")
