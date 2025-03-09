@@ -150,7 +150,7 @@ public class KeycloakUserService implements UserService {
     }
 
     /**
-     * 该方法用于注册时的用户创建，创建的为管理员
+     * 该方法用于注册一个新的组织用户时，创建的为管理员
      *
      * @param userRegistrationRecord
      * @param keycloak
@@ -334,12 +334,14 @@ public class KeycloakUserService implements UserService {
             newUserRole.setDescription("user");
             rolesResource.create(newUserRole);
         }
-
-
-
-
     }
 
+    /**
+     * 当需要给新创建的realm添加admin角色时，需要先创建admin角色，然后再给用户添加admin角色
+     * 如果只需要使用master的realm时可以直接使用该方法
+     * @param userId
+     * @param token
+     */
     public void assignAdminRole(String userId, String token) {
         UserResource userResource = getUsersResourceById(userId, token);
         Keycloak keycloak = KeycloakBuilder.builder()
@@ -353,8 +355,16 @@ public class KeycloakUserService implements UserService {
                 .authorization(token)
                 .build();
         RolesResource rolesResource = keycloak.realm(realm).roles();
-        RoleRepresentation adminRole = rolesResource.get("admin").toRepresentation();
-        userResource.roles().realmLevel().add(Collections.singletonList(adminRole));
+        try {
+            RoleRepresentation adminRole = rolesResource.get("admin").toRepresentation();
+            userResource.roles().realmLevel().add(Collections.singletonList(adminRole));
+        } catch (NotFoundException e) {
+            RoleRepresentation newAdminRole = new RoleRepresentation();
+            newAdminRole.setName("admin");
+            newAdminRole.setDescription("admin");
+            rolesResource.create(newAdminRole);
+            userResource.roles().realmLevel().add(Collections.singletonList(newAdminRole));
+        }
     }
 
     public void updateUserAttributes(String userId, Map<String, List<String>> attributes, String token) {

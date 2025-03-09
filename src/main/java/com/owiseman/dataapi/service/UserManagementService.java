@@ -24,6 +24,13 @@ public class UserManagementService {
     @Autowired
     private KeycloakSyncService keycloakSyncService;
 
+    /**
+     * 在管理界面盗用它来完成用户列表的分页查询
+     * @param realmName
+     * @param page
+     * @param size
+     * @return
+     */
     public PageResult<SysUser> listUsers(String realmName, int page, int size) {
         return sysUserRepository.findByRealmNameWithPagination(realmName, page, size);
     }
