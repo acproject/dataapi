@@ -7,6 +7,7 @@ import com.owiseman.dataapi.entity.SysUser;
 import com.owiseman.dataapi.repository.KeycloakClientRepository;
 import com.owiseman.dataapi.repository.SysUserRepository;
 import com.owiseman.dataapi.util.JwtParserUtil;
+import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 
 import org.keycloak.admin.client.Keycloak;
@@ -51,6 +52,7 @@ public class KeycloakUserService implements UserService {
 
     @Autowired
     KeycloakAdminUtils keycloakAdminUtils;
+
 
     @Autowired
     public KeycloakUserService() {
@@ -133,7 +135,18 @@ public class KeycloakUserService implements UserService {
         String realmName = sysUserRepository.findById(userRegistrationRecord.userId().get()).get().getRealmName();
         String userClientId = sysUserRepository.findById(userRegistrationRecord.userId().get()).get().getClientId();
         Keycloak keycloak = keycloakAdminUtils.getKeyCloak(realmName, serverUrl, "admin-cli", clientInfo, token);
-        return createUser(userRegistrationRecord, keycloak, realmName, userClientId);
+        UserRegistrationRecord result = createUser(userRegistrationRecord, keycloak, realmName, userClientId);
+
+        assignAdminRoleForNewNormRealm(keycloak, result.id(), realmName);
+        // 更新用户密码
+        String userId = keycloak.realm(realmName).users().search(userRegistrationRecord.username()).get(0).getId();
+        CredentialRepresentation password = new CredentialRepresentation();
+        password.setType(CredentialRepresentation.PASSWORD);
+        password.setValue(userRegistrationRecord.password());  // 设置密码值
+        password.setTemporary(false);             // 是否临时密码（用户首次登录需修改）
+        keycloak.realm(realmName).users().get(userId).resetPassword(password);
+
+        return result;
     }
 
     /**
@@ -178,7 +191,7 @@ public class KeycloakUserService implements UserService {
                     user.getEmail(),
                     user.getFirstName(),
                     user.getLastName(),
-                    "",
+                    userRegistrationRecord.password(),
                     null,
                     null,
                     null
@@ -307,6 +320,24 @@ public class KeycloakUserService implements UserService {
         keycloak.realm(realm).roles().create(keycloak.realm("master").roles().get("admin").toRepresentation());
         RoleRepresentation adminRole = rolesResource.get("admin").toRepresentation();
         userResource.roles().realmLevel().add(Collections.singletonList(adminRole));
+    }
+
+    public void assignAdminRoleForNewNormRealm(Keycloak keycloak, String userId, String realm) {
+        UserResource userResource = getUsersResourceByIdForNewRealm(keycloak, userId, realm);
+        RolesResource rolesResource = keycloak.realm(realm).roles();
+        try {
+             RoleRepresentation userRole = rolesResource.get("user").toRepresentation();
+             userResource.roles().realmLevel().add(Collections.singletonList(userRole));
+        }catch (NotFoundException e) {
+            RoleRepresentation newUserRole = new RoleRepresentation();
+            newUserRole.setName("user");
+            newUserRole.setDescription("user");
+            rolesResource.create(newUserRole);
+        }
+
+
+
+
     }
 
     public void assignAdminRole(String userId, String token) {

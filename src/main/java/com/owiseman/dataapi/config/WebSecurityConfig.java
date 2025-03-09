@@ -52,7 +52,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                 authorize -> authorize
                         .requestMatchers("/public/**").permitAll()
                         .requestMatchers("/temporary/api/**").permitAll()
-                        .requestMatchers("/api/auth").hasRole("ADMIN")
+                        .requestMatchers("/api/auth").hasAnyRole("ADMIN", "USER")
                         .requestMatchers("/admin/users").hasRole("ADMIN")
 //                        .requestMatchers(HttpMethod.POST, "/admin/**").hasAuthority("SCOPE_admin:write")
 //                        .requestMatchers(HttpMethod.GET, "/admin/**").hasAuthority("SCOPE_admin:read")

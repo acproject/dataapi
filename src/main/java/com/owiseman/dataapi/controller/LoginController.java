@@ -1,6 +1,7 @@
 package com.owiseman.dataapi.controller;
 
 import com.owiseman.dataapi.dto.LoginDto;
+import com.owiseman.dataapi.dto.NormLoginDto;
 import com.owiseman.dataapi.dto.TokenResponse;
 import com.owiseman.dataapi.entity.SysUser;
 import com.owiseman.dataapi.service.LoginService;
@@ -29,11 +30,16 @@ public class LoginController {
         ));
     }
 
+    /**
+     * 客户端可以通过管理那里获得realm
+     * @param normLoginDto
+     * @return
+     */
     @PostMapping("/norm_user_login")
-    public ResponseEntity<?> normUserLogin(@Valid @RequestBody LoginDto loginDto) {
-        SysUser user = loginService.normUserLogin(loginDto);
+    public ResponseEntity<?> normUserLogin(@Valid @RequestBody NormLoginDto normLoginDto) {
+        TokenResponse tokenResponse = loginService.normUserLogin(normLoginDto);
         return ResponseEntity.ok(Map.of(
-            "data", user,
+            "data", tokenResponse,
             "message", "登录成功"
         ));
     }

@@ -1,6 +1,7 @@
 package com.owiseman.dataapi.service;
 
 import com.owiseman.dataapi.dto.LoginDto;
+import com.owiseman.dataapi.dto.NormLoginDto;
 import com.owiseman.dataapi.dto.TokenResponse;
 import com.owiseman.dataapi.entity.SysUser;
 import com.owiseman.dataapi.entity.SysUserConfig;
@@ -57,14 +58,14 @@ public class LoginService {
         return token;
     }
 
-    public SysUser normUserLogin(LoginDto loginDto) {
+    public TokenResponse normUserLogin(NormLoginDto normLoginDto) {
         // 判断是用户名还是邮箱登录
         SysUser user;
-        if (loginDto.principal().contains("@")) {
-            user = sysUserRepository.findByEmail(loginDto.principal())
+        if (normLoginDto.principal().contains("@")) {
+            user = sysUserRepository.findByEmail(normLoginDto.principal())
                     .orElseThrow(() -> new RuntimeException("用户不存在"));
         } else {
-            user = sysUserRepository.findByUsername(loginDto.principal())
+            user = sysUserRepository.findByUsername(normLoginDto.principal())
                     .orElseThrow(() -> new RuntimeException("用户不存在"));
         }
 
@@ -73,11 +74,15 @@ public class LoginService {
             throw new RuntimeException("用户已被禁用");
         }
 
+        // 使用对应realm的配置进行认证
+        TokenResponse token = keycloakTokenService.getTokenByUsernameAndPassword(
+                normLoginDto.principal(),
+                normLoginDto.password(),
+                normLoginDto.realmName()
+        );
 
-        // 更新登录信息
-//        updateUserAuthInfo(user, config);
 
-        return user;
+        return token;
     }
 
     private void updateUserAuthInfo(SysUser user, SysUserConfig config) {
