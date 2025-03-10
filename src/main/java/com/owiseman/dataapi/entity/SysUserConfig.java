@@ -24,6 +24,10 @@ public class SysUserConfig {
     @Column(name = "project_name")
     private String projectName;
 
+    // 后期用于使用跟踪这个项目的唯一标识，比如使用了多少流量等信息
+    @Column(name = "project_api_key")
+    private String projectApiKey;
+
     @Column(name = "platform")
     @Enumerated(EnumType.STRING)
     private Platform platform;
@@ -78,6 +82,14 @@ public class SysUserConfig {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getProjectApiKey() {
+        return projectApiKey;
+    }
+
+    public void setProjectApiKey(String projectApiKey) {
+        this.projectApiKey = projectApiKey;
     }
 
     public String getKeycloakRealm() {
@@ -472,7 +484,7 @@ public class SysUserConfig {
                          String userId, Map<String, List<String>> attributes, String s3BucketName, String s3Region, String s3AccessKey, String s3SecretKey, String s3Endpoint,
                          String ossEndpoint, String ossBucketName, String ossAccessKeyId, String ossAccessKeySecret, String ossRegion, String seaweedFsMasterUrl, Integer seaweedFsReplication,
                          String seaweedFsCollection, String storageType, String wechatAppId, String wechatAppSecret, String wechatMchId, String wechatApiKey, String wechatPayCertPath, String alipayAppId,
-                         String alipayPrivateKey, String alipayPublicKey, String alipayGatewayUrl, String aplipayCertPath, String notifyUrl, String returnUrl, String description) {
+                         String alipayPrivateKey, String alipayPublicKey, String alipayGatewayUrl, String aplipayCertPath, String notifyUrl, String returnUrl, String description, String projectApiKey) {
         this.id = id;
         this.projectName = projectName;
         this.platform = platform;
@@ -521,6 +533,7 @@ public class SysUserConfig {
         this.notifyUrl = notifyUrl;
         this.returnUrl = returnUrl;
         this.description = description;
+        this.projectApiKey = projectApiKey;
     }
 
     public String getProjectName() {
@@ -637,6 +650,7 @@ public class SysUserConfig {
         private String notifyUrl;
         private String returnUrl;
         private String description;
+        private String projectApiKey;
 
         public Builder id(String id) {
             this.id = id;
@@ -650,6 +664,11 @@ public class SysUserConfig {
 
         public Builder platform(Platform platform) {
             this.platform = platform;
+            return this;
+        }
+
+        public Builder projectApiKey(String projectApiKey) {
+            this.projectApiKey = projectApiKey;
             return this;
         }
 
@@ -928,6 +947,7 @@ public class SysUserConfig {
             config.setNotifyUrl(notifyUrl);
             config.setReturnUrl(returnUrl);
             config.setDescription(description);
+            config.setProjectApiKey(projectApiKey);
             return config;
         }
     }

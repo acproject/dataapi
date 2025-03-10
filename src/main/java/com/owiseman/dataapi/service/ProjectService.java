@@ -20,54 +20,35 @@ public class ProjectService {
     SysUserRepository sysUserRepository;
 
 
-
-    private final KeycloakClientService keycloakClientService;
     private final SysUserConfigRepository userConfigRepository;
 
     public ProjectService(KeycloakClientService keycloakClientService,
-                         SysUserConfigRepository userConfigRepository) {
-        this.keycloakClientService = keycloakClientService;
+                          SysUserConfigRepository userConfigRepository) {
+
         this.userConfigRepository = userConfigRepository;
     }
 
     @Transactional
     public SysUserConfig createProject(String userId, ProjectCreateRequest request, String token) {
         // 检查项目名称是否已存在
-        if (userConfigRepository.existsByKeycloakClientId(request.projectName())) {
+        if (userConfigRepository.existsByProjectName(request.projectName())) {
             throw new RuntimeException("项目名称已存在");
         }
 
-        // 创建 Keycloak 客户端
-        ClientRepresentation clientRepresentation = new ClientRepresentation();
-        clientRepresentation.setClientId(request.projectName());
-        clientRepresentation.setName(request.projectName());
-        clientRepresentation.setDescription("Platform: " + request.platform().getDescription());
-        clientRepresentation.setEnabled(true);
-        clientRepresentation.setDirectAccessGrantsEnabled(true);
-        clientRepresentation.setStandardFlowEnabled(true);
-        clientRepresentation.setPublicClient(false);
-        clientRepresentation.setRedirectUris(Collections.singletonList("*"));
-        CreateKeycloakClientDto createKeycloakClientDto = new CreateKeycloakClientDto();
-        createKeycloakClientDto.setClientRepresentation(clientRepresentation);
-        // 通过 userId查找的realmName，clientID，client_secret, username
-       var user = sysUserRepository.findById(userId);
-        createKeycloakClientDto.setRealmName(user.get().getRealmName());
-        createKeycloakClientDto.setClientId(user.get().getClientId());
-        createKeycloakClientDto.setUsername(user.get().getUsername());
-        var clientSecret= userConfigRepository.findByUserId(userId).get().getKeycloakClientSecret();
-        createKeycloakClientDto.setClientSecret(clientSecret);
-        KeycloakClientDto clientDto = keycloakClientService.createClient(createKeycloakClientDto, token);
 
-        // 创建用户配置
-        SysUserConfig config = new SysUserConfig();
-        config.setId(UUID.randomUUID().toString());
-        config.setProjectName(request.projectName());
-        config.setPlatform(request.platform());
-        config.setUserId(userId);
-        config.setKeycloakClientId(clientDto.clientId());
-        config.setKeycloakClientSecret(clientDto.secret());
-        config.setStorageType("seaweedfs"); // 默认存储类型
-        
+        var user = sysUserRepository.findById(userId);
+        if (user.isEmpty()) {
+            throw new RuntimeException("用户不存在");
+        }
+        // 为用户创建一个项目
+
+        SysUserConfig config = new SysUserConfig.Builder()
+                .id(UUID.randomUUID().toString())
+                .projectName(request.projectName())
+                .platform(request.platform())
+                .projectApiKey(UUID.randomUUID().toString().replaceAll("-",""))
+                .build();
+
         return userConfigRepository.save(config);
     }
 

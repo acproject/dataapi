@@ -31,50 +31,18 @@ public class SysUserConfigRepository {
             config.setId(UUID.randomUUID().toString());
         }
         dslContext.insertInto(TABLE)
-                .set(ID, config.getId())
-                .set(USERID, config.getUserId())
-                .set(KEYCLOAKREALM, config.getKeycloakRealm())
-                .set(KEYCLOAKCLIENTID, config.getKeycloakClientId())
-                .set(KEYCLOAKCLIENTSECRET, config.getKeycloakClientSecret())
-                .set(KEYCLOAKAUTHURL, config.getKeycloakAuthUrl())
-                .set(KEYCLOAKTOKENURL, config.getKeycloakTokenUrl())
-                .set(APNSKEYPATH, config.getApnsKeyPath())
-                .set(APNSTEAMID, config.getApnsTeamId())
-                .set(APNSKEYID, config.getApnsKeyId())
-                .set(APNSBUNDLEID, config.getApnsBundleId())
-                .set(APNSPRODUCTION, config.getApnsProduction())
-                .set(FIREBASEPROJECTID, config.getFirebaseProjectId())
-                .set(FIREBASEPRIVATEKEY, config.getFirebasePrivateKey())
-                .set(FIREBASECLIENTEMAIL, config.getFirebaseClientEmail())
-                .set(FIREBASECLIENTID, config.getFirebaseClientId())
-                .set(FIREBASESERVICEACCOUNTPATH, config.getFirebaseServiceAccountPath())
-                .set(DATABASETABLENAMEPREFIX, config.getDatabaseTableNamePrefix())
-                .set(ATTRIBUTES, config.getAttributes())
+                .set(dslContext.newRecord(TABLE, config))  // 自动映射同名字段
                 .execute();
         return config;
     }
 
     public void update(SysUserConfig config) {
+        // 先加载原始记录
+        var record = dslContext.fetchOne(TABLE, ID.eq(config.getId()));
+        record.from(config);
+        record.changed(config.getId(), false);
         dslContext.update(TABLE)
-                .set(USERID, config.getUserId())
-                .set(KEYCLOAKREALM, config.getKeycloakRealm())
-                .set(KEYCLOAKCLIENTID, config.getKeycloakClientId())
-                .set(KEYCLOAKCLIENTSECRET, config.getKeycloakClientSecret())
-                .set(KEYCLOAKAUTHURL, config.getKeycloakAuthUrl())
-                .set(KEYCLOAKTOKENURL, config.getKeycloakTokenUrl())
-                .set(APNSKEYPATH, config.getApnsKeyPath())
-                .set(APNSTEAMID, config.getApnsTeamId())
-                .set(APNSKEYID, config.getApnsKeyId())
-                .set(APNSBUNDLEID, config.getApnsBundleId())
-                .set(APNSPRODUCTION, config.getApnsProduction())
-                .set(FIREBASEPROJECTID, config.getFirebaseProjectId())
-                .set(FIREBASEPRIVATEKEY, config.getFirebasePrivateKey())
-                .set(FIREBASECLIENTEMAIL, config.getFirebaseClientEmail())
-                .set(FIREBASECLIENTID, config.getFirebaseClientId())
-                .set(FIREBASESERVICEACCOUNTPATH, config.getFirebaseServiceAccountPath())
-                .set(DATABASETABLENAMEPREFIX, config.getDatabaseTableNamePrefix())
-                .set(ATTRIBUTES, config.getAttributes())
-                .where(ID.eq(config.getId()))
+                .set(record)
                 .execute();
     }
 
@@ -103,22 +71,16 @@ public class SysUserConfigRepository {
                 .fetchOptionalInto(SysUserConfig.class);
     }
 
-    public boolean existsByKeycloakClientId(String clientId) {
-        return dslContext.selectCount()
-                .from(TABLE)
-                .where(KEYCLOAKCLIENTID.eq(clientId))
-                .fetchOne(0, Integer.class) > 0;
-    }
 
-    public List<SysUserConfig> findAll() {
-        return dslContext.selectFrom(TABLE)
+    public List<SysUserConfig> findAll(String realmName) {
+        return dslContext.selectFrom(TABLE).where(KEYCLOAKREALM.eq(realmName))
                 .fetchInto(SysUserConfig.class);
     }
 
-    public PageResult<SysUserConfig> findAllWithPagination(int pageNumber, int pageSize) {
+    public PageResult<SysUserConfig> findAllWithPagination(int pageNumber, int pageSize, String realmName) {
         List<SysUserConfig> configs = PaginationHelper.getPaginatedData(
                 dslContext,
-                DSL.noCondition(),
+                DSL.condition(KEYCLOAKREALM.eq(realmName)),
                 TABLE.getName(),
                 pageSize,
                 pageNumber,
@@ -127,10 +89,20 @@ public class SysUserConfigRepository {
 
         int total = dslContext.selectCount()
                 .from(TABLE)
-                .where(DSL.noCondition())
+                .where(DSL.condition(KEYCLOAKREALM.eq(realmName)))
                 .fetchOne(0, Integer.class);
 
         return new PageResult<>(configs, pageNumber, pageSize, total);
+    }
+
+    public Boolean existsByProjectName(String projectName) {
+        try {
+            return dslContext.selectFrom(TABLE)
+                    .where(PROJECTNAME.eq(projectName))
+                    .fetchOne(0, SysUserConfig.class) != null;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public PageResult<SysUserConfig> findByConditionWithPagination(Condition condition, int pageNumber, int pageSize) {

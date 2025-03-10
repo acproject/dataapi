@@ -9,5 +9,6 @@ public record ProjectCreateRequest(
 
         @NotNull(message = "平台类型不能为空")
         Platform platform
+
 ) {
 }
