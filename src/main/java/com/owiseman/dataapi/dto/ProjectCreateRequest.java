@@ -8,9 +8,6 @@ public record ProjectCreateRequest(
         String projectName,
 
         @NotNull(message = "平台类型不能为空")
-        Platform platform,
-
-        @NotNull(message = "用户密码不能为空")
-        String userPassword
+        Platform platform
 ) {
 }

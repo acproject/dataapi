@@ -16,6 +16,7 @@ public record KeycloakClientDto(
         Boolean enabled,
         Boolean alwaysDisplayInConsole,
         String clientAuthenticatorType,
-        String registrationAccessToken
+        String registrationAccessToken,
+        Boolean isForProject
 ) {
 }

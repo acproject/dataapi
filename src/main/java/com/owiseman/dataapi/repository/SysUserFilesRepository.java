@@ -28,9 +28,6 @@ public class SysUserFilesRepository {
     }
 
     public SysUserFile save(SysUserFile userFile) {
-        if (userFile.getId() == null || userFile.getId().isEmpty()) {
-            userFile.setId(UUID.randomUUID().toString());
-        }
         dslContext.insertInto(TABLE)
                 .set(ID, userFile.getId())
                 .set(USERID, userFile.getUserId())
@@ -39,6 +36,7 @@ public class SysUserFilesRepository {
                 .set(ISDIRECTORY, userFile.isDirectory())
                 .set(SIZE, userFile.getSize())
                 .set(STORAGETYPE, userFile.getStorageType())
+                .set(PARENTID, userFile.getParentId())
                 .set(UPLOADTIME, userFile.getUploadTime())
                 .execute();
         return userFile;

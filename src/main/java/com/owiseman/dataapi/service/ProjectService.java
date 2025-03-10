@@ -49,8 +49,7 @@ public class ProjectService {
         clientRepresentation.setRedirectUris(Collections.singletonList("*"));
         CreateKeycloakClientDto createKeycloakClientDto = new CreateKeycloakClientDto();
         createKeycloakClientDto.setClientRepresentation(clientRepresentation);
-        createKeycloakClientDto.setPassword(request.userPassword());
-        // todo 通过 userId查找的realmName，clientID，client_secret, username
+        // 通过 userId查找的realmName，clientID，client_secret, username
        var user = sysUserRepository.findById(userId);
         createKeycloakClientDto.setRealmName(user.get().getRealmName());
         createKeycloakClientDto.setClientId(user.get().getClientId());

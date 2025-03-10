@@ -59,7 +59,6 @@ public class LoginService {
         // 更新登录信息
         updateUserAuthInfo(user, config);
         LoginResponseDto loginResponseDto = new LoginResponseDto();
-        loginResponseDto.setSysUserConfig(config);
         loginResponseDto.setTokenResponse(token);
         return loginResponseDto;
     }

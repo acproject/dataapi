@@ -121,7 +121,7 @@ public class KeycloakUserService implements UserService {
     }
 
     /**
-     * 该方法用于创建获得到client_secret后使用
+     * 该方法用于创建获得到client_secret后使用，可以封装进后续的SDK中
      *
      * @param userRegistrationRecord 需要新增的用户
      * @param token admin token

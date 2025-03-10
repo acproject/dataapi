@@ -9,6 +9,9 @@ import org.hibernate.type.SqlTypes;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 该表其实是项目的配置信息表，也是用于创建project的
+ */
 @Entity
 @Table(name = "sys_user_config")
 public class SysUserConfig {

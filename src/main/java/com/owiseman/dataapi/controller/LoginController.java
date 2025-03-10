@@ -32,7 +32,7 @@ public class LoginController {
     }
 
     /**
-     * 客户端可以通过管理那里获得realm
+     * 客户端可以通过管理那里获得realm， 后面封装进SDK中
      * @param normLoginDto
      * @return
      */

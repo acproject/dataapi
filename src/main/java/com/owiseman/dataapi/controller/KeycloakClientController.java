@@ -23,14 +23,19 @@ public class KeycloakClientController {
     @Autowired
     private KeycloakClientService keycloakRealmService;
 
+    /**
+     * 注意：自动生成的client不能做修改，所有
+     * @param clientId
+     * @param servletRequest
+     * @return
+     */
     @PutMapping("/update/{clientId}")
     public ResponseEntity<KeycloakClientDto> updateClient(
             @PathVariable String clientId,
             @RequestBody ClientRepresentation clientRep,
             HttpServletRequest servletRequest
             ) {
-        // todo 需要修改
-        return ResponseEntity.ok(keycloakRealmService.updateClient(clientId, clientRep, getTokenFromHeader(servletRequest)));
+        return ResponseEntity.ok(keycloakRealmService.updateClient(clientId, clientRep, getTokenFromHeader(servletRequest),true));
     }
 
 

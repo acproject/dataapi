@@ -5,6 +5,7 @@ import com.owiseman.dataapi.dto.CreateKeycloakClientDto;
 import com.owiseman.dataapi.dto.KeycloakClientDto;
 import com.owiseman.dataapi.dto.PageResult;
 import com.owiseman.dataapi.entity.SysKeycloakClient;
+import com.owiseman.dataapi.util.JwtParserUtil;
 import jakarta.ws.rs.core.Response;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
@@ -23,6 +24,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+
+import static com.owiseman.dataapi.config.OAuth2ConstantsExtends.*;
 
 
 @Service
@@ -47,6 +50,8 @@ public class KeycloakClientService {
     private KeycloakSyncService keycloakSyncService;
     @Autowired
     private KeycloakTokenService keycloakTokenService;
+    @Autowired
+    private KeycloakAdminUtils keycloakAdminUtils;
 
     private Keycloak getKeycloak(String token) {
         Keycloak keycloak = KeycloakBuilder.builder()
@@ -62,36 +67,36 @@ public class KeycloakClientService {
         return keycloak;
     }
 
-    private Keycloak getKeycloak(String token,
-                                 String realmName,
-                                 String clientId,
-                                 String clientSecret,
-                                 String username,
-                                 String password
-    ) {
-        Keycloak keycloak = KeycloakBuilder.builder()
-                .serverUrl(serverUrl)
-                .realm(realmName)
-                .grantType(OAuth2ConstantsExtends.PASSWORD)
-                .clientId(clientId)
-                .clientSecret(clientSecret)
-                .username(username)
-                .password(password)
-                .authorization(token)
-                .build();
-        return keycloak;
-    }
+//    private Keycloak getKeycloak(String token,
+//                                 String realmName,
+//                                 String clientId,
+//                                 String clientSecret,
+//                                 String username,
+//                                 String password
+//    ) {
+//        Keycloak keycloak = KeycloakBuilder.builder()
+//                .serverUrl(serverUrl)
+//                .realm(realmName)
+//                .grantType(OAuth2ConstantsExtends.PASSWORD)
+//                .clientId(clientId)
+//                .clientSecret(clientSecret)
+//                .username(username)
+//                .password(password)
+//                .authorization(token)
+//                .build();
+//        return keycloak;
+//    }
 
+    /**
+     * 用户登录后创建Client
+     * @param createKeycloakClientDto
+     * @param token
+     * @return
+     */
     public KeycloakClientDto createClient(CreateKeycloakClientDto createKeycloakClientDto, String token) {
-        Keycloak keycloak = getKeycloak(
-                token,
-                createKeycloakClientDto.getRealmName(),
-                createKeycloakClientDto.getClientId(),
-                createKeycloakClientDto.getClientSecret(),
-                createKeycloakClientDto.getUsername(),
-                createKeycloakClientDto.getPassword());
+
+        Keycloak keycloak = keycloakAdminUtils.getKeyCloak(DEFAULT_REALM_NAME, serverUrl, DEFAULT_CLIENT_ID, clientInfo, token);
         RealmResource realmResource = keycloak.realm(createKeycloakClientDto.getRealmName());
-        String realmName = realmResource.toRepresentation().getRealm();
         ClientsResource clients = realmResource.clients();
 
         // 创建Client
@@ -124,7 +129,8 @@ public class KeycloakClientService {
         sysKeycloakClient.setAlwaysDisplayInConsole(createKeycloakClientDto.getClientRepresentation().isAlwaysDisplayInConsole());
         sysKeycloakClient.setClientAuthenticatorType(createKeycloakClientDto.getClientRepresentation().getClientAuthenticatorType());
         sysKeycloakClient.setRegistrationAccessToken(createKeycloakClientDto.getClientRepresentation().getRegistrationAccessToken());
-        sysKeycloakClient.setRealmName(realmName);
+        sysKeycloakClient.setRealmName(createKeycloakClientDto.getRealmName());
+        sysKeycloakClient.setForProject(TRUE);
         keycloakSyncService.syncClient(sysKeycloakClient);
         return new KeycloakClientDto(
                 createKeycloakClientDto.getClientRepresentation().getId(),
@@ -140,11 +146,19 @@ public class KeycloakClientService {
                 createKeycloakClientDto.getClientRepresentation().isEnabled(),
                 createKeycloakClientDto.getClientRepresentation().isAlwaysDisplayInConsole(),
                 createKeycloakClientDto.getClientRepresentation().getClientAuthenticatorType(),
-                createKeycloakClientDto.getClientRepresentation().getRegistrationAccessToken()
+                createKeycloakClientDto.getClientRepresentation().getRegistrationAccessToken(),
+                TRUE
         );
     }
 
 
+    /**
+     * 注册专用的方法
+     * @param clientRepresentation
+     * @param keycloak
+     * @param realmName
+     * @return
+     */
     public KeycloakClientDto createClient(ClientRepresentation clientRepresentation,Keycloak keycloak, String realmName) {
         RealmResource realmResource = keycloak.realm(realmName);
         ClientsResource clients = realmResource.clients();
@@ -160,8 +174,7 @@ public class KeycloakClientService {
         String clientSecret = UUID.randomUUID().toString().replaceAll("-", "");
         // 获取Client Secret
         ClientResource clientResource = clients.get(clientId);
-//        clientRepresentation.setAuthorizationServicesEnabled(true);
-//        clientResource.update(clientRepresentation);
+
         var secret = clientResource.generateNewSecret();
         var sc = secret.getValue();
         var authResource = clientResource.authorization();
@@ -200,6 +213,7 @@ public class KeycloakClientService {
         sysKeycloakClient.setClientAuthenticatorType(clientRepresentation.getClientAuthenticatorType());
         sysKeycloakClient.setRegistrationAccessToken(clientRepresentation.getRegistrationAccessToken());
         sysKeycloakClient.setRealmName(realmName);
+        sysKeycloakClient.setForProject(FALSE);
         keycloakSyncService.syncClient(sysKeycloakClient);
         return new KeycloakClientDto(
                 clientRepresentation.getId(),
@@ -215,7 +229,8 @@ public class KeycloakClientService {
                 clientRepresentation.isEnabled(),
                 clientRepresentation.isAlwaysDisplayInConsole(),
                 clientRepresentation.getClientAuthenticatorType(),
-                clientRepresentation.getRegistrationAccessToken()
+                clientRepresentation.getRegistrationAccessToken(),
+                FALSE
         );
     }
 
@@ -250,8 +265,7 @@ public class KeycloakClientService {
         keycloak.realm(realm).clients().get(clientId).remove();
     }
 
-    public KeycloakClientDto updateClient(String clientId, ClientRepresentation clientRepresentation, String token) {
-        // todo 需要新建一个方法来获得到keycloak
+    public KeycloakClientDto updateClient(String clientId, ClientRepresentation clientRepresentation, String token, Boolean isForProject) {
         Keycloak keycloak = getKeycloak(token);
         RealmResource realmResource = keycloak.realms().realm(realm);
         String realmName = realmResource.toRepresentation().getRealm();
@@ -289,7 +303,8 @@ public class KeycloakClientService {
                 clientRepresentation.isEnabled(),
                 clientRepresentation.isAlwaysDisplayInConsole(),
                 clientRepresentation.getClientAuthenticatorType(),
-                clientRepresentation.getRegistrationAccessToken()
+                clientRepresentation.getRegistrationAccessToken(),
+                isForProject
         );
     }
 

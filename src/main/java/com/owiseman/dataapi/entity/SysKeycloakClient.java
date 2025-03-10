@@ -39,6 +39,21 @@ public class SysKeycloakClient {
     @Column(name = "registration_access_token", nullable = true)
     private String registrationAccessToken;
 
+    @Column(name = "is_for_project")
+    private Boolean isForProject = false;
+
+    public String getRegistrationAccessToken() {
+        return registrationAccessToken;
+    }
+
+    public Boolean getForProject() {
+        return isForProject;
+    }
+
+    public void setForProject(Boolean forProject) {
+        isForProject = forProject;
+    }
+
     public SysKeycloakClient() {
     }
 
@@ -46,7 +61,7 @@ public class SysKeycloakClient {
                              String description, String type, String rootUrl, String adminUrl,
                              String baseUrl, Boolean surrogateAuthRequired, Boolean enabled,
                              Boolean alwaysDisplayInConsole,
-                             String clientAuthenticatorType, String registrationAccessToken) {
+                             String clientAuthenticatorType, String registrationAccessToken, Boolean isForProject) {
         this.id = id;
         this.realmName = realmName;
         this.clientId = clientId;
@@ -62,6 +77,7 @@ public class SysKeycloakClient {
         this.alwaysDisplayInConsole = alwaysDisplayInConsole;
         this.clientAuthenticatorType = clientAuthenticatorType;
         this.registrationAccessToken = registrationAccessToken;
+        this.isForProject = isForProject;
     }
 
     public String getId() {

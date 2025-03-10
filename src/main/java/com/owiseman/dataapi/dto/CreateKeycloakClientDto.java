@@ -10,8 +10,9 @@ public class CreateKeycloakClientDto {
     private String clientSecret;
     private String username;
     private String password;
+    private Boolean isForProject;
 
-    public CreateKeycloakClientDto(ClientRepresentation clientRepresentation, String token, String realmName, String clientId, String clientSecret, String username, String password) {
+    public CreateKeycloakClientDto(ClientRepresentation clientRepresentation, String token, String realmName, String clientId, String clientSecret, String username, String password,Boolean isForProject) {
         this.clientRepresentation = clientRepresentation;
 
         this.realmName = realmName;
@@ -19,6 +20,15 @@ public class CreateKeycloakClientDto {
         this.clientSecret = clientSecret;
         this.username = username;
         this.password = password;
+        this.isForProject = isForProject;
+    }
+
+    public Boolean getForProject() {
+        return isForProject;
+    }
+
+    public void setForProject(Boolean forProject) {
+        isForProject = forProject;
     }
 
     public CreateKeycloakClientDto() {

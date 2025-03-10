@@ -7,6 +7,7 @@ import com.owiseman.dataapi.entity.SysUserFile;
 import com.owiseman.dataapi.repository.KeycloakClientRepository;
 import com.owiseman.dataapi.repository.SysUserConfigRepository;
 import com.owiseman.dataapi.repository.SysUserFilesRepository;
+import com.owiseman.dataapi.repository.SysUserRepository;
 import com.owiseman.dataapi.service.storage.ObjectStorageService;
 import com.owiseman.dataapi.service.storage.StorageServiceFactory;
 import com.owiseman.dataapi.service.storage.StorageType;
@@ -56,6 +57,9 @@ public class RegisterService {
 
     @Autowired
     private StorageServiceFactory storageServiceFactory;
+
+    @Autowired
+    private SysUserRepository sysUserRepository;
 
     @Value("${keycloak.urls.auth}")
     private String keycloakAuthUrl;
@@ -115,6 +119,9 @@ public class RegisterService {
                     ,null
             );
             // 创建用户
+            if (!sysUserRepository.findByUsername(registerDto.username()).isEmpty()){
+                throw new RuntimeException("用户名已存在,请重新输入");
+            }
             UserRegistrationRecord createdUser = keycloakUserService.createUser(userRecord, keycloak, realmDto.getName(), clientId);
 
             //  为用户添加管理员角色
@@ -133,11 +140,10 @@ public class RegisterService {
             password.setValue(registerDto.password());  // 设置密码值
             password.setTemporary(false);             // 是否临时密码（用户首次登录需修改）
             keycloak.realm(realmName).users().get(userId).resetPassword(password);
+//            // 创建用户配置，因为需要给管理员用户初始化数据库表面前缀
+//            createUserConfig(createdUser.id(), realmName);
 
-            // 创建用户配置
-            createUserConfig(createdUser.id(), realmName);
-
-            // 5. 创建用户的根目录
+            // 创建用户的根目录
             createUserRootDirectory(createdUser.id(), realmName, Optional.ofNullable(type.getType()));
 
         } catch (Exception e) {
@@ -206,6 +212,7 @@ public class RegisterService {
 
     private SysUserFile createDirectory(String userId, String dirName, String parentId, String path, Optional<String> type) {
         SysUserFile dir = new SysUserFile();
+        dir.setId(UUID.randomUUID().toString());
         dir.setUserId(userId);
         dir.setFileName(dirName);
         dir.setFid("dir_" + dirName + "_" + System.currentTimeMillis());
