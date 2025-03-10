@@ -131,8 +131,6 @@ public class KeycloakTokenService {
     }
 
     // 创建可以获取用户列表的方法
-
-
     public TokenResponse getTokenByUsernameAndPassword(String username, String password, String realm) {
         // 获得client Id 和client Secret
         String clinetId = sysUserRepository.findByUsername(username).get().getClientId();

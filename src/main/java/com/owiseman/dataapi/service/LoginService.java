@@ -5,7 +5,6 @@ import com.owiseman.dataapi.dto.LoginResponseDto;
 import com.owiseman.dataapi.dto.NormLoginDto;
 import com.owiseman.dataapi.dto.TokenResponse;
 import com.owiseman.dataapi.entity.SysUser;
-import com.owiseman.dataapi.entity.SysUserConfig;
 import com.owiseman.dataapi.repository.SysUserConfigRepository;
 import com.owiseman.dataapi.repository.SysUserRepository;
 import org.slf4j.Logger;
@@ -45,19 +44,15 @@ public class LoginService {
             throw new RuntimeException("用户已被禁用");
         }
 
-        // 获取用户配置
-        SysUserConfig config = sysUserConfigRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new RuntimeException("用户配置不存在"));
-
-        // 使用对应realm的配置进行认证
+      //   使用对应realm的配置进行认证
         TokenResponse token = keycloakTokenService.getTokenByUsernameAndPassword(
                 loginDto.principal(),
                 loginDto.password(),
-                config.getKeycloakRealm()
+                user.getRealmName()
         );
 
         // 更新登录信息
-        updateUserAuthInfo(user, config);
+        updateUserAuthInfo(user);
         LoginResponseDto loginResponseDto = new LoginResponseDto();
         loginResponseDto.setTokenResponse(token);
         return loginResponseDto;
@@ -86,11 +81,10 @@ public class LoginService {
                 normLoginDto.realmName()
         );
 
-
         return token;
     }
 
-    private void updateUserAuthInfo(SysUser user, SysUserConfig config) {
+    private void updateUserAuthInfo(SysUser user) {
         // 更新最后登录时间
         Map<String, List<String>> attributes = user.getAttributes();
         if (attributes == null) {

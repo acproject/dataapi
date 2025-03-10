@@ -11,15 +11,7 @@ public class LoginResponseDto {
     private String realmName;
     private String userId;
     private String username;
-    private SysUserConfig sysUserConfig;
 
-    public SysUserConfig getSysUserConfig() {
-        return sysUserConfig;
-    }
-
-    public void setSysUserConfig(SysUserConfig sysUserConfig) {
-        this.sysUserConfig = sysUserConfig;
-    }
 
     public void setClientId(String clientId) {
         this.clientId = clientId;
