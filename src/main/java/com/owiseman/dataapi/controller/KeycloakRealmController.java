@@ -22,7 +22,7 @@ public class KeycloakRealmController {
             keycloakRealmService.createRealm(keycloakRealmDto.getName(), token);
     }
 
-    @DeleteMapping("/{realmName}")
+    @DeleteMapping("/{projectId}")
     public void deleteRealm(@PathVariable String realmName, HttpServletRequest servletRequest) {
         String token = getTokenFromHeader(servletRequest);
         keycloakRealmService.deleteRealmByName(realmName, token);

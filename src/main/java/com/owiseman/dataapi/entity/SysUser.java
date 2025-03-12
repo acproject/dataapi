@@ -39,6 +39,16 @@ public class SysUser {
     private String realmName;
     @Column(name = "client_id", nullable = true)
     private String clientId;
+    @Column(name = "project_id", nullable = true)
+    private String projectId;
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
+    }
 
     public String getId() {
         return id;
@@ -113,7 +123,7 @@ public class SysUser {
     }
 
 
-    public SysUser(String id, String username, String firstName, String lastName, String email, Boolean emailVerified, Map<String, List<String>> attributes, Long createdTimestamp, Boolean enabled, String realmName, String clientId) {
+    public SysUser(String id, String username, String firstName, String lastName, String email, Boolean emailVerified, Map<String, List<String>> attributes, Long createdTimestamp, Boolean enabled, String realmName, String clientId, String projectId) {
         this.id = id;
         this.username = username;
         this.firstName = firstName;
@@ -125,6 +135,7 @@ public class SysUser {
         this.enabled = enabled;
         this.realmName = realmName;
         this.clientId = clientId;
+        this.projectId = projectId;
     }
 
     public SysUser() {
@@ -158,6 +169,7 @@ public class SysUser {
         private Boolean enabled;
         private String realmName;
         private String clientId;
+        private String projectId;
 
         public Builder id(String id) {
             this.id = id;
@@ -214,6 +226,11 @@ public class SysUser {
             return this;
         }
 
+        public Builder projectId(String projectId) {
+            this.projectId = projectId;
+            return this;
+        }
+
         public SysUser build() {
             SysUser user = new SysUser();
             user.setId(id);
@@ -227,6 +244,7 @@ public class SysUser {
             user.setEnabled(enabled);
             user.setRealmName(realmName);
             user.setClientId(clientId);
+            user.setProjectId(projectId);
             return user;
         }
     }

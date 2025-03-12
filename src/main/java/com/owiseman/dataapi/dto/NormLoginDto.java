@@ -10,8 +10,8 @@ public record NormLoginDto(
         @NotBlank(message = "密码不能为空")
         String password,
 
-        @JsonProperty("realm_name")
-        @NotBlank(message = "realm不能为空")
-        String realmName
+        @JsonProperty("project_id")
+        @NotBlank(message = "project id 不能为空")
+        String projectId
 ) {
 }

@@ -78,7 +78,7 @@ public class LoginService {
         TokenResponse token = keycloakTokenService.getTokenByUsernameAndPassword(
                 normLoginDto.principal(),
                 normLoginDto.password(),
-                normLoginDto.realmName()
+                normLoginDto.projectId()
         );
 
         return token;

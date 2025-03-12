@@ -31,19 +31,110 @@ public class SysUserConfigRepository {
             config.setId(UUID.randomUUID().toString());
         }
         dslContext.insertInto(TABLE)
-                .set(dslContext.newRecord(TABLE, config))  // 自动映射同名字段
+                .set(ID, config.getId())
+                .set(PROJECTNAME, config.getProjectName())
+                .set(PROJECTAPIKEY,config.getProjectApiKey())
+                .set(PLATFORM, config.getPlatform())
+                .set(KEYCLOAKREALM, config.getKeycloakRealm())
+                .set(KEYCLOAKCLIENTID, config.getKeycloakClientId())
+                .set(KEYCLOAKCLIENTSECRET,config.getKeycloakClientSecret())
+                .set(KEYCLOAKAUTHURL, config.getKeycloakAuthUrl())
+                .set(KEYCLOAKTOKENURL,config.getKeycloakTokenUrl())
+                .set(APNSKEYPATH,config.getApnsKeyPath())
+                .set(APNSTEAMID, config.getApnsTeamId())
+                .set(APNSKEYID, config.getApnsKeyId())
+                .set(APNSBUNDLEID, config.getApnsBundleId())
+                .set(APNSPRODUCTION, config.getApnsProduction())
+                .set(FIREBASEPROJECTID, config.getFirebaseProjectId())
+                .set(FIREBASEPRIVATEKEY, config.getFirebasePrivateKey())
+                .set(FIREBASECLIENTEMAIL, config.getFirebaseClientEmail())
+                .set(FIREBASECLIENTID, config.getFirebaseClientId())
+                .set(FIREBASESERVICEACCOUNTPATH, config.getFirebaseServiceAccountPath())
+                .set(DATABASETABLENAMEPREFIX, config.getDatabaseTableNamePrefix())
+                .set(USERID, config.getUserId())
+                .set(ATTRIBUTES, config.getAttributes())
+                .set(S3BUCKETNAME, config.getS3BucketName())
+                .set(S3REGION, config.getS3Region())
+                .set(S3ACCESSKEY, config.getS3AccessKey())
+                .set(S3SECRETKEY,config.getS3SecretKey())
+                .set(S3ENDPOINT,config.getS3Endpoint())
+                .set(OSSENDPOINT, config.getOssEndpoint())
+                .set(OSSBUCKETNAME, config.getOssBucketName())
+                .set(OSSACCESSKEYID, config.getOssAccessKeyId())
+                .set(OSSACCESSKEYSECRET, config.getOssAccessKeySecret())
+                .set(OSSREGION, config.getOssRegion())
+                .set(SEAWEEDFSMASTERURL, config.getSeaweedFsMasterUrl())
+                .set(SEAWEEDFSREPLICATION, config.getSeaweedFsReplication())
+                .set(SEAWEEDFSCOLLECTION, config.getSeaweedFsCollection())
+                .set(STORAGETYPE, config.getStorageType())
+                .set(WECHATAPPID, config.getWechatAppId())
+                .set(WECHATAPPSECRET, config.getWechatAppSecret())
+                .set(WECHATMCHID, config.getWechatMchId())
+                .set(WECHATAPIKEY, config.getWechatApiKey())
+                .set(ALIPAYAPPID, config.getAlipayAppId())
+                .set(ALIPAYPRIVATEKEY, config.getAlipayPrivateKey())
+                .set(ALIPAYPUBLICKEY, config.getAlipayPublicKey())
+                .set(ALIPAYGATEWAYURL, config.getAlipayGatewayUrl())
+                .set(APLIPAYCERTPATH, config.getAplipayCertPath())
+                .set(DESCRIPTION, config.getDescription())
+                .set(WECHATPAYCERTPATH, config.getWechatPayCertPath())
+                .set(NOTIFYURL, config.getNotifyUrl())
+                .set(RETURNURL, config.getReturnUrl())
                 .execute();
+
         return config;
     }
 
-    public void update(SysUserConfig config) {
-        // 先加载原始记录
-        var record = dslContext.fetchOne(TABLE, ID.eq(config.getId()));
-        record.from(config);
-        record.changed(config.getId(), false);
-        dslContext.update(TABLE)
-                .set(record)
-                .execute();
+    public SysUserConfig update(SysUserConfig config) {
+       dslContext.update(TABLE)
+                .set(PLATFORM, config.getPlatform())
+                .set(KEYCLOAKREALM, config.getKeycloakRealm())
+                .set(KEYCLOAKCLIENTID, config.getKeycloakClientId())
+                .set(KEYCLOAKCLIENTSECRET,config.getKeycloakClientSecret())
+                .set(KEYCLOAKAUTHURL, config.getKeycloakAuthUrl())
+                .set(KEYCLOAKTOKENURL,config.getKeycloakTokenUrl())
+                .set(APNSKEYPATH,config.getApnsKeyPath())
+                .set(APNSTEAMID, config.getApnsTeamId())
+                .set(APNSKEYID, config.getApnsKeyId())
+                .set(APNSBUNDLEID, config.getApnsBundleId())
+                .set(APNSPRODUCTION, config.getApnsProduction())
+                .set(FIREBASEPROJECTID, config.getFirebaseProjectId())
+                .set(FIREBASEPRIVATEKEY, config.getFirebasePrivateKey())
+                .set(FIREBASECLIENTEMAIL, config.getFirebaseClientEmail())
+                .set(FIREBASECLIENTID, config.getFirebaseClientId())
+                .set(FIREBASESERVICEACCOUNTPATH, config.getFirebaseServiceAccountPath())
+                .set(DATABASETABLENAMEPREFIX, config.getDatabaseTableNamePrefix())
+                .set(ATTRIBUTES, config.getAttributes())
+                .set(S3BUCKETNAME, config.getS3BucketName())
+                .set(S3REGION, config.getS3Region())
+                .set(S3ACCESSKEY, config.getS3AccessKey())
+                .set(S3SECRETKEY,config.getS3SecretKey())
+                .set(S3ENDPOINT,config.getS3Endpoint())
+                .set(OSSENDPOINT, config.getOssEndpoint())
+                .set(OSSBUCKETNAME, config.getOssBucketName())
+                .set(OSSACCESSKEYID, config.getOssAccessKeyId())
+                .set(OSSACCESSKEYSECRET, config.getOssAccessKeySecret())
+                .set(OSSREGION, config.getOssRegion())
+                .set(SEAWEEDFSMASTERURL, config.getSeaweedFsMasterUrl())
+                .set(SEAWEEDFSREPLICATION, config.getSeaweedFsReplication())
+                .set(SEAWEEDFSCOLLECTION, config.getSeaweedFsCollection())
+                .set(STORAGETYPE, config.getStorageType())
+                .set(WECHATAPPID, config.getWechatAppId())
+                .set(WECHATAPPSECRET, config.getWechatAppSecret())
+                .set(WECHATMCHID, config.getWechatMchId())
+                .set(WECHATAPIKEY, config.getWechatApiKey())
+                .set(ALIPAYAPPID, config.getAlipayAppId())
+                .set(ALIPAYPRIVATEKEY, config.getAlipayPrivateKey())
+                .set(ALIPAYPUBLICKEY, config.getAlipayPublicKey())
+                .set(ALIPAYGATEWAYURL, config.getAlipayGatewayUrl())
+                .set(APLIPAYCERTPATH, config.getAplipayCertPath())
+                .set(DESCRIPTION, config.getDescription())
+                .set(WECHATPAYCERTPATH, config.getWechatPayCertPath())
+                .set(NOTIFYURL, config.getNotifyUrl())
+                .set(RETURNURL, config.getReturnUrl())
+               .where(ID.eq(config.getId()))
+               .execute();
+       return config;
     }
 
     public void deleteById(String id) {
@@ -71,7 +162,19 @@ public class SysUserConfigRepository {
                 .fetchOptionalInto(SysUserConfig.class);
     }
 
+    public Optional<SysUserConfig> findByProjectApiKey(String projectApiKey) {
 
+        return dslContext.selectFrom(TABLE)
+                .where(PROJECTAPIKEY.eq(projectApiKey))
+                .fetchOptionalInto(SysUserConfig.class);
+    }
+
+    /**
+     * 根据realmName查询所有项目配置,一般来说项目不会太多，所以一般不用分页
+     * 如果需要分页可以使用findAllWithPagination
+     * @param realmName
+     * @return
+     */
     public List<SysUserConfig> findAll(String realmName) {
         return dslContext.selectFrom(TABLE).where(KEYCLOAKREALM.eq(realmName))
                 .fetchInto(SysUserConfig.class);
@@ -95,10 +198,10 @@ public class SysUserConfigRepository {
         return new PageResult<>(configs, pageNumber, pageSize, total);
     }
 
-    public Boolean existsByProjectName(String projectName) {
+    public Boolean existsByProjectName(String projectName, String realmName) {
         try {
             return dslContext.selectFrom(TABLE)
-                    .where(PROJECTNAME.eq(projectName))
+                    .where(PROJECTNAME.eq(projectName).and(KEYCLOAKREALM.eq(realmName)))
                     .fetchOne(0, SysUserConfig.class) != null;
         } catch (Exception e) {
             return false;

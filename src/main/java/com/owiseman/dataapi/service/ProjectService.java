@@ -6,12 +6,15 @@ import com.owiseman.dataapi.dto.ProjectCreateRequest;
 import com.owiseman.dataapi.entity.SysUserConfig;
 import com.owiseman.dataapi.repository.SysUserConfigRepository;
 import com.owiseman.dataapi.repository.SysUserRepository;
+import com.owiseman.dataapi.util.JwtParserUtil;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -19,6 +22,8 @@ public class ProjectService {
     @Autowired
     SysUserRepository sysUserRepository;
 
+    @Value("${keycloak.urls.auth}")
+    String authUrl;
 
     private final SysUserConfigRepository userConfigRepository;
 
@@ -29,32 +34,45 @@ public class ProjectService {
     }
 
     @Transactional
-    public SysUserConfig createProject(String userId, ProjectCreateRequest request, String token) {
+    public SysUserConfig createProject( SysUserConfig request) {
         // 检查项目名称是否已存在
-        if (userConfigRepository.existsByProjectName(request.projectName())) {
+        String realmName = sysUserRepository.findById(request.getUserId()).get().getRealmName();
+        if (userConfigRepository.existsByProjectName(request.getProjectName(), realmName)) {
+            if (realmName == null || realmName.isEmpty()) {
+                throw new RuntimeException("用户未登录");
+            }
             throw new RuntimeException("项目名称已存在");
         }
 
-
-        var user = sysUserRepository.findById(userId);
-        if (user.isEmpty()) {
-            throw new RuntimeException("用户不存在");
-        }
+        request.setKeycloakRealm(realmName);
         // 为用户创建一个项目
-
-        SysUserConfig config = new SysUserConfig.Builder()
-                .id(UUID.randomUUID().toString())
-                .projectName(request.projectName())
-                .platform(request.platform())
-                .projectApiKey(UUID.randomUUID().toString().replaceAll("-",""))
-                .build();
+        SysUserConfig config = request;
+        config.setId(UUID.randomUUID().toString());
+        config.setProjectName(request.getProjectName());
+        config.setPlatform(request.getPlatform());
+        config.setKeycloakTokenUrl(authUrl);
+        config.setDatabaseTableNamePrefix(request.getProjectName()+"_");
+        config.setProjectApiKey(UUID.randomUUID().toString().replaceAll("-",""));
 
         return userConfigRepository.save(config);
+    }
+
+    public SysUserConfig getProjectDetailsByApiKey(String apiKey) {
+        return userConfigRepository.findByProjectApiKey(apiKey)
+                .orElseThrow(() -> new RuntimeException("项目不存在或无权访问"));
     }
 
     public SysUserConfig getProjectDetails(String userId, String projectId) {
         return userConfigRepository.findByIdAndUserId(projectId, userId)
                 .orElseThrow(() -> new RuntimeException("项目不存在或无权访问"));
+    }
+
+    public List<SysUserConfig> getProjects(String userId) {
+        String realmName = sysUserRepository.findById(userId).get().getRealmName();
+        if (realmName == null || realmName.isEmpty()) {
+            throw new RuntimeException("用户未登录");
+        }
+        return userConfigRepository.findAll(realmName);
     }
 
     @Transactional
@@ -71,6 +89,6 @@ public class ProjectService {
         updateRequest.setKeycloakAuthUrl(existingConfig.getKeycloakAuthUrl());
         updateRequest.setKeycloakTokenUrl(existingConfig.getKeycloakTokenUrl());
 
-        return userConfigRepository.save(updateRequest);
+        return userConfigRepository.update(updateRequest);
     }
 }

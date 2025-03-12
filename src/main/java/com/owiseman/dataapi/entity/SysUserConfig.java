@@ -29,8 +29,7 @@ public class SysUserConfig {
     private String projectApiKey;
 
     @Column(name = "platform")
-    @Enumerated(EnumType.STRING)
-    private Platform platform;
+    private String platform;
     // keycloak的基础配置
     @Column(name = "keycloak_realm")
     private String keycloakRealm;
@@ -478,7 +477,7 @@ public class SysUserConfig {
         this.alipayGatewayUrl = alipayGatewayUrl;
     }
 
-    public SysUserConfig(String id, String projectName, Platform platform, String keycloakRealm, String keycloakClientId, String keycloakClientSecret, String keycloakAuthUrl,
+    public SysUserConfig(String id, String projectName, String platform, String keycloakRealm, String keycloakClientId, String keycloakClientSecret, String keycloakAuthUrl,
                          String keycloakTokenUrl, String apnsKeyPath, String apnsTeamId, String apnsKeyId, String apnsBundleId, Boolean apnsProduction, String firebaseProjectId,
                          String firebasePrivateKey, String firebaseClientEmail, String firebaseClientId, String firebaseServiceAccountPath, String databaseTableNamePrefix,
                          String userId, Map<String, List<String>> attributes, String s3BucketName, String s3Region, String s3AccessKey, String s3SecretKey, String s3Endpoint,
@@ -544,11 +543,11 @@ public class SysUserConfig {
         this.projectName = projectName;
     }
 
-    public Platform getPlatform() {
+    public String getPlatform() {
         return platform;
     }
 
-    public void setPlatform(Platform platform) {
+    public void setPlatform(String platform) {
         this.platform = platform;
     }
 
@@ -604,7 +603,7 @@ public class SysUserConfig {
     public static class Builder {
         private String id;
         private String projectName;
-        private Platform platform;
+        private String platform;
         private String keycloakRealm;
         private String keycloakClientId;
         private String keycloakClientSecret;
@@ -662,7 +661,7 @@ public class SysUserConfig {
             return this;
         }
 
-        public Builder platform(Platform platform) {
+        public Builder platform(String platform) {
             this.platform = platform;
             return this;
         }

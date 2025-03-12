@@ -68,7 +68,7 @@ public class KeycloakClientService {
     }
 
 //    private Keycloak getKeycloak(String token,
-//                                 String realmName,
+//                                 String projectId,
 //                                 String clientId,
 //                                 String clientSecret,
 //                                 String username,
@@ -76,7 +76,7 @@ public class KeycloakClientService {
 //    ) {
 //        Keycloak keycloak = KeycloakBuilder.builder()
 //                .serverUrl(serverUrl)
-//                .realm(realmName)
+//                .realm(projectId)
 //                .grantType(OAuth2ConstantsExtends.PASSWORD)
 //                .clientId(clientId)
 //                .clientSecret(clientSecret)

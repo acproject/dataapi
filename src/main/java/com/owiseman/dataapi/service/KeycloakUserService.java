@@ -1,6 +1,7 @@
 package com.owiseman.dataapi.service;
 
 import com.owiseman.dataapi.config.OAuth2ConstantsExtends;
+import com.owiseman.dataapi.dto.NormSysUserDto;
 import com.owiseman.dataapi.dto.ResetPassword;
 import com.owiseman.dataapi.dto.UserRegistrationRecord;
 import com.owiseman.dataapi.entity.SysUser;
@@ -147,6 +148,51 @@ public class KeycloakUserService implements UserService {
         keycloak.realm(realmName).users().get(userId).resetPassword(password);
 
         return result;
+    }
+
+    public UserRegistrationRecord createUser(NormSysUserDto normSysUserDto, Keycloak keycloak, String realm) {
+        UserRepresentation user = new UserRepresentation();
+        user.setEnabled(true);
+        user.setUsername(normSysUserDto.getUsername());
+        user.setEmail(normSysUserDto.getEmail());
+        user.setFirstName(normSysUserDto.getFirstName());
+        user.setLastName(normSysUserDto.getLastName());
+        user.setEmailVerified(Boolean.valueOf(isEmailVerified));
+
+        CredentialRepresentation credentialRepresentation = new CredentialRepresentation();
+        credentialRepresentation.setValue(normSysUserDto.getPassword());
+        credentialRepresentation.setType(CredentialRepresentation.PASSWORD);
+        credentialRepresentation.setTemporary(OAuth2ConstantsExtends.FALSE);
+        UsersResource usersResource = getUserResourceForNewRealm(keycloak, realm);
+        Response response = usersResource.create(user);
+         if (Objects.equals(201, response.getStatus())) {
+            List<UserRepresentation> representationList = usersResource.search(normSysUserDto.getUsername(), true);
+            if (!CollectionUtils.isEmpty(representationList)) {
+                UserRepresentation userRepresentation1 = representationList.stream().filter(userRepresentation ->
+                        Objects.equals(false, userRepresentation.isEmailVerified())).findFirst().orElse(null);
+                assert userRepresentation1 != null;
+
+                if (user.isEmailVerified())
+                    emailVerification(keycloak, realm, userRepresentation1.getId());
+            }
+            var id = representationList.get(0).getId().toString();
+            UserRegistrationRecord userRecord = new UserRegistrationRecord(
+                    id,
+                    user.getUsername(),
+                    user.getEmail(),
+                    user.getFirstName(),
+                    user.getLastName(),
+                    normSysUserDto.getPassword(),
+                    null,
+                    null,
+                    null
+            );
+            usersSyncService.syncNormUsers(normSysUserDto, realm);
+            return userRecord;
+        } else if (Objects.equals(409, response.getStatus())) {
+            throw new RuntimeException("User already exists");
+        }
+        throw new RuntimeException("Failed to create user");
     }
 
     /**

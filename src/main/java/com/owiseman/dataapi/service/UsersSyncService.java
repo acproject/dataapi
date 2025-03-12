@@ -1,6 +1,7 @@
 package com.owiseman.dataapi.service;
 
 import com.owiseman.dataapi.config.OAuth2ConstantsExtends;
+import com.owiseman.dataapi.dto.NormSysUserDto;
 import com.owiseman.dataapi.dto.PageResult;
 import com.owiseman.dataapi.entity.SysUser;
 
@@ -20,7 +21,27 @@ public class UsersSyncService {
     SysUserRepository sysUserRepository;
 
     public UsersSyncService() {
-        sysUserRepository=new SysUserRepository();
+        sysUserRepository = new SysUserRepository();
+    }
+
+    @Async
+    public void syncNormUsers(NormSysUserDto normSysUserDto, String realm) {
+        assert normSysUserDto != null;
+        SysUser sysUser = new SysUser(
+                normSysUserDto.getId(),
+                normSysUserDto.getUsername(),
+                normSysUserDto.getFirstName(),
+                normSysUserDto.getLastName(),
+                normSysUserDto.getEmail(),
+                Boolean.valueOf(OAuth2ConstantsExtends.FALSE),
+                normSysUserDto.getAttributes(),
+                System.currentTimeMillis(),
+                Boolean.valueOf(OAuth2ConstantsExtends.TRUE),
+                realm,
+                null,
+                normSysUserDto.getProjectId()
+        );
+        sysUserRepository.save(sysUser);
     }
 
     @Async
@@ -37,7 +58,8 @@ public class UsersSyncService {
                 System.currentTimeMillis(),
                 Boolean.valueOf(OAuth2ConstantsExtends.TRUE),
                 realm,
-                clientId
+                clientId,
+                null
         );
         sysUserRepository.save(sysUser);
     }
@@ -51,9 +73,9 @@ public class UsersSyncService {
     public SysUser updateUserById(SysUser sysUser) {
         assert sysUser != null;
         if (sysUserRepository.findById(sysUser.getId()).isPresent())
-            return    sysUserRepository.save(sysUser);
-         else
-             throw new RuntimeException("no sysUser exist !");
+            return sysUserRepository.save(sysUser);
+        else
+            throw new RuntimeException("no sysUser exist !");
     }
 
     @Async

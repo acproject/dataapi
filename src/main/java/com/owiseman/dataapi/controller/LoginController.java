@@ -3,8 +3,7 @@ package com.owiseman.dataapi.controller;
 import com.owiseman.dataapi.dto.LoginDto;
 import com.owiseman.dataapi.dto.LoginResponseDto;
 import com.owiseman.dataapi.dto.NormLoginDto;
-import com.owiseman.dataapi.dto.TokenResponse;
-import com.owiseman.dataapi.entity.SysUser;
+
 import com.owiseman.dataapi.service.LoginService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +35,7 @@ public class LoginController {
      * @param normLoginDto
      * @return
      */
-    @PostMapping("/norm_user_login")
+    @PostMapping("/norm")
     public ResponseEntity<?> normUserLogin(@Valid @RequestBody NormLoginDto normLoginDto) {
           var loginResponse = loginService.normUserLogin(normLoginDto);
           LoginResponseDto loginResponseDto = new LoginResponseDto();

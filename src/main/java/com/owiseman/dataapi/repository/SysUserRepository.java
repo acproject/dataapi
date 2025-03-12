@@ -43,6 +43,7 @@ public class SysUserRepository {
                 .set(ENABLED, user.getEnabled())
                 .set(REALMNAME, user.getRealmName())
                 .set(CLIENTID, user.getClientId())
+                .set(PROJECTID, user.getProjectId())
                 .execute();
         return user;
     }
@@ -57,7 +58,6 @@ public class SysUserRepository {
                 .set(EMAILVERIFIED, user.getEmailVerified())
                 .set(ATTRIBUTES, DSL.field("?::jsonb", Object.class, jsonString))
                 .set(ENABLED, user.getEnabled())
-                .set(CLIENTID, user.getClientId())
                 .where(ID.eq(user.getId()))
                 .execute();
     }
@@ -74,25 +74,77 @@ public class SysUserRepository {
                 .execute();
     }
 
+    /** 用于查找组织用户
+     *
+     * @param email
+     * @return
+     */
+    public Optional<SysUser> findByEmail(String email) {
+        return dslContext.selectFrom(TABLE)
+                .where(EMAIL.eq(email).and(PROJECTID.isNull()))
+                .fetchOptionalInto(SysUser.class);
+    }
+
+     /** 用于查找组织用户
+     *
+     * @param username
+     * @return
+     */
+    public Optional<SysUser> findByUsername(String username) {
+        return dslContext.selectFrom(TABLE)
+                .where(USERNAME.eq(username).and(PROJECTID.isNull()))
+                .fetchOptionalInto(SysUser.class);
+    }
+
     public Optional<SysUser> findById(String id) {
         return dslContext.selectFrom(TABLE)
                 .where(ID.eq(id))
                 .fetchOptionalInto(SysUser.class);
     }
 
-    public Optional<SysUser> findByEmail(String email) {
+    /**
+     * 用于判断组织用户是否为存在
+     * @param username
+     * @param realmName
+     * @return
+     */
+    public Optional<SysUser> findByUsernameAndRealmName(String username, String realmName) {
         return dslContext.selectFrom(TABLE)
-                .where(EMAIL.eq(email))
+                .where(USERNAME.eq(username).and(REALMNAME.eq(realmName)))
                 .fetchOptionalInto(SysUser.class);
     }
 
-    public Optional<SysUser> findByUsername(String username) {
-        return dslContext.selectFrom(TABLE).where(USERNAME.eq(username))
+
+    /**
+     * 用于判断项目用户是否为存在
+     * @param username
+     * @param projectId
+     * @return
+     */
+    public Optional<SysUser> findByUsernameAndProjectId(String username, String projectId) {
+        return dslContext.selectFrom(TABLE).where(USERNAME.eq(username).and(PROJECTID.eq(projectId)))
+                .fetchOptionalInto(SysUser.class);
+    }
+
+    public Optional<SysUser> findByProjectIdAndUsername(String username, String projectId) {
+        return dslContext.selectFrom(TABLE).where(USERNAME.eq(username).and(PROJECTID.eq(projectId)))
                 .fetchOptionalInto(SysUser.class);
     }
 
     public List<SysUser> findAll() {
         return dslContext.selectFrom(TABLE)
+                .fetchInto(SysUser.class);
+    }
+
+    public List<SysUser> findByRealmName(String realmName) {
+        return dslContext.selectFrom(TABLE)
+                .where(REALMNAME.eq(realmName))
+                .fetchInto(SysUser.class);
+    }
+
+    public List<SysUser> findByRealmNameAndProjectId(String realmName, String projectId) {
+        return dslContext.selectFrom(TABLE)
+                .where(REALMNAME.eq(realmName).and(PROJECTID.eq(projectId)))
                 .fetchInto(SysUser.class);
     }
 

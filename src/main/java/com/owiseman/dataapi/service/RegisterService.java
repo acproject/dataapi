@@ -2,6 +2,7 @@ package com.owiseman.dataapi.service;
 
 import com.owiseman.dataapi.config.OAuth2ConstantsExtends;
 import com.owiseman.dataapi.dto.*;
+import com.owiseman.dataapi.entity.SysUser;
 import com.owiseman.dataapi.entity.SysUserConfig;
 import com.owiseman.dataapi.entity.SysUserFile;
 import com.owiseman.dataapi.repository.KeycloakClientRepository;
@@ -119,7 +120,7 @@ public class RegisterService {
                     ,null
             );
             // 创建用户
-            if (!sysUserRepository.findByUsername(registerDto.username()).isEmpty()){
+            if (!sysUserRepository.findByUsernameAndRealmName(registerDto.username(), realmName).isEmpty()){
                 throw new RuntimeException("用户名已存在,请重新输入");
             }
             UserRegistrationRecord createdUser = keycloakUserService.createUser(userRecord, keycloak, realmDto.getName(), clientId);
@@ -141,7 +142,7 @@ public class RegisterService {
             password.setTemporary(false);             // 是否临时密码（用户首次登录需修改）
             keycloak.realm(realmName).users().get(userId).resetPassword(password);
 //            // 创建用户配置，因为需要给管理员用户初始化数据库表面前缀
-//            createUserConfig(createdUser.id(), realmName);
+//            createUserConfig(createdUser.id(), projectId);
 
             // 创建用户的根目录
             createUserRootDirectory(createdUser.id(), realmName, Optional.ofNullable(type.getType()));
@@ -156,6 +157,63 @@ public class RegisterService {
             }
             throw new RuntimeException("注册失败: " + e.getMessage());
         }
+    }
+
+    @Transactional
+    public void normRegister(NormSysUserDto normSysUserDto, String token) {
+        // 获取管理员token
+        String adminToken = token;
+        String porjectId = normSysUserDto.getProjectId();
+        String realmName = normSysUserDto.getRealmName();
+        Keycloak keycloak = KeycloakAdminUtils.getKeyCloak(realmName, keycloakAuthUrl, "admin-cli", clientInfo, adminToken);
+        // 注册到keycloak中
+        UserRegistrationRecord userRecord = new UserRegistrationRecord(
+                    null,
+                    normSysUserDto.getUsername(),
+                    normSysUserDto.getEmail(),
+                    normSysUserDto.getFirstName(),
+                    normSysUserDto.getLastName(),
+                    normSysUserDto.getPassword(),
+                    null
+                    ,null
+                    ,null
+            );
+        if (!sysUserRepository.findByProjectIdAndUsername(normSysUserDto.getUsername(), normSysUserDto.getProjectId())
+                .isEmpty()){
+                throw new RuntimeException("用户名已存在,请重新输入");
+            }
+        try {
+            // 开始注册流程
+            UserRegistrationRecord createdUser = keycloakUserService.createUser(normSysUserDto, keycloak, normSysUserDto.getUsername());
+            // 给用户分配用户角色
+            keycloakUserService.assignAdminRoleForNewNormRealm(keycloak, createdUser.id(), normSysUserDto.getUsername());
+            //  添加用户的额外属性（如电话号码）
+            keycloakUserService.updateUserAttributesForNewRealm(keycloak,
+                    createdUser.id(),
+                    /**
+                     *  Map<String, List<String>>
+                     * {
+                     *   "phone": ["13900001111", "13888889999"],
+                     *   "avatar": ["image1", "image2"]
+                     * }
+                     */
+                    normSysUserDto.getAttributes(),
+                    realmName
+            );
+             // 更新用户密码,让系统默认激活用户
+            String userId = keycloak.realm(realmName).users().search(normSysUserDto.getUsername()).get(0).getId();
+            CredentialRepresentation password = new CredentialRepresentation();
+            password.setType(CredentialRepresentation.PASSWORD);
+            password.setValue(normSysUserDto.getPassword());  // 设置密码值
+            password.setTemporary(false);             // 是否临时密码（用户首次登录需修改）
+            keycloak.realm(realmName).users().get(userId).resetPassword(password);
+        } catch (Exception e) {
+            if (e.getMessage().contains("409")) {
+                throw new RuntimeException("组织名已存在");
+            }
+            throw new RuntimeException("注册失败: " + e.getMessage());
+        }
+
     }
 
     private void createUserConfig(String userId, String realmName) {
