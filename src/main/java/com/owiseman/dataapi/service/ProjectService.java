@@ -34,7 +34,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public SysUserConfig createProject( SysUserConfig request) {
+    public SysUserConfig createProject(SysUserConfig request) {
         // 检查项目名称是否已存在
         String realmName = sysUserRepository.findById(request.getUserId()).get().getRealmName();
         if (userConfigRepository.existsByProjectName(request.getProjectName(), realmName)) {
@@ -51,8 +51,11 @@ public class ProjectService {
         config.setProjectName(request.getProjectName());
         config.setPlatform(request.getPlatform());
         config.setKeycloakTokenUrl(authUrl);
-        config.setDatabaseTableNamePrefix(request.getProjectName()+"_");
-        config.setProjectApiKey(UUID.randomUUID().toString().replaceAll("-",""));
+        config.setDatabaseTableNamePrefix(request.getProjectName()
+                + "_"
+                + UUID.randomUUID().toString().substring(0, 4)
+                + "_");
+        config.setProjectApiKey(UUID.randomUUID().toString().replaceAll("-", ""));
 
         return userConfigRepository.save(config);
     }
