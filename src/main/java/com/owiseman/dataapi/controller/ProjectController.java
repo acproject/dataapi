@@ -57,7 +57,7 @@ public class ProjectController {
         return ResponseEntity.ok(config);
     }
 
-    @PutMapping("/{projectId}")
+    @PutMapping("/update/{projectId}")
     public ResponseEntity<SysUserConfig> updateProject(
             @PathVariable String projectId, @RequestBody SysUserConfig updateRequest) {
         return ResponseEntity.ok(projectService.updateProject(updateRequest.getUserId(), projectId, updateRequest));

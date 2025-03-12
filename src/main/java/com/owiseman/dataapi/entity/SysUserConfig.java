@@ -262,7 +262,8 @@ public class SysUserConfig {
     private String ossAccessKeySecret;
     @Column(name = "oss_region")
     private String ossRegion;
-
+    @Column(name = "description")
+    private String description;
     // SeaweedFS 配置
     @Column(name = "seaweedfs_master_url")
     private String seaweedFsMasterUrl;
@@ -513,7 +514,7 @@ public class SysUserConfig {
         this.ossEndpoint = ossEndpoint;
         this.ossBucketName = ossBucketName;
         this.ossAccessKeyId = ossAccessKeyId;
-        this.ossAccessKeySecret = ossAccessKeySecret;
+        this.ossAccessKeySecret = ossAccessKeyId;
         this.ossRegion = ossRegion;
         this.seaweedFsMasterUrl = seaweedFsMasterUrl;
         this.seaweedFsReplication = seaweedFsReplication;
@@ -550,8 +551,6 @@ public class SysUserConfig {
     public void setPlatform(String platform) {
         this.platform = platform;
     }
-
-    private String description;
 
     public String getDescription() {
         return description;

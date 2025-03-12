@@ -80,14 +80,6 @@ public class ProjectService {
         SysUserConfig existingConfig = userConfigRepository.findByIdAndUserId(projectId, userId)
                 .orElseThrow(() -> new RuntimeException("项目不存在或无权访问"));
 
-        // 保护不可修改的字段
-        updateRequest.setId(existingConfig.getId());
-        updateRequest.setUserId(existingConfig.getUserId());
-        updateRequest.setKeycloakRealm(existingConfig.getKeycloakRealm());
-        updateRequest.setKeycloakClientId(existingConfig.getKeycloakClientId());
-        updateRequest.setKeycloakClientSecret(existingConfig.getKeycloakClientSecret());
-        updateRequest.setKeycloakAuthUrl(existingConfig.getKeycloakAuthUrl());
-        updateRequest.setKeycloakTokenUrl(existingConfig.getKeycloakTokenUrl());
 
         return userConfigRepository.update(updateRequest);
     }
