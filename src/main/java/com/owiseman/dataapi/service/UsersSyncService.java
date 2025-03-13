@@ -44,6 +44,12 @@ public class UsersSyncService {
         sysUserRepository.save(sysUser);
     }
 
+    /***
+     * 适用于组织注册时的用户同步
+     * @param userRegistrationRecord
+     * @param realm
+     * @param clientId
+     */
     @Async
     public void syncUsers(UserRegistrationRecord userRegistrationRecord, String realm, String clientId) {
         assert userRegistrationRecord != null;

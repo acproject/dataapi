@@ -30,9 +30,9 @@ public class AliyunOSSStorageService implements ObjectStorageService {
         return ossClientCache.computeIfAbsent(userId, this::createOssClient);
     }
 
-    private OSS createOssClient(String userId) {
-        SysUserConfig config = userConfigRepository.findByUserId(userId)
-            .orElseThrow(() -> new RuntimeException("用户配置不存在"));
+    private OSS createOssClient(String apikey) {
+        SysUserConfig config = userConfigRepository.findByProjectApiKey(apikey)
+            .orElseThrow(() -> new RuntimeException("配置不存在"));
 
         return new OSSClientBuilder().build(
             config.getOssEndpoint(),
@@ -62,38 +62,38 @@ public class AliyunOSSStorageService implements ObjectStorageService {
     }
 
     @Override
-    public String upload(String userId, MultipartFile file, Optional<String> parentId) throws IOException {
-        SysUserConfig config = userConfigRepository.findByUserId(userId)
-            .orElseThrow(() -> new RuntimeException("用户配置不存在"));
+    public String upload(String apikey, MultipartFile file, Optional<String> parentId) throws IOException {
+        SysUserConfig config = userConfigRepository.findByProjectApiKey(apikey)
+            .orElseThrow(() -> new RuntimeException("配置不存在"));
 
         String key = generateKey(file);
-        getOssClient(userId).putObject(config.getOssBucketName(), key, file.getInputStream());
+        getOssClient(config.getUserId()).putObject(config.getOssBucketName(), key, file.getInputStream());
         return key;
     }
 
     @Override
-    public Resource download(String userId, String fileId) throws IOException {
-        SysUserConfig config = userConfigRepository.findByUserId(userId)
-            .orElseThrow(() -> new RuntimeException("用户配置不存在"));
+    public Resource download(String apikey, String fileId) throws IOException {
+        SysUserConfig config = userConfigRepository.findByProjectApiKey(apikey)
+            .orElseThrow(() -> new RuntimeException("配置不存在"));
 
-        OSSObject object = getOssClient(userId).getObject(config.getOssBucketName(), fileId);
+        OSSObject object = getOssClient(config.getUserId()).getObject(config.getOssBucketName(), fileId);
         return new InputStreamResource(object.getObjectContent());
     }
 
     @Override
-    public void delete(String userId, String fileId) {
-        SysUserConfig config = userConfigRepository.findByUserId(userId)
+    public void delete(String apikey, String fileId) {
+        SysUserConfig config = userConfigRepository.findByProjectApiKey(apikey)
             .orElseThrow(() -> new RuntimeException("用户配置不存在"));
 
-        getOssClient(userId).deleteObject(config.getOssBucketName(), fileId);
+        getOssClient(config.getUserId()).deleteObject(config.getOssBucketName(), fileId);
     }
 
     @Override
-    public String getFileUrl(String userId, String fileId) {
-        SysUserConfig config = userConfigRepository.findByUserId(userId)
-            .orElseThrow(() -> new RuntimeException("用户配置不存在"));
+    public String getFileUrl(String apikey, String fileId) {
+        SysUserConfig config = userConfigRepository.findByProjectApiKey(apikey)
+            .orElseThrow(() -> new RuntimeException("配置不存在"));
 
-        return getOssClient(userId).generatePresignedUrl(
+        return getOssClient(config.getUserId()).generatePresignedUrl(
             config.getOssBucketName(),
             fileId,
             new Date(System.currentTimeMillis() + 3600 * 1000)
@@ -106,9 +106,9 @@ public class AliyunOSSStorageService implements ObjectStorageService {
     }
 
    @Override
-    public void createDirectory(String userId, String path) {
-        SysUserConfig config = userConfigRepository.findByUserId(userId)
-            .orElseThrow(() -> new RuntimeException("用户配置不存在"));
+    public void createDirectory(String apikey, String path) {
+        SysUserConfig config = userConfigRepository.findByProjectApiKey(apikey)
+            .orElseThrow(() -> new RuntimeException("配置不存在"));
 
         // Ensure the path ends with a slash
         if (!path.endsWith("/")) {
@@ -116,7 +116,7 @@ public class AliyunOSSStorageService implements ObjectStorageService {
         }
 
         // Create a zero-length object to simulate a directory
-        getOssClient(userId).putObject(config.getOssBucketName(), path, new ByteArrayInputStream(new byte[0]));
+        getOssClient(config.getUserId()).putObject(config.getOssBucketName(), path, new ByteArrayInputStream(new byte[0]));
     }
 
 

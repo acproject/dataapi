@@ -1,6 +1,7 @@
 package com.owiseman.dataapi.service;
 
 import com.owiseman.dataapi.dto.PageResult;
+import com.owiseman.dataapi.dto.ProjectDto;
 import com.owiseman.dataapi.dto.UserAttributesDto;
 import com.owiseman.dataapi.dto.UserUpdateDto;
 import com.owiseman.dataapi.entity.SysUser;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class UserManagementService {
@@ -24,15 +26,16 @@ public class UserManagementService {
     @Autowired
     private KeycloakSyncService keycloakSyncService;
 
+
     /**
      * 在管理界面盗用它来完成用户列表的分页查询
-     * @param realmName
+     * @param projectDto ,这里主要需要传递project api key
      * @param page
      * @param size
      * @return
      */
-    public PageResult<SysUser> listUsers(String realmName, int page, int size) {
-        return sysUserRepository.findByRealmNameWithPagination(realmName, page, size);
+    public PageResult<SysUser> listUsers(ProjectDto projectDto, int page, int size) {
+        return sysUserRepository.findByRealmNameWithPagination(projectDto.getProjectApiKey(), page, size);
     }
 
     @Transactional

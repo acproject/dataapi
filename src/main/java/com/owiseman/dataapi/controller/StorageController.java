@@ -35,25 +35,24 @@ public class StorageController {
         this.fileService = fileService;
     }
 
-    @PostMapping("/upload")
-    public ResponseEntity<SysUserFile> uploadFile(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam(value = "parentId", required = false) String parentId,
-            Authentication authentication) throws IOException {
-        
-        String userId = authentication.getName();
-        SysUserConfig config = userConfigRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("用户配置不存在"));
-
-        // 使用统一的文件服务上传
-        SysUserFile uploadedFile = fileService.uploadFile(
-                userId,
-                file,
-                Optional.ofNullable(parentId)
-        );
-
-        return ResponseEntity.ok(uploadedFile);
-    }
+//    @PostMapping("/upload")
+//    public ResponseEntity<SysUserFile> uploadFile(
+//            @RequestParam("file") MultipartFile file,
+//            @RequestParam(value = "parentId", required = false) String parentId,
+//            Authentication authentication) throws IOException {
+//
+//        String userId = authentication.getName();
+//
+//
+//        // 使用统一的文件服务上传
+//        SysUserFile uploadedFile = fileService.uploadFile(
+//                userId,
+//                file,
+//                Optional.ofNullable(parentId)
+//        );
+//
+//        return ResponseEntity.ok(uploadedFile);
+//    }
 
     @GetMapping("/download/{fileId}")
     public ResponseEntity<Resource> downloadFile(
@@ -81,20 +80,17 @@ public class StorageController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/url/{fileId}")
-    public ResponseEntity<String> getFileUrl(
-            @PathVariable String fileId,
-            Authentication authentication) {
-        
-        String userId = authentication.getName();
-        SysUserConfig config = userConfigRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("用户配置不存在"));
-        
-        String url = storageFactory.getService(config.getStorageType())
-                .getFileUrl(userId, fileId);
-        
-        return ResponseEntity.ok(url);
-    }
+//    @GetMapping("/url/{fileId}")
+//    public ResponseEntity<String> getFileUrl(
+//            @PathVariable String fileId,) {
+//
+//        SysUserConfig config = userConfigRepository.findByProjectApiKey()
+//
+//        String url = storageFactory.getService(config.getStorageType())
+//                .getFileUrl(userId, fileId);
+//
+//        return ResponseEntity.ok(url);
+//    }
 
     @PostMapping("/directory")
     public ResponseEntity<SysUserFile> createDirectory(

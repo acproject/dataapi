@@ -5,9 +5,8 @@ import com.owiseman.dataapi.dto.NormSysUserDto;
 import com.owiseman.dataapi.dto.ResetPassword;
 import com.owiseman.dataapi.dto.UserRegistrationRecord;
 import com.owiseman.dataapi.entity.SysUser;
-import com.owiseman.dataapi.repository.KeycloakClientRepository;
 import com.owiseman.dataapi.repository.SysUserRepository;
-import com.owiseman.dataapi.util.JwtParserUtil;
+
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 
@@ -122,7 +121,7 @@ public class KeycloakUserService implements UserService {
     }
 
     /**
-     * 该方法用于创建获得到client_secret后使用，可以封装进后续的SDK中
+     * 该方法用于创建NormUser，可以封装进后续的SDK中
      *
      * @param userRegistrationRecord 需要新增的用户
      * @param token admin token

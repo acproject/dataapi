@@ -32,9 +32,9 @@ public class S3StorageService implements ObjectStorageService {
         return s3ClientCache.computeIfAbsent(userId, this::createS3Client);
     }
 
-    private AmazonS3 createS3Client(String userId) {
-        SysUserConfig config = userConfigRepository.findByUserId(userId)
-            .orElseThrow(() -> new RuntimeException("用户配置不存在"));
+    private AmazonS3 createS3Client(String apikey) {
+        SysUserConfig config = userConfigRepository.findByProjectApiKey(apikey)
+            .orElseThrow(() -> new RuntimeException("配置不存在"));
 
         BasicAWSCredentials credentials = new BasicAWSCredentials(
             config.getS3AccessKey(), 
@@ -68,8 +68,8 @@ public class S3StorageService implements ObjectStorageService {
     }
 
     @Override
-    public String upload(String userId, MultipartFile file, Optional<String> parentId) throws IOException {
-        SysUserConfig config = userConfigRepository.findByUserId(userId)
+    public String upload(String apikey, MultipartFile file, Optional<String> parentId) throws IOException {
+        SysUserConfig config = userConfigRepository.findByProjectApiKey(apikey)
             .orElseThrow(() -> new RuntimeException("用户配置不存在"));
 
         String key = generateKey(file);
@@ -77,7 +77,7 @@ public class S3StorageService implements ObjectStorageService {
         metadata.setContentType(file.getContentType());
         metadata.setContentLength(file.getSize());
         
-        getS3Client(userId).putObject(
+        getS3Client(config.getUserId()).putObject(
             config.getS3BucketName(), 
             key, 
             file.getInputStream(), 
@@ -87,28 +87,28 @@ public class S3StorageService implements ObjectStorageService {
     }
 
     @Override
-    public Resource download(String userId, String fileId) throws IOException {
-        SysUserConfig config = userConfigRepository.findByUserId(userId)
-            .orElseThrow(() -> new RuntimeException("用户配置不存在"));
+    public Resource download(String apikey, String fileId) throws IOException {
+        SysUserConfig config = userConfigRepository.findByProjectApiKey(apikey)
+            .orElseThrow(() -> new RuntimeException("配置不存在"));
 
-        S3Object object = getS3Client(userId).getObject(config.getS3BucketName(), fileId);
+        S3Object object = getS3Client(config.getUserId()).getObject(config.getS3BucketName(), fileId);
         return new InputStreamResource(object.getObjectContent());
     }
 
     @Override
-    public void delete(String userId, String fileId) {
-        SysUserConfig config = userConfigRepository.findByUserId(userId)
-            .orElseThrow(() -> new RuntimeException("用户配置不存在"));
+    public void delete(String apikey, String fileId) {
+        SysUserConfig config = userConfigRepository.findByProjectApiKey(apikey)
+            .orElseThrow(() -> new RuntimeException("配置不存在"));
 
-        getS3Client(userId).deleteObject(config.getS3BucketName(), fileId);
+        getS3Client(config.getUserId()).deleteObject(config.getS3BucketName(), fileId);
     }
 
     @Override
-    public String getFileUrl(String userId, String fileId) {
-        SysUserConfig config = userConfigRepository.findByUserId(userId)
-            .orElseThrow(() -> new RuntimeException("用户配置不存在"));
+    public String getFileUrl(String apikey, String fileId) {
+        SysUserConfig config = userConfigRepository.findByProjectApiKey(apikey)
+            .orElseThrow(() -> new RuntimeException("配置不存在"));
 
-        return getS3Client(userId).getUrl(config.getS3BucketName(), fileId).toString();
+        return getS3Client(config.getUserId()).getUrl(config.getS3BucketName(), fileId).toString();
     }
 
     @Override
@@ -117,15 +117,15 @@ public class S3StorageService implements ObjectStorageService {
     }
 
     @Override
-    public void createDirectory(String userId, String path) throws IOException {
-        SysUserConfig config = userConfigRepository.findByUserId(userId)
+    public void createDirectory(String apikey, String path) throws IOException {
+        SysUserConfig config = userConfigRepository.findByProjectApiKey(apikey)
             .orElseThrow(() -> new RuntimeException("用户配置不存在"));
 
         if (!path.endsWith("/")) {
             path += "/";
         }
 
-        getS3Client(userId).putObject(config.getS3BucketName(), path, String.valueOf(new ByteArrayInputStream(new byte[0])));
+        getS3Client(config.getUserId()).putObject(config.getS3BucketName(), path, String.valueOf(new ByteArrayInputStream(new byte[0])));
     }
 
     private String generateKey(MultipartFile file) {

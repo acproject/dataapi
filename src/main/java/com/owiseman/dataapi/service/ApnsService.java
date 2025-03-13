@@ -35,7 +35,7 @@ public class ApnsService {
     private static int count = 0;
 
     @Async("pushTaskExecutor")
-    public CompletableFuture<Void> sendPush(String userId, String deviceToken, String message) {
+    public CompletableFuture<Void> sendPush(String apikey, String deviceToken, String message) {
         if (!tokenRepository.isValidToken(deviceToken)) {
             log.warn("无效设备令牌: {}", deviceToken);
             return CompletableFuture.failedFuture(new InvalidTokenException());
@@ -43,8 +43,8 @@ public class ApnsService {
 
         try {
             // 获取用户配置
-            SysUserConfig config = userConfigRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("用户配置不存在"));
+            SysUserConfig config = userConfigRepository.findByProjectApiKey(apikey)
+                .orElseThrow(() -> new RuntimeException("配置不存在"));
 
             // 创建 APNs 客户端，添加更多配置和错误处理
             ApnsClient apnsClient = new ApnsClientBuilder()

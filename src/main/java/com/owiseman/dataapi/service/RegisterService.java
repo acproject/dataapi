@@ -1,8 +1,10 @@
 package com.owiseman.dataapi.service;
 
-import com.owiseman.dataapi.config.OAuth2ConstantsExtends;
-import com.owiseman.dataapi.dto.*;
-import com.owiseman.dataapi.entity.SysUser;
+import com.owiseman.dataapi.dto.KeycloakClientDto;
+import com.owiseman.dataapi.dto.KeycloakRealmDto;
+import com.owiseman.dataapi.dto.NormSysUserDto;
+import com.owiseman.dataapi.dto.RegisterDto;
+import com.owiseman.dataapi.dto.UserRegistrationRecord;
 import com.owiseman.dataapi.entity.SysUserConfig;
 import com.owiseman.dataapi.entity.SysUserFile;
 import com.owiseman.dataapi.repository.KeycloakClientRepository;
@@ -14,11 +16,8 @@ import com.owiseman.dataapi.service.storage.StorageServiceFactory;
 import com.owiseman.dataapi.service.storage.StorageType;
 import jakarta.validation.Valid;
 import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.resource.RealmResource;
-import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.CredentialRepresentation;
-import org.keycloak.representations.idm.RoleRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -104,8 +103,8 @@ public class RegisterService {
             clientRepresentation.setPublicClient(false);
             clientRepresentation.setDirectAccessGrantsEnabled(true);
 
-           KeycloakClientDto keycloakClientDto =
-                   keycloakClientService.createClient(clientRepresentation, keycloak, realmName);
+            KeycloakClientDto keycloakClientDto =
+                    keycloakClientService.createClient(clientRepresentation, keycloak, realmName);
 
             // 2. 在新Realm中创建管理员用户
             UserRegistrationRecord userRecord = new UserRegistrationRecord(
@@ -116,11 +115,11 @@ public class RegisterService {
                     registerDto.lastName(),
                     registerDto.password(),
                     null
-                    ,null
-                    ,null
+                    , null
+                    , null
             );
             // 创建用户
-            if (!sysUserRepository.findByUsernameAndRealmName(registerDto.username(), realmName).isEmpty()){
+            if (!sysUserRepository.findByUsernameAndRealmName(registerDto.username(), realmName).isEmpty()) {
                 throw new RuntimeException("用户名已存在,请重新输入");
             }
             UserRegistrationRecord createdUser = keycloakUserService.createUser(userRecord, keycloak, realmDto.getName(), clientId);
@@ -163,27 +162,38 @@ public class RegisterService {
     public void normRegister(NormSysUserDto normSysUserDto, String token) {
         // 获取管理员token
         String adminToken = token;
-        String porjectId = normSysUserDto.getProjectId();
+        String projectApikey = normSysUserDto.getProjectApikey();
         String realmName = normSysUserDto.getRealmName();
         Keycloak keycloak = KeycloakAdminUtils.getKeyCloak(realmName, keycloakAuthUrl, "admin-cli", clientInfo, adminToken);
         // 注册到keycloak中
         UserRegistrationRecord userRecord = new UserRegistrationRecord(
-                    null,
-                    normSysUserDto.getUsername(),
-                    normSysUserDto.getEmail(),
-                    normSysUserDto.getFirstName(),
-                    normSysUserDto.getLastName(),
-                    normSysUserDto.getPassword(),
-                    null
-                    ,null
-                    ,null
-            );
+                null,
+                normSysUserDto.getUsername(),
+                normSysUserDto.getEmail(),
+                normSysUserDto.getFirstName(),
+                normSysUserDto.getLastName(),
+                normSysUserDto.getPassword(),
+                null
+                , null
+                , null
+        );
+        String projectId = sysUserConfigRepository.findByProjectApiKey(projectApikey).isEmpty() ?
+                "" : sysUserConfigRepository.findByProjectApiKey(projectApikey).get().getId();
+
+        if (projectId.equals("")) throw new RuntimeException("项目不存在");
+        normSysUserDto.setProjectId(projectId);
+        // 判断用户名是否已经存在在项目中
         if (!sysUserRepository.findByProjectIdAndUsername(normSysUserDto.getUsername(), normSysUserDto.getProjectId())
-                .isEmpty()){
-                throw new RuntimeException("用户名已存在,请重新输入");
-            }
+                .isEmpty()) {
+            throw new RuntimeException("用户名已存在,请重新输入");
+        }
+        // 判断用户是否已经存在在realm（组织）中, 确保在同一个组织中不能有相同用户名的用户
+        if (!sysUserRepository.findByUsernameAndRealmName(normSysUserDto.getUsername(), realmName).isEmpty()) {
+             throw new RuntimeException("用户名已存在,请重新输入");
+        }
+
         try {
-            // 开始注册流程
+            // 开始注册流程， 并且同步到对应的数据库
             UserRegistrationRecord createdUser = keycloakUserService.createUser(normSysUserDto, keycloak, normSysUserDto.getUsername());
             // 给用户分配用户角色
             keycloakUserService.assignAdminRoleForNewNormRealm(keycloak, createdUser.id(), normSysUserDto.getUsername());
@@ -200,7 +210,7 @@ public class RegisterService {
                     normSysUserDto.getAttributes(),
                     realmName
             );
-             // 更新用户密码,让系统默认激活用户
+            // 更新用户密码,让系统默认激活用户
             String userId = keycloak.realm(realmName).users().search(normSysUserDto.getUsername()).get(0).getId();
             CredentialRepresentation password = new CredentialRepresentation();
             password.setType(CredentialRepresentation.PASSWORD);
@@ -209,27 +219,27 @@ public class RegisterService {
             keycloak.realm(realmName).users().get(userId).resetPassword(password);
         } catch (Exception e) {
             if (e.getMessage().contains("409")) {
-                throw new RuntimeException("组织名已存在");
+                throw new RuntimeException("用户已存在");
             }
             throw new RuntimeException("注册失败: " + e.getMessage());
         }
 
     }
-
-    private void createUserConfig(String userId, String realmName) {
-        SysUserConfig config = new SysUserConfig();
-        config.setUserId(userId);
-        config.setKeycloakRealm(realmName);
-        config.setKeycloakAuthUrl(keycloakAuthUrl);
-        // 替换 token URL 中的 master 为新的 realm 名称
-        String tokenUrl = keycloakTokenUrl.replace("/realms/master/", "/realms/" + realmName + "/");
-        config.setKeycloakTokenUrl(tokenUrl);
-
-        // 设置数据库表前缀
-        config.setDatabaseTableNamePrefix(realmName.toLowerCase() + "_");
-
-        sysUserConfigRepository.save(config);
-    }
+//   注册用户时不需要创建项目的配置
+//    private void createUserConfig(String userId, String realmName) {
+//        SysUserConfig config = new SysUserConfig();
+//        config.setUserId(userId);
+//        config.setKeycloakRealm(realmName);
+//        config.setKeycloakAuthUrl(keycloakAuthUrl);
+//        // 替换 token URL 中的 master 为新的 realm 名称
+//        String tokenUrl = keycloakTokenUrl.replace("/realms/master/", "/realms/" + realmName + "/");
+//        config.setKeycloakTokenUrl(tokenUrl);
+//
+//        // 设置数据库表前缀
+//        config.setDatabaseTableNamePrefix(realmName.toLowerCase() + "_");
+//
+//        sysUserConfigRepository.save(config);
+//    }
 
     private void createUserRootDirectory(String userId, String realmName, Optional<String> type) {
         // 创建用户的根目录

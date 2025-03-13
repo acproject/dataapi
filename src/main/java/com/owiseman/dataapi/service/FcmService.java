@@ -29,11 +29,12 @@ public class FcmService {
     // 缓存已初始化的 Firebase 应用
     private final Map<String, FirebaseApp> firebaseApps = new HashMap<>();
 
-    public void sendPush(String userId, String deviceToken, String title, String body) {
+    public void sendPush(String apikey, String deviceToken, String title, String body) {
         try {
             // 获取用户配置
-            SysUserConfig config = userConfigRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("用户配置不存在"));
+
+            SysUserConfig config = userConfigRepository.findByProjectApiKey(apikey)
+                .orElseThrow(() -> new RuntimeException("配置不存在"));
 
             // 获取或初始化 Firebase 应用
             FirebaseApp app = getOrInitializeFirebaseApp(config);

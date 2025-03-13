@@ -2,8 +2,8 @@ package com.owiseman.dataapi.repository;
 
 import com.owiseman.dataapi.dto.PageResult;
 import com.owiseman.dataapi.entity.SysUser;
+import com.owiseman.dataapi.entity.SysUserConfig;
 import com.owiseman.dataapi.util.JooqContextHolder;
-import com.owiseman.dataapi.util.JsonUtil;
 import com.owiseman.jpa.util.JsonMapConverter;
 import com.owiseman.jpa.util.PaginationHelper;
 
@@ -28,6 +28,8 @@ public class SysUserRepository {
         this.dslContext = JooqContextHolder.getDslContext();
     }
 
+    @Autowired
+    SysUserConfigRepository sysUserConfigRepository;
 
     public SysUser save(SysUser user) {
         String jsonString = JsonMapConverter.MapToJsonString(user.getAttributes());
@@ -74,7 +76,8 @@ public class SysUserRepository {
                 .execute();
     }
 
-    /** 用于查找组织用户
+    /**
+     * 用于查找组织用户
      *
      * @param email
      * @return
@@ -85,7 +88,8 @@ public class SysUserRepository {
                 .fetchOptionalInto(SysUser.class);
     }
 
-     /** 用于查找组织用户
+    /**
+     * 用于查找组织用户
      *
      * @param username
      * @return
@@ -104,6 +108,7 @@ public class SysUserRepository {
 
     /**
      * 用于判断组织用户是否为存在
+     *
      * @param username
      * @param realmName
      * @return
@@ -117,6 +122,7 @@ public class SysUserRepository {
 
     /**
      * 用于判断项目用户是否为存在
+     *
      * @param username
      * @param projectId
      * @return
@@ -188,8 +194,28 @@ public class SysUserRepository {
         return new PageResult<>(users, pageNumber, pageSize, total);
     }
 
-    public PageResult<SysUser> findByRealmNameWithPagination(String realmName, int pageNumber, int pageSize) {
-        Condition condition = REALMNAME.eq(realmName);
+    /**
+     * 查找和realm和project相关的用户
+     * @param apikey
+     * @param pageNumber
+     * @param pageSize
+     * @return
+     */
+    public PageResult<SysUser> findByRealmNameWithPagination(String apikey, int pageNumber, int pageSize) {
+
+        SysUserConfig config = sysUserConfigRepository.findByProjectApiKey(apikey).get();
+        if (config == null) {
+            throw new RuntimeException("配置不存在");
+        }
+        // 防止输入负数
+        if (pageNumber <= 0) {
+            pageNumber = 1;
+        }
+
+        if (pageSize <= 0) {
+            pageSize = 1;
+        }
+        Condition condition = PROJECTID.eq(config.getId());
 
         List<SysUser> users = PaginationHelper.getPaginatedData(
                 dslContext,

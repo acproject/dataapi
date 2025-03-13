@@ -149,11 +149,6 @@ public class SysUserConfigRepository {
                 .fetchOptionalInto(SysUserConfig.class);
     }
 
-    public Optional<SysUserConfig> findByUserId(String userId) {
-        return dslContext.selectFrom(TABLE)
-                .where(USERID.eq(userId))
-                .fetchOptionalInto(SysUserConfig.class);
-    }
 
     public Optional<SysUserConfig> findByIdAndUserId(String id, String userId) {
         return dslContext.selectFrom(TABLE)
