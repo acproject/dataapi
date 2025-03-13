@@ -5,6 +5,7 @@ import com.owiseman.dataapi.dto.PageResult;
 import com.owiseman.dataapi.dto.ProjectDto;
 import com.owiseman.dataapi.dto.UserUpdateDto;
 import com.owiseman.dataapi.entity.SysUser;
+import com.owiseman.dataapi.repository.SysUserRepository;
 import com.owiseman.dataapi.service.RegisterService;
 import com.owiseman.dataapi.service.UserManagementService;
 import com.owiseman.dataapi.util.HttpHeaderUtil;
@@ -26,11 +27,20 @@ public class UserManagementController {
     @Autowired
     private RegisterService registerService;
 
+    @Autowired
+    private SysUserRepository sysUserRepository;
+
+
     @PostMapping("/create")
     public ResponseEntity<?> createUser(@RequestBody NormSysUserDto normSysUserDto, HttpServletRequest servletRequest) {
         String token =  HttpHeaderUtil.getTokenFromHeader(servletRequest);
         registerService.normRegister(normSysUserDto, token);
         return ResponseEntity.ok().body(Map.of("message", "成功创建用户"));
+    }
+
+    @PostMapping("/find")
+    public ResponseEntity<?> findUser(@RequestBody NormSysUserDto normSysUserDto, HttpServletRequest servletRequest) {
+       return registerService.normUsersFind(normSysUserDto);
     }
 
     @DeleteMapping("/{userId}")

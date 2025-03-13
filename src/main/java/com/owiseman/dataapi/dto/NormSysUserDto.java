@@ -5,7 +5,7 @@ import com.owiseman.dataapi.entity.SysUser;
 public class NormSysUserDto extends SysUser {
     private String password;
 
-    private String projectApikey;
+    private String projectApiKey;
 
     public String getPassword() {
         return password;
@@ -15,11 +15,11 @@ public class NormSysUserDto extends SysUser {
         this.password = password;
     }
 
-    public String getProjectApikey() {
-        return projectApikey;
+    public String getProjectApiKey() {
+        return projectApiKey;
     }
 
-    public void setProjectApikey(String projectApikey) {
-        this.projectApikey = projectApikey;
+    public void setProjectApiKey(String projectApiKey) {
+        this.projectApiKey = projectApiKey;
     }
 }

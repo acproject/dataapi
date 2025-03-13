@@ -100,6 +100,13 @@ public class SysUserRepository {
                 .fetchOptionalInto(SysUser.class);
     }
 
+    public List<SysUser> findByUsernameOrEmail(String usernameOrEmail, String projectId) {
+        String likeStr = "%" + usernameOrEmail + "%";
+        return dslContext.selectFrom(TABLE)
+                .where(USERNAME.like(likeStr).or(EMAIL.like(likeStr)).and(PROJECTID.eq(projectId)))
+                .fetch().into(SysUser.class);
+    }
+
     public Optional<SysUser> findById(String id) {
         return dslContext.selectFrom(TABLE)
                 .where(ID.eq(id))

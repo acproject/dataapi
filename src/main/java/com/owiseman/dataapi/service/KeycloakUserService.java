@@ -162,7 +162,7 @@ public class KeycloakUserService implements UserService {
         credentialRepresentation.setValue(normSysUserDto.getPassword());
         credentialRepresentation.setType(CredentialRepresentation.PASSWORD);
         credentialRepresentation.setTemporary(OAuth2ConstantsExtends.FALSE);
-        UsersResource usersResource = getUserResourceForNewRealm(keycloak, realm);
+        UsersResource usersResource = getNormUsersResource(keycloak, realm);
         Response response = usersResource.create(user);
         if (Objects.equals(201, response.getStatus())) {
             List<UserRepresentation> representationList = usersResource.search(normSysUserDto.getUsername(), true);
@@ -218,7 +218,7 @@ public class KeycloakUserService implements UserService {
         credentialRepresentation.setType(CredentialRepresentation.PASSWORD);
         credentialRepresentation.setTemporary(OAuth2ConstantsExtends.FALSE);
 
-        UsersResource usersResource = getUserResourceForNewRealm(keycloak, realm);
+        UsersResource usersResource = getNormUsersResource(keycloak, realm);
         Response response = usersResource.create(user);
         if (Objects.equals(201, response.getStatus())) {
             List<UserRepresentation> representationList = usersResource.search(userRegistrationRecord.username(), true);
@@ -250,12 +250,7 @@ public class KeycloakUserService implements UserService {
         throw new RuntimeException("Failed to create user");
     }
 
-    public UsersResource getUserResourceForNewRealm(Keycloak keycloak, String realm) {
-        return keycloak.realm(realm).users();
-    }
-
     public UsersResource getNormUsersResource(Keycloak keycloak, String realmName) {
-
         return keycloak.realm(realmName).users();
     }
 
@@ -280,8 +275,10 @@ public class KeycloakUserService implements UserService {
 
     @Override
     public void deleteUserById(String userId, String token) {
+        var realmName = sysUserRepository.findById(userId).get().getRealmName();
+        Keycloak keycloak = keycloakAdminUtils.getKeyCloak(realmName, serverUrl, "admin-cli", clientInfo, token);
+        getNormUsersResource(keycloak, realmName).delete(userId);
         usersSyncService.deleteUser(userId);
-        getUsersResource(token).delete(userId);
     }
 
     @Override
@@ -291,7 +288,7 @@ public class KeycloakUserService implements UserService {
     }
 
     public void emailVerification(Keycloak keycloak, String realm, String userId) {
-        UsersResource usersResource = getUserResourceForNewRealm(keycloak, realm);
+        UsersResource usersResource = getNormUsersResource(keycloak, realm);
         usersResource.get(userId).sendVerifyEmail();
     }
 
@@ -302,7 +299,7 @@ public class KeycloakUserService implements UserService {
     }
 
     public UserResource getUsersResourceByIdForNewRealm(Keycloak keycloak, String userId, String realm) {
-        var usersResource = getUserResourceForNewRealm(keycloak, realm);
+        var usersResource = getNormUsersResource(keycloak, realm);
         return usersResource.get(userId);
     }
 

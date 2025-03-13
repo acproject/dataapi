@@ -5,7 +5,6 @@ import com.owiseman.dataapi.dto.KeycloakRealmDto;
 import com.owiseman.dataapi.dto.NormSysUserDto;
 import com.owiseman.dataapi.dto.RegisterDto;
 import com.owiseman.dataapi.dto.UserRegistrationRecord;
-import com.owiseman.dataapi.entity.SysUserConfig;
 import com.owiseman.dataapi.entity.SysUserFile;
 import com.owiseman.dataapi.repository.KeycloakClientRepository;
 import com.owiseman.dataapi.repository.SysUserConfigRepository;
@@ -20,6 +19,7 @@ import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -158,11 +158,26 @@ public class RegisterService {
         }
     }
 
+    public ResponseEntity<?> normUsersFind(NormSysUserDto normSysUserDto) {
+        assert normSysUserDto != null;
+        String projectId = sysUserConfigRepository.findByProjectApiKey(normSysUserDto.getProjectApiKey()).get().getId();
+        if (normSysUserDto.getUsername()!= null || normSysUserDto.getEmail()!= null) {
+            return ResponseEntity.ok().body(sysUserRepository.findByUsernameOrEmail(normSysUserDto.getEmail(), projectId));
+        } else if (normSysUserDto.getUsername() == null && normSysUserDto.getEmail() != null) {
+            return ResponseEntity.ok().body(sysUserRepository.findByUsernameOrEmail(normSysUserDto.getEmail(), projectId));
+        } else if (normSysUserDto.getUsername() != null && normSysUserDto.getEmail() == null) {
+            return ResponseEntity.ok().body(sysUserRepository.findByUsernameOrEmail(normSysUserDto.getUsername(), projectId));
+        } else {
+            return ResponseEntity.ok().body(null);
+        }
+    }
+
+
     @Transactional
     public void normRegister(NormSysUserDto normSysUserDto, String token) {
         // 获取管理员token
         String adminToken = token;
-        String projectApikey = normSysUserDto.getProjectApikey();
+        String projectApikey = normSysUserDto.getProjectApiKey();
         String realmName = sysUserConfigRepository.findByProjectApiKey(projectApikey).get().getKeycloakRealm();
         Keycloak keycloak = KeycloakAdminUtils.getKeyCloak(realmName, keycloakAuthUrl, "admin-cli", clientInfo, adminToken);
         String projectId = sysUserConfigRepository.findByProjectApiKey(projectApikey).isEmpty() ?
