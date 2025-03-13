@@ -208,13 +208,14 @@ public class SysUserRepository {
             throw new RuntimeException("配置不存在");
         }
         // 防止输入负数
-        if (pageNumber <= 0) {
-            pageNumber = 1;
+        if (pageNumber < 0) {
+            pageNumber = 0;
         }
 
-        if (pageSize <= 0) {
+        if (pageSize < 0) {
             pageSize = 1;
         }
+
         Condition condition = PROJECTID.eq(config.getId());
 
         List<SysUser> users = PaginationHelper.getPaginatedData(

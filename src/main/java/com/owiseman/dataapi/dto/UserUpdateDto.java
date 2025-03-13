@@ -29,6 +29,33 @@ public class UserUpdateDto {
     private String theme;         // UI主题偏好
     private Boolean emailNotifications; // 邮件通知开关
     private Boolean smsNotifications;   // 短信通知开关
+    private String avatar;
+    private String projectApiKey; // 不可见字段
+    private String projectId; // 不可见字段
+
+    public String getProjectApiKey() {
+        return projectApiKey;
+    }
+
+    public void setProjectApiKey(String projectApiKey) {
+        this.projectApiKey = projectApiKey;
+    }
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
 
     // Getters and Setters
     public String getUsername() {

@@ -163,25 +163,14 @@ public class RegisterService {
         // 获取管理员token
         String adminToken = token;
         String projectApikey = normSysUserDto.getProjectApikey();
-        String realmName = normSysUserDto.getRealmName();
+        String realmName = sysUserConfigRepository.findByProjectApiKey(projectApikey).get().getKeycloakRealm();
         Keycloak keycloak = KeycloakAdminUtils.getKeyCloak(realmName, keycloakAuthUrl, "admin-cli", clientInfo, adminToken);
-        // 注册到keycloak中
-        UserRegistrationRecord userRecord = new UserRegistrationRecord(
-                null,
-                normSysUserDto.getUsername(),
-                normSysUserDto.getEmail(),
-                normSysUserDto.getFirstName(),
-                normSysUserDto.getLastName(),
-                normSysUserDto.getPassword(),
-                null
-                , null
-                , null
-        );
         String projectId = sysUserConfigRepository.findByProjectApiKey(projectApikey).isEmpty() ?
                 "" : sysUserConfigRepository.findByProjectApiKey(projectApikey).get().getId();
 
         if (projectId.equals("")) throw new RuntimeException("项目不存在");
         normSysUserDto.setProjectId(projectId);
+        normSysUserDto.setRealmName(realmName);
         // 判断用户名是否已经存在在项目中
         if (!sysUserRepository.findByProjectIdAndUsername(normSysUserDto.getUsername(), normSysUserDto.getProjectId())
                 .isEmpty()) {
@@ -194,9 +183,9 @@ public class RegisterService {
 
         try {
             // 开始注册流程， 并且同步到对应的数据库
-            UserRegistrationRecord createdUser = keycloakUserService.createUser(normSysUserDto, keycloak, normSysUserDto.getUsername());
+            UserRegistrationRecord createdUser = keycloakUserService.createUser(normSysUserDto, keycloak, realmName);
             // 给用户分配用户角色
-            keycloakUserService.assignAdminRoleForNewNormRealm(keycloak, createdUser.id(), normSysUserDto.getUsername());
+            keycloakUserService.assignAdminRoleForNewNormRealm(keycloak, createdUser.id(), realmName);
             //  添加用户的额外属性（如电话号码）
             keycloakUserService.updateUserAttributesForNewRealm(keycloak,
                     createdUser.id(),
@@ -211,7 +200,7 @@ public class RegisterService {
                     realmName
             );
             // 更新用户密码,让系统默认激活用户
-            String userId = keycloak.realm(realmName).users().search(normSysUserDto.getUsername()).get(0).getId();
+            String userId = createdUser.id();
             CredentialRepresentation password = new CredentialRepresentation();
             password.setType(CredentialRepresentation.PASSWORD);
             password.setValue(normSysUserDto.getPassword());  // 设置密码值

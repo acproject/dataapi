@@ -124,7 +124,7 @@ public class KeycloakUserService implements UserService {
      * 该方法用于创建NormUser，可以封装进后续的SDK中
      *
      * @param userRegistrationRecord 需要新增的用户
-     * @param token admin token
+     * @param token                  admin token
      * @return
      */
     @Override
@@ -164,7 +164,7 @@ public class KeycloakUserService implements UserService {
         credentialRepresentation.setTemporary(OAuth2ConstantsExtends.FALSE);
         UsersResource usersResource = getUserResourceForNewRealm(keycloak, realm);
         Response response = usersResource.create(user);
-         if (Objects.equals(201, response.getStatus())) {
+        if (Objects.equals(201, response.getStatus())) {
             List<UserRepresentation> representationList = usersResource.search(normSysUserDto.getUsername(), true);
             if (!CollectionUtils.isEmpty(representationList)) {
                 UserRepresentation userRepresentation1 = representationList.stream().filter(userRepresentation ->
@@ -175,6 +175,7 @@ public class KeycloakUserService implements UserService {
                     emailVerification(keycloak, realm, userRepresentation1.getId());
             }
             var id = representationList.get(0).getId().toString();
+            normSysUserDto.setId(id);
             UserRegistrationRecord userRecord = new UserRegistrationRecord(
                     id,
                     user.getUsername(),
@@ -253,6 +254,11 @@ public class KeycloakUserService implements UserService {
         return keycloak.realm(realm).users();
     }
 
+    public UsersResource getNormUsersResource(Keycloak keycloak, String realmName) {
+
+        return keycloak.realm(realmName).users();
+    }
+
     public UsersResource getUsersResource(String token) {
         Keycloak keycloak = KeycloakBuilder.builder()
                 .serverUrl(serverUrl)
@@ -324,6 +330,45 @@ public class KeycloakUserService implements UserService {
                 , Optional.of(sysUser.getAttributes()), token);
     }
 
+    public UserResource updateNormUser(NormSysUserDto sysUser, String token) {
+        var userId = sysUser.getId();
+        var realmName =  sysUserRepository.findById(userId).get().getRealmName();
+
+        var newEmail = sysUser.getEmail();
+        var newFirstName = sysUser.getFirstName();
+        var newLastName = sysUser.getLastName();
+        var attributes = sysUser.getAttributes();
+        Keycloak keycloak = keycloakAdminUtils.getKeyCloak(realmName, serverUrl, "admin-cli", clientInfo, token);
+        var  userResource = getNormUsersResource(keycloak, realmName).get(sysUser.getId());
+        UserRepresentation userRepresentation = userResource.toRepresentation();
+        if (!newEmail.equals(userRepresentation.getEmail()) && newEmail.contains("@")) {
+            userRepresentation.setEmail(newEmail);
+            if (ObjectUtils.isEmpty(sysUser))
+                sysUser.setEmail(newEmail);
+        }
+        if (!newFirstName.equals(userRepresentation.getFirstName()) && !newFirstName.isEmpty()) {
+            userRepresentation.setFirstName(newFirstName);
+            if (ObjectUtils.isEmpty(sysUser))
+                sysUser.setFirstName(newFirstName);
+        }
+        if (!newLastName.equals(userRepresentation.getLastName()) && !newLastName.isEmpty()) {
+            userRepresentation.setLastName(newLastName);
+            if (ObjectUtils.isEmpty(sysUser))
+                sysUser.setLastName(newLastName);
+        }
+
+        if (!attributes.isEmpty()) {
+            userRepresentation.setAttributes(attributes);
+            sysUser.setAttributes(attributes);
+        }
+
+        if (ObjectUtils.isEmpty(sysUser))
+            usersSyncService.updateUserById(sysUser);
+        userResource.update(userRepresentation);
+        return userResource;
+
+    }
+
     @Override
     public UserResource updateUser(String userId, String newEmail,
                                    String newFirstName, String newLastName,
@@ -371,9 +416,9 @@ public class KeycloakUserService implements UserService {
         UserResource userResource = getUsersResourceByIdForNewRealm(keycloak, userId, realm);
         RolesResource rolesResource = keycloak.realm(realm).roles();
         try {
-             RoleRepresentation userRole = rolesResource.get("user").toRepresentation();
-             userResource.roles().realmLevel().add(Collections.singletonList(userRole));
-        }catch (NotFoundException e) {
+            RoleRepresentation userRole = rolesResource.get("user").toRepresentation();
+            userResource.roles().realmLevel().add(Collections.singletonList(userRole));
+        } catch (NotFoundException e) {
             RoleRepresentation newUserRole = new RoleRepresentation();
             newUserRole.setName("user");
             newUserRole.setDescription("user");
@@ -384,6 +429,7 @@ public class KeycloakUserService implements UserService {
     /**
      * 当需要给新创建的realm添加admin角色时，需要先创建admin角色，然后再给用户添加admin角色
      * 如果只需要使用master的realm时可以直接使用该方法
+     *
      * @param userId
      * @param token
      */

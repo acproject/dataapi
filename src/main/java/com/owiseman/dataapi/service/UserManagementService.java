@@ -1,9 +1,6 @@
 package com.owiseman.dataapi.service;
 
-import com.owiseman.dataapi.dto.PageResult;
-import com.owiseman.dataapi.dto.ProjectDto;
-import com.owiseman.dataapi.dto.UserAttributesDto;
-import com.owiseman.dataapi.dto.UserUpdateDto;
+import com.owiseman.dataapi.dto.*;
 import com.owiseman.dataapi.entity.SysUser;
 import com.owiseman.dataapi.repository.SysUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +35,12 @@ public class UserManagementService {
         return sysUserRepository.findByRealmNameWithPagination(projectDto.getProjectApiKey(), page, size);
     }
 
+    public void deleteNormUser(String userId, String token) {
+        keycloakUserService.deleteUserById(userId, token);
+    }
+
     @Transactional
-    public void updateUserProfile(String userId, UserUpdateDto updateDto, String token) {
+    public void updateUserProfile(String userId, NormSysUserDto updateDto, String token) {
         SysUser user = sysUserRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("用户不存在"));
 
@@ -49,12 +50,13 @@ public class UserManagementService {
         }
 
         // 更新用户信息
-        updateUserInfo(user, updateDto);
+//        updateUserInfo(user, updateDto);
 
         // 同步到 Keycloak
-        keycloakUserService.updateUser(user, token);
+        keycloakUserService.updateNormUser(updateDto, token);
 
         // 同步到本地数据库
+        user.setAttributes(updateDto.getAttributes());
         keycloakSyncService.syncUser(user);
     }
 
@@ -122,46 +124,46 @@ public class UserManagementService {
         sysUserRepository.update(user);
     }
 
-    private void updateUserInfo(SysUser user, UserUpdateDto updateDto) {
-        // 更新基本信息
-        user.setEmail(updateDto.getEmail());
-        user.setFirstName(updateDto.getFirstName());
-        user.setLastName(updateDto.getLastName());
-        
-        // 更新扩展属性
-        Map<String, List<String>> attributes = new HashMap<>();
-        if (user.getAttributes() != null) {
-            attributes.putAll(user.getAttributes());
-        }
-        
-        if (updateDto.getPhone() != null) {
-            attributes.put("phone", List.of(updateDto.getPhone()));
-        }
-        if (updateDto.getPosition() != null) {
-            attributes.put("position", List.of(updateDto.getPosition()));
-        }
-        if (updateDto.getDepartment() != null) {
-            attributes.put("department", List.of(updateDto.getDepartment()));
-        }
-        if (updateDto.getLocation() != null) {
-            attributes.put("location", List.of(updateDto.getLocation()));
-        }
-        if (updateDto.getTimezone() != null) {
-            attributes.put("timezone", List.of(updateDto.getTimezone()));
-        }
-        if (updateDto.getLanguage() != null) {
-            attributes.put("language", List.of(updateDto.getLanguage()));
-        }
-        if (updateDto.getTheme() != null) {
-            attributes.put("theme", List.of(updateDto.getTheme()));
-        }
-        if (updateDto.getEmailNotifications() != null) {
-            attributes.put("emailNotifications", List.of(updateDto.getEmailNotifications().toString()));
-        }
-        if (updateDto.getSmsNotifications() != null) {
-            attributes.put("smsNotifications", List.of(updateDto.getSmsNotifications().toString()));
-        }
-        
-        user.setAttributes(attributes);
-    }
+//    private void updateUserInfo(SysUser user, UserUpdateDto updateDto) {
+//        // 更新基本信息
+//        user.setEmail(updateDto.getEmail());
+//        user.setFirstName(updateDto.getFirstName());
+//        user.setLastName(updateDto.getLastName());
+//
+//        // 更新扩展属性
+//        Map<String, List<String>> attributes = new HashMap<>();
+//        if (user.getAttributes() != null) {
+//            attributes.putAll(user.getAttributes());
+//        }
+//
+//        if (updateDto.getPhone() != null) {
+//            attributes.put("phone", List.of(updateDto.getPhone()));
+//        }
+//        if (updateDto.getPosition() != null) {
+//            attributes.put("position", List.of(updateDto.getPosition()));
+//        }
+//        if (updateDto.getDepartment() != null) {
+//            attributes.put("department", List.of(updateDto.getDepartment()));
+//        }
+//        if (updateDto.getLocation() != null) {
+//            attributes.put("location", List.of(updateDto.getLocation()));
+//        }
+//        if (updateDto.getTimezone() != null) {
+//            attributes.put("timezone", List.of(updateDto.getTimezone()));
+//        }
+//        if (updateDto.getLanguage() != null) {
+//            attributes.put("language", List.of(updateDto.getLanguage()));
+//        }
+//        if (updateDto.getTheme() != null) {
+//            attributes.put("theme", List.of(updateDto.getTheme()));
+//        }
+//        if (updateDto.getEmailNotifications() != null) {
+//            attributes.put("emailNotifications", List.of(updateDto.getEmailNotifications().toString()));
+//        }
+//        if (updateDto.getSmsNotifications() != null) {
+//            attributes.put("smsNotifications", List.of(updateDto.getSmsNotifications().toString()));
+//        }
+//
+//        user.setAttributes(attributes);
+//    }
 }

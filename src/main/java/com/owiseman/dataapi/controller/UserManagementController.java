@@ -33,6 +33,13 @@ public class UserManagementController {
         return ResponseEntity.ok().body(Map.of("message", "成功创建用户"));
     }
 
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<?> deleteUser(@PathVariable String userId,HttpServletRequest servletRequest) {
+        String token =  HttpHeaderUtil.getTokenFromHeader(servletRequest);
+        userManagementService.deleteNormUser(userId, token);
+        return ResponseEntity.ok().body(Map.of("message", "成功删除用户"));
+    }
+
     @PostMapping("/list")
     public ResponseEntity<PageResult<SysUser>> listUsers(
             @RequestBody ProjectDto projectDto,
@@ -45,7 +52,7 @@ public class UserManagementController {
     @PutMapping("/{userId}/profile")
     public ResponseEntity<?> updateProfile(
             @PathVariable String userId,
-            @RequestBody UserUpdateDto updateDto,
+            @RequestBody NormSysUserDto updateDto,
             HttpServletRequest httpServletRequest) {
         String token =  HttpHeaderUtil.getTokenFromHeader(httpServletRequest);
         userManagementService.updateUserProfile(userId, updateDto,token);
