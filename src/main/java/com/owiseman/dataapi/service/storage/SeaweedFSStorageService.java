@@ -1,6 +1,9 @@
 package com.owiseman.dataapi.service.storage;
 
 import com.owiseman.dataapi.config.SeaweedFSClient;
+import com.owiseman.dataapi.dto.PageResult;
+import com.owiseman.dataapi.entity.SysUserFile;
+import com.owiseman.dataapi.repository.SysUserFilesRepository;
 import com.owiseman.dataapi.util.FileTypeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -20,6 +23,9 @@ public class SeaweedFSStorageService implements ObjectStorageService {
 
         this.seaweedFSClient = seaweedFSClient;
     }
+
+    @Autowired
+    SysUserFilesRepository sysUserFilesRepository;
 
     @Override
     public String upload(MultipartFile file) throws IOException {
@@ -62,6 +68,11 @@ public class SeaweedFSStorageService implements ObjectStorageService {
     @Override
     public String getFileUrl(String userId, String fileId) {
         return "";
+    }
+
+    @Override
+    public PageResult<SysUserFile> pageFiles(String userId, String parentId,int pageNumber, int pageSize) {
+        return sysUserFilesRepository.findByUserIdWithPagination(userId,0, 10);
     }
 
     @Override

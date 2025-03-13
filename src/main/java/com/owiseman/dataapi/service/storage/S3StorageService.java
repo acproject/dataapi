@@ -6,7 +6,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
+import com.owiseman.dataapi.dto.PageResult;
 import com.owiseman.dataapi.entity.SysUserConfig;
+import com.owiseman.dataapi.entity.SysUserFile;
 import com.owiseman.dataapi.repository.SysUserConfigRepository;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -109,6 +111,11 @@ public class S3StorageService implements ObjectStorageService {
             .orElseThrow(() -> new RuntimeException("配置不存在"));
 
         return getS3Client(config.getUserId()).getUrl(config.getS3BucketName(), fileId).toString();
+    }
+
+    @Override
+    public PageResult<SysUserFile> pageFiles(String userId, String parentId, int pageNumber, int pageSize) {
+        throw new UnsupportedOperationException("使用S3目前还不支持该方法");
     }
 
     @Override

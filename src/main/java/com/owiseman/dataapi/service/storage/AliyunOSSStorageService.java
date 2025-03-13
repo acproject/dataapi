@@ -3,7 +3,9 @@ package com.owiseman.dataapi.service.storage;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.OSSObject;
+import com.owiseman.dataapi.dto.PageResult;
 import com.owiseman.dataapi.entity.SysUserConfig;
+import com.owiseman.dataapi.entity.SysUserFile;
 import com.owiseman.dataapi.repository.SysUserConfigRepository;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -98,6 +100,11 @@ public class AliyunOSSStorageService implements ObjectStorageService {
             fileId,
             new Date(System.currentTimeMillis() + 3600 * 1000)
         ).toString();
+    }
+
+    @Override
+    public PageResult<SysUserFile> pageFiles(String userId, String parentId, int pageNumber, int pageSize) {
+        throw new UnsupportedOperationException("使用OSS类型的方法目前还不支持");
     }
 
     @Override

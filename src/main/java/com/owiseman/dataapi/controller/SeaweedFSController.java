@@ -21,7 +21,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/files")
-@PreAuthorize("hasRole('USER')")
+@PreAuthorize("hasRole('ADMIN')")
 public class SeaweedFSController {
     @Autowired
     private SeaweedFsService seaweedFsService;
@@ -147,7 +147,7 @@ public class SeaweedFSController {
     public ResponseEntity<?> deleteFile(@PathVariable String userId,
                                         @PathVariable String fileId) {
         try {
-            seaweedFsService.deleteFile(userId, fileId);
+            seaweedFsService.deleteFile(userId);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(new FileExceptionHandler()
@@ -173,7 +173,7 @@ public class SeaweedFSController {
     }
 
 //    private ResponseEntity<Resource> convertToPdfPreview(SysUserFile file) {
-//        // TODO: 2021/9/23
+//        // TODO: 这里采用单独的服务来处理，已经有合适的工具，目前等文件系统完善就可以考虑对接
 //        return null;
 //    }
 

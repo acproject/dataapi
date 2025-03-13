@@ -29,6 +29,16 @@ public class SysUserFile {
     private Long size;
     @Column(name ="upload_time")
     private LocalDateTime uploadTime;
+    @Column(name = "project_id")
+    private String projectId;
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
+    }
 
     public String getId() {
         return id;
@@ -78,13 +88,7 @@ public class SysUserFile {
         this.uploadTime = uploadTime;
     }
 
-    public SysUserFile(String userId, String fid, String fileName, Long size, LocalDateTime uploadTime) {
-        this.userId = userId;
-        this.fid = fid;
-        this.fileName = fileName;
-        this.size = size;
-        this.uploadTime = uploadTime;
-    }
+
 
     public SysUserFile() {
     }
@@ -129,16 +133,18 @@ public class SysUserFile {
         isDirectory = directory;
     }
 
-    public SysUserFile(String id, String userId, String fid, String fileName, Long size, LocalDateTime uploadTime, String parentId, String path, Boolean isDirectory) {
+    public SysUserFile(String id, String userId, String fid, String fileName, Long size, LocalDateTime uploadTime, String projectId, String parentId, String path, Boolean isDirectory, String storageType) {
         this.id = id;
         this.userId = userId;
         this.fid = fid;
         this.fileName = fileName;
         this.size = size;
         this.uploadTime = uploadTime;
+        this.projectId = projectId;
         this.parentId = parentId;
         this.path = path;
         this.isDirectory = isDirectory;
+        this.storageType = storageType;
     }
 
     @Column(name = "storage_type", nullable = false)
@@ -167,6 +173,7 @@ public class SysUserFile {
         private String path;
         private Boolean isDirectory = false;
         private String storageType;
+        private String projectId;
 
         public Builder id(String id) {
             this.id = id;
@@ -218,6 +225,11 @@ public class SysUserFile {
             return this;
         }
 
+        public Builder projectId(String projectId) {
+            this.projectId = projectId;
+            return this;
+        }
+
         public SysUserFile build() {
             SysUserFile userFile = new SysUserFile();
             userFile.setId(id);
@@ -230,6 +242,7 @@ public class SysUserFile {
             userFile.setPath(path);
             userFile.setDirectory(isDirectory);
             userFile.setStorageType(storageType);
+            userFile.setProjectId(projectId);
             return userFile;
         }
     }

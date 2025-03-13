@@ -4,9 +4,9 @@ import com.owiseman.dataapi.entity.SysUserFile;
 import com.owiseman.dataapi.repository.SysUserFilesRepository;
 import com.owiseman.dataapi.service.storage.ObjectStorageService;
 import com.owiseman.dataapi.service.storage.StorageServiceFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -109,9 +109,9 @@ public class SeaweedFsService implements FileService {
     }
 
     @Transactional
-    public void deleteFile(String userId, String fileId) {
+    public void deleteFile(String fileId) {
         try {
-            SysUserFile file = sysUserFilesRepository.findByIdAndUserId(fileId, userId)
+            SysUserFile file = sysUserFilesRepository.findById(fileId)
                     .orElseThrow(() -> new FileNotFoundException("文件不存在或无权访问"));
             
             if (!file.isDirectory()) {
@@ -119,7 +119,7 @@ public class SeaweedFsService implements FileService {
                 storageService.delete(file.getFid());
             }
             
-            sysUserFilesRepository.deleteByIdAndUserId(fileId, userId);
+            sysUserFilesRepository.deleteById(fileId);
         } catch (IOException e) {
             throw new RuntimeException("文件删除失败", e);
         }
