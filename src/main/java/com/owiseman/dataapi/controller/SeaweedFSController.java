@@ -35,9 +35,10 @@ public class SeaweedFSController {
     @PostMapping("/upload")
     public ResponseEntity<?> uploadFile(@RequestParam("userId") String userId,
                                       @RequestParam("file") MultipartFile file,
-                                      @RequestParam(required = false) String parentId) {
+                                      @RequestParam(required = false) String parentId,
+                                        @RequestParam("projectApiKey") String  projectApiKey) {
         try {
-            SysUserFile uploadFile = seaweedFsService.uploadFile(userId, file, Optional.of(parentId));
+            SysUserFile uploadFile = seaweedFsService.uploadFile(userId, file, Optional.of(parentId),projectApiKey);
             return new ResponseEntity<>(uploadFile, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(new FileExceptionHandler()
@@ -48,9 +49,10 @@ public class SeaweedFSController {
     @PostMapping("/directory")
     public ResponseEntity<?> createDirectory(@RequestParam("userId") String userId,
                                            @RequestParam("dirName") String dirName,
-                                           @RequestParam(required = false) String parentId) {
+                                           @RequestParam(required = false) String parentId,
+                                             @RequestParam("projectApiKey") String projectApiKey) {
         try {
-            SysUserFile directory = seaweedFsService.createDirectory(userId, dirName, parentId);
+            SysUserFile directory = seaweedFsService.createDirectory(userId, dirName, parentId,projectApiKey);
             return new ResponseEntity<>(directory, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(new FileExceptionHandler()

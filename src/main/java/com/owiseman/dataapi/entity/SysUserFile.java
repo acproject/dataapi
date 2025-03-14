@@ -21,7 +21,7 @@ public class SysUserFile {
 
     @Column(name = "user_id", nullable = false)
     private String userId;
-    @Column(name ="fid", nullable = false, length = 64)
+    @Column(name ="fid", nullable = false, length = 255)
     private String fid;
     @Column(name ="file_name",nullable = false, length = 255)
     private String fileName;
@@ -31,6 +31,17 @@ public class SysUserFile {
     private LocalDateTime uploadTime;
     @Column(name = "project_id")
     private String projectId;
+
+    @Column(name = "project_api_key")
+    private String projectApiKey;
+
+    public String getProjectApiKey() {
+        return projectApiKey;
+    }
+
+    public void setProjectApiKey(String projectApiKey) {
+        this.projectApiKey = projectApiKey;
+    }
 
     public String getProjectId() {
         return projectId;
@@ -133,7 +144,7 @@ public class SysUserFile {
         isDirectory = directory;
     }
 
-    public SysUserFile(String id, String userId, String fid, String fileName, Long size, LocalDateTime uploadTime, String projectId, String parentId, String path, Boolean isDirectory, String storageType) {
+    public SysUserFile(String id, String userId, String fid, String fileName, Long size, LocalDateTime uploadTime, String projectId, String parentId, String path, Boolean isDirectory, String storageType, String projectApiKey) {
         this.id = id;
         this.userId = userId;
         this.fid = fid;
@@ -145,6 +156,7 @@ public class SysUserFile {
         this.path = path;
         this.isDirectory = isDirectory;
         this.storageType = storageType;
+        this.projectApiKey = projectApiKey;
     }
 
     @Column(name = "storage_type", nullable = false)
@@ -174,6 +186,7 @@ public class SysUserFile {
         private Boolean isDirectory = false;
         private String storageType;
         private String projectId;
+        private String projectApiKey;
 
         public Builder id(String id) {
             this.id = id;
@@ -230,6 +243,11 @@ public class SysUserFile {
             return this;
         }
 
+        public Builder projectApiKey(String projectApiKey) {
+            this.projectApiKey = projectApiKey;
+            return this;
+        }
+
         public SysUserFile build() {
             SysUserFile userFile = new SysUserFile();
             userFile.setId(id);
@@ -243,6 +261,7 @@ public class SysUserFile {
             userFile.setDirectory(isDirectory);
             userFile.setStorageType(storageType);
             userFile.setProjectId(projectId);
+            userFile.setProjectApiKey(projectApiKey);
             return userFile;
         }
     }

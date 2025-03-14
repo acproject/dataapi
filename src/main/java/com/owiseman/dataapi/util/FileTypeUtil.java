@@ -179,12 +179,12 @@ public class FileTypeUtil {
             if (!response.getStatusCode().is2xxSuccessful()) {
                 throw new RuntimeException("上传文件失败: " + response.getStatusCode());
             }
-            System.out.println("http://" + assignResponse.getServerUrl() + "/" + assignResponse.getFid() +
+            System.out.println(assignResponse.getServerUrl() + "/" + assignResponse.getFid() +
                    "?path=" + URLEncoder.encode(path, StandardCharsets.UTF_8) +
                    "&filename=" + URLEncoder.encode(file.getOriginalFilename(), StandardCharsets.UTF_8));
 
             // 3. 返回文件URL，包含完整的路径信息
-            return "http://" + assignResponse.getServerUrl() + "/" + assignResponse.getFid() +
+            return assignResponse.getServerUrl() + "/" + assignResponse.getFid() +
                    "?path=" + URLEncoder.encode(path, StandardCharsets.UTF_8) +
                    "&filename=" + URLEncoder.encode(file.getOriginalFilename(), StandardCharsets.UTF_8);
         } catch (Exception e) {

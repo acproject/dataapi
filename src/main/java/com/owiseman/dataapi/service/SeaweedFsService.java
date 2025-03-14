@@ -1,6 +1,7 @@
 package com.owiseman.dataapi.service;
 
 import com.owiseman.dataapi.entity.SysUserFile;
+import com.owiseman.dataapi.repository.SysUserConfigRepository;
 import com.owiseman.dataapi.repository.SysUserFilesRepository;
 import com.owiseman.dataapi.service.storage.ObjectStorageService;
 import com.owiseman.dataapi.service.storage.StorageServiceFactory;
@@ -31,13 +32,18 @@ public class SeaweedFsService implements FileService {
     @Value("${storage.default-type:seaweedfs}")
     private String defaultStorageType;
 
+    @Autowired
+    private SysUserConfigRepository sysUserConfigRepository;
+
+
     @Override
     @Transactional
-    public SysUserFile uploadFile(String userId, MultipartFile file, Optional<String> parentId) {
+    public SysUserFile uploadFile(String userId, MultipartFile file, Optional<String> parentId, String projectApiKey) {
         try {
             ObjectStorageService storageService = storageFactory.getService(defaultStorageType);
-            String fileId = storageService.upload(userId, file, parentId);
-            
+            String fileId = storageService.upload(userId, file, parentId, projectApiKey);
+            String projectId = sysUserConfigRepository.findByProjectApiKey(projectApiKey).get().getId();
+            if (projectId == null) throw new RuntimeException("文件必须和项目ID绑定");
             SysUserFile meta = new SysUserFile();
             meta.setId(UUID.randomUUID().toString());
             meta.setUserId(userId);
@@ -47,7 +53,8 @@ public class SeaweedFsService implements FileService {
             meta.setUploadTime(LocalDateTime.now());
             meta.setDirectory(false);
             meta.setStorageType(defaultStorageType);
-            
+            meta.setProjectId(projectId);
+
             // 设置父目录和路径
             if (parentId.isPresent()) {
                 SysUserFile parentDir = sysUserFilesRepository.findByIdAndUserId(parentId.get(), userId)
@@ -69,9 +76,26 @@ public class SeaweedFsService implements FileService {
     }
 
     @Override
-    public Resource downloadFile(String userId, String fileId) {
+    public Resource downloadFile(String userId, String fid) {
         try {
-            SysUserFile file = sysUserFilesRepository.findByIdAndUserId(fileId, userId)
+            SysUserFile file = sysUserFilesRepository.findByIdAndUserId(fid, userId)
+                .orElseThrow(() -> new FileNotFoundException("文件不存在或无权访问"));
+
+            ObjectStorageService storageService = storageFactory.getService(file.getStorageType());
+            return storageService.download(file.getFid());
+        } catch (IOException e) {
+            throw new RuntimeException("文件下载失败", e);
+        }
+    }
+
+    @Override
+    public Resource downloadFile(String fileId) {
+        String userId = sysUserFilesRepository.findById(fileId).get().getUserId();
+        if (userId == null || userId.isEmpty() || userId.equals("")) {
+            new FileNotFoundException("文件不存在或无权访问");
+        }
+        try {
+            SysUserFile file = sysUserFilesRepository.findById(fileId)
                 .orElseThrow(() -> new FileNotFoundException("文件不存在或无权访问"));
             
             ObjectStorageService storageService = storageFactory.getService(file.getStorageType());
@@ -82,7 +106,9 @@ public class SeaweedFsService implements FileService {
     }
 
     @Transactional
-    public SysUserFile createDirectory(String userId, String dirName, String parentId) {
+    public SysUserFile createDirectory(String userId, String dirName, String parentId, String projectApiKey) {
+         String projectId = sysUserConfigRepository.findByProjectApiKey(projectApiKey).get().getId();
+         if (projectId == null) throw new RuntimeException("新建的文件夹须和项目ID绑定");
         SysUserFile directory = new SysUserFile();
         directory.setId(UUID.randomUUID().toString());
         directory.setUserId(userId);
@@ -92,6 +118,7 @@ public class SeaweedFsService implements FileService {
         directory.setUploadTime(LocalDateTime.now());
         directory.setDirectory(true);
         directory.setStorageType(defaultStorageType);
+        directory.setProjectId(projectId);
         
         if (parentId != null) {
             SysUserFile parentDir = sysUserFilesRepository.findByIdAndUserId(parentId, userId)
@@ -106,6 +133,16 @@ public class SeaweedFsService implements FileService {
         }
         
         return sysUserFilesRepository.save(directory);
+    }
+
+    public String getFileUrl(String fileId) {
+        try {
+            SysUserFile file = sysUserFilesRepository.findById(fileId)
+                           .orElseThrow(() -> new FileNotFoundException("文件不存在或无权访问"));
+            return file.getFid();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Transactional

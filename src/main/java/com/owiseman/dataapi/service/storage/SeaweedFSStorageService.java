@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -33,15 +34,16 @@ public class SeaweedFSStorageService implements ObjectStorageService {
     }
 
     @Override
-    public Resource download(String fileId) throws IOException {
-        String url = "http://" + seaweedFSClient.getVolumeUrl(fileId) + "/" + fileId;
+    public Resource download(String fid) throws IOException {
+//        String url = seaweedFSClient.getVolumeUrl(fileId) + "/" + fileId;
+        String url = fid;
         return new UrlResource(url);
     }
 
     @Override
     public void delete(String fileId) throws IOException {
         String volumeUrl = seaweedFSClient.getVolumeUrl(fileId);
-        String deleteUrl = "http://" + volumeUrl + "/" + fileId;
+        String deleteUrl =  volumeUrl + "/" + fileId;
         // 执行删除操作
     }
 
@@ -51,7 +53,12 @@ public class SeaweedFSStorageService implements ObjectStorageService {
     }
 
     @Override
-    public String upload(String userId, MultipartFile file, Optional<String> parentId) throws IOException {
+    public List<SysUserFile> findByFileNameLike(String pattern, String projectApiKey) {
+        return sysUserFilesRepository.findByFileNameLike(pattern, projectApiKey);
+    }
+
+    @Override
+    public String upload(String userId, MultipartFile file, Optional<String> parentId, String projectApiKey) throws IOException {
         return FileTypeUtil.createDirectoryViaHttpFile(file, parentId.orElse("/tmp"), seaweedFSClient.getMasterUrl(), seaweedFSClient.getValUrl());
     }
 
@@ -71,8 +78,8 @@ public class SeaweedFSStorageService implements ObjectStorageService {
     }
 
     @Override
-    public PageResult<SysUserFile> pageFiles(String userId, String parentId,int pageNumber, int pageSize) {
-        return sysUserFilesRepository.findByUserIdWithPagination(userId,0, 10);
+    public PageResult<SysUserFile> pageFiles(String userId, String parentId, String projectApiKey, int pageNumber, int pageSize) {
+        return sysUserFilesRepository.findByUserIdWithPagination(userId,parentId,projectApiKey,pageNumber, pageSize, null);
     }
 
     @Override

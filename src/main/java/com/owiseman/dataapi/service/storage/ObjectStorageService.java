@@ -14,8 +14,8 @@ public interface ObjectStorageService {
     Resource download(String fileId) throws IOException;
     void delete(String fileId) throws IOException;
     String getFileUrl(String fileId);
-
-    String upload(String userId, MultipartFile file, Optional<String> parentId) throws IOException;
+    List<SysUserFile> findByFileNameLike(String pattern, String projectApiKey);
+    String upload(String userId, MultipartFile file, Optional<String> parentId, String projectApiKey) throws IOException;
 
     Resource download(String userId, String fileId) throws IOException;
 
@@ -23,7 +23,7 @@ public interface ObjectStorageService {
 
     String getFileUrl(String userId, String fileId);
 
-    PageResult<SysUserFile> pageFiles(String userId, String parentId, int pageNumber, int pageSize);
+    PageResult<SysUserFile> pageFiles(String userId, String parentId, String projectApiKey, int pageNumber, int pageSize);
 
     String getStorageType();
     void createDirectory(String userId, String path) throws IOException;

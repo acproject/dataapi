@@ -6,15 +6,17 @@ import com.owiseman.dataapi.util.JooqContextHolder;
 import com.owiseman.jpa.util.PaginationHelper;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
+import org.jooq.SelectForUpdateStep;
 import org.jooq.SortField;
 import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.owiseman.dataapi.entity.Tables.SYSUSERFILE.*;
 
@@ -27,6 +29,9 @@ public class SysUserFilesRepository {
         this.dslContext = JooqContextHolder.getDslContext();
     }
 
+    @Autowired
+    private SysUserConfigRepository sysUserConfigRepository;
+
     public SysUserFile save(SysUserFile userFile) {
         dslContext.insertInto(TABLE)
                 .set(ID, userFile.getId())
@@ -38,6 +43,7 @@ public class SysUserFilesRepository {
                 .set(STORAGETYPE, userFile.getStorageType())
                 .set(PARENTID, userFile.getParentId())
                 .set(UPLOADTIME, userFile.getUploadTime())
+                .set(PROJECTID, userFile.getProjectId())
                 .execute();
         return userFile;
     }
@@ -96,9 +102,10 @@ public class SysUserFilesRepository {
     }
 
     // 根据文件名模糊查询
-    public List<SysUserFile> findByFileNameLike(String pattern) {
+    public List<SysUserFile> findByFileNameLike(String pattern, String projectApiKey) {
+        String projectId = sysUserConfigRepository.findByProjectApiKey(projectApiKey).get().getId();
         return dslContext.selectFrom(TABLE)
-                .where(FILENAME.likeIgnoreCase("%" + pattern + "%"))
+                .where(FILENAME.likeIgnoreCase("%" + pattern + "%")).and(PROJECTID.eq(projectId))
                 .fetchInto(SysUserFile.class);
     }
 
@@ -143,22 +150,67 @@ public class SysUserFilesRepository {
 
         return new PageResult<>(files, pageNumber, pageSize, total);
     }
+
     // 添加排序参数扩展
     public PageResult<SysUserFile> findByUserIdWithPagination(String userId,
+                                                              String parentId,
+                                                              String projectApiKey,
                                                               int pageNumber,
                                                               int pageSize,
                                                               SortField<?>... sortFields) {
-        Condition condition = USERID.eq(userId);
+        Condition condition = DSL.noCondition();
 
-        List<SysUserFile> files = PaginationHelper.getPaginatedData(
-                dslContext,
-                condition,
-                TABLE.getName(),
-                pageSize,
-                pageNumber,
-                SysUserFile.class,
-                sortFields // 传递排序参数
-        );
+        if (parentId != null) {
+            condition = condition.and(PARENTID.eq(parentId));
+        } else {
+            condition = condition.and(PARENTID.isNull());
+        }
+        if (userId != null) {
+            condition = condition.and(USERID.eq(userId));
+        } else {
+            throw new IllegalArgumentException("非法操作");
+        }
+        List<SysUserFile> files = new ArrayList<>();
+        if (sortFields == null) {
+
+            files = PaginationHelper.getPaginatedData(
+                    dslContext,
+                    condition,
+                    TABLE.getName(),
+                    pageSize,
+                    pageNumber,
+                    SysUserFile.class
+            );
+        } else {
+            files = PaginationHelper.getPaginatedData(
+                    dslContext,
+                    condition,
+                    TABLE.getName(),
+                    pageSize,
+                    pageNumber,
+                    SysUserFile.class,
+                    sortFields);
+        }
+        String projectId = sysUserConfigRepository.findByProjectApiKey(projectApiKey).get().getId();
+        List<SysUserFile> filesProjectID = new ArrayList<>();
+        for (SysUserFile file : files) {
+            if (file.getProjectId() != null) {
+                if (file.getProjectId().equals(projectId)) {
+                    filesProjectID.add(file);
+                }
+            }
+        }
+        List<SysUserFile> directory = new ArrayList<>();
+        for (SysUserFile file : files) {
+            if (file.isDirectory()) {
+                directory.add(file);
+            }
+        }
+
+        files.clear();
+        files.addAll(directory);
+        files.addAll(filesProjectID);
+
 
         int total = dslContext.selectCount()
                 .from(TABLE)
@@ -166,6 +218,8 @@ public class SysUserFilesRepository {
                 .fetchOne(0, Integer.class);
 
         return new PageResult<>(files, pageNumber, pageSize, total);
+
+
     }
 
 
@@ -198,11 +252,12 @@ public class SysUserFilesRepository {
                 .fetchOptionalInto(SysUserFile.class);
     }
 
-    public  void deleteByIdAndUserId(String id, String userId) {
+    public void deleteByIdAndUserId(String id, String userId) {
         dslContext.deleteFrom(TABLE)
                 .where(ID.eq(id).and(USERID.eq(userId)))
                 .execute();
     }
+
     // 查找用户的根目录
     public Optional<SysUserFile> findRootDirectoryByUserId(String userId) {
         return dslContext.selectFrom(TABLE)

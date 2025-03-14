@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -64,7 +65,12 @@ public class AliyunOSSStorageService implements ObjectStorageService {
     }
 
     @Override
-    public String upload(String apikey, MultipartFile file, Optional<String> parentId) throws IOException {
+    public List<SysUserFile> findByFileNameLike(String pattern, String projectApiKey) {
+        return List.of();
+    }
+
+    @Override
+    public String upload(String apikey, MultipartFile file, Optional<String> parentId, String projectApiKey) throws IOException {
         SysUserConfig config = userConfigRepository.findByProjectApiKey(apikey)
             .orElseThrow(() -> new RuntimeException("配置不存在"));
 
@@ -103,7 +109,7 @@ public class AliyunOSSStorageService implements ObjectStorageService {
     }
 
     @Override
-    public PageResult<SysUserFile> pageFiles(String userId, String parentId, int pageNumber, int pageSize) {
+    public PageResult<SysUserFile> pageFiles(String userId, String parentId,String projectApiKey, int pageNumber, int pageSize) {
         throw new UnsupportedOperationException("使用OSS类型的方法目前还不支持");
     }
 

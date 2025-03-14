@@ -41,7 +41,7 @@ public class SeaweedFSClient {
     public String getVolumeUrl(String fid) {
         // 解析fid格式：volumeId, fileKey -> 例如 "3,01637037d6"
         String[] parts = fid.split(",");
-        String volumeId = parts[0];
+        String volumeId = parts[0].substring(parts[0].lastIndexOf("/")+1);
 
         RestTemplate rest = new RestTemplate();
         LookupResponse response  = rest.getForObject(masterUrl +
