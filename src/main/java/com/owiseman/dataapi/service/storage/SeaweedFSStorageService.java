@@ -45,6 +45,7 @@ public class SeaweedFSStorageService implements ObjectStorageService {
         String volumeUrl = seaweedFSClient.getVolumeUrl(fileId);
         String deleteUrl =  volumeUrl + "/" + fileId;
         // 执行删除操作
+        seaweedFSClient.delete(deleteUrl);
     }
 
     @Override

@@ -48,4 +48,10 @@ public class SeaweedFSClient {
                 "/dir/lookup?volumeId=" + volumeId, LookupResponse.class);
         return response.getLocations().get(0).getPublicUrl();
     }
+
+    public void delete(String deleteUrl) {
+        RestTemplate rest = new RestTemplate();
+        var newDeleteUrl =  deleteUrl.substring(deleteUrl.indexOf("/")+1);
+        rest.delete(newDeleteUrl);
+    }
 }

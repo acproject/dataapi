@@ -150,12 +150,15 @@ public class SeaweedFsService implements FileService {
         try {
             SysUserFile file = sysUserFilesRepository.findById(fileId)
                     .orElseThrow(() -> new FileNotFoundException("文件不存在或无权访问"));
-            
+            if (file.isDirectory()) {
+                sysUserFilesRepository.findByParentId(fileId).forEach(f -> {
+                    deleteFile(f.getId());
+                });
+            }
             if (!file.isDirectory()) {
                 ObjectStorageService storageService = storageFactory.getService(file.getStorageType());
                 storageService.delete(file.getFid());
             }
-            
             sysUserFilesRepository.deleteById(fileId);
         } catch (IOException e) {
             throw new RuntimeException("文件删除失败", e);

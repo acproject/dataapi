@@ -210,7 +210,26 @@ public class SysUserFilesRepository {
         files.clear();
         files.addAll(directory);
         files.addAll(filesProjectID);
-
+        files = files.stream().distinct().collect(Collectors.toList()); // 去重
+        /**
+         * // 保留第一个出现的元素
+         * List<File> distinctFiles = new ArrayList<>(files.stream()
+         *         .collect(Collectors.toMap(
+         *                 File::getId,
+         *                 Function.identity(),
+         *                 (existing, replacement) -> existing // 合并策略：保留已存在的值
+         *         ))
+         *         .values());
+         *
+         * // 保留最后一个出现的元素
+         * List<File> distinctFilesLast = new ArrayList<>(files.stream()
+         *         .collect(Collectors.toMap(
+         *                 File::getId,
+         *                 Function.identity(),
+         *                 (existing, replacement) -> replacement // 合并策略：覆盖为新的值
+         *         ))
+         *         .values());
+         */
 
         int total = dslContext.selectCount()
                 .from(TABLE)
