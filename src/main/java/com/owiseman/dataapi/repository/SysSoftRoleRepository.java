@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.owiseman.dataapi.entity.Tables.SYSSOFTROLE.*;
 
@@ -26,24 +27,34 @@ public class SysSoftRoleRepository {
 
     // 基础CRUD操作
     public SysSoftRole save(SysSoftRole role) {
+        if (role.getId() == null) {
+            role.setId(UUID.randomUUID().toString());
+        }
+        if (!findByNameAndRealm(role.getRoleName(), role.getRealm()).isEmpty()) {
+            throw new RuntimeException("角色名称已存在");
+        }
+
         dslContext.insertInto(TABLE)
                 .set(ID, role.getId())
                 .set(ROLENAME, role.getRoleName())
                 .set(ROLEDESCRIPTION, role.getRoleDescription())
                 .set(ROLECODE, role.getRoleCode())
                 .set(ISACTIVE, role.getActive())
+                .set(REALM, role.getRealm())
                 .execute();
         return role;
     }
 
-    public void update(SysSoftRole role) {
+    public SysSoftRole update(SysSoftRole role) {
         dslContext.update(TABLE)
                 .set(ROLENAME, role.getRoleName())
                 .set(ROLEDESCRIPTION, role.getRoleDescription())
                 .set(ROLECODE, role.getRoleCode())
                 .set(ISACTIVE, role.getActive())
+                .set(REALM, role.getRealm())
                 .where(ID.eq(role.getId()))
                 .execute();
+        return role;
     }
 
     public void deleteById(String id) {
@@ -58,14 +69,27 @@ public class SysSoftRoleRepository {
                 .fetchOptionalInto(SysSoftRole.class);
     }
 
+    public Optional<SysSoftRole> findByRoleCode(String roleCode) {
+        return dslContext.selectFrom(TABLE)
+                .where(ROLECODE.eq(roleCode))
+                .fetchOptionalInto(SysSoftRole.class);
+    }
+
+    public Optional<SysSoftRole> findByNameAndRealm(String name, String realm) {
+        return dslContext.selectFrom(TABLE)
+                .where(ID.eq(name)).and(REALM.eq(realm))
+                .fetchOptionalInto(SysSoftRole.class);
+    }
+
     public List<SysSoftRole> findAll() {
         return dslContext.selectFrom(TABLE)
                 .fetchInto(SysSoftRole.class);
     }
 
     // 分页基础方法
-    public PageResult<SysSoftRole> findAllWithPagination(int pageNumber, int pageSize) {
-        return findByConditionWithPagination(DSL.noCondition(), pageNumber, pageSize);
+    public PageResult<SysSoftRole> findAllWithPagination(String realm ,int pageNumber, int pageSize) {
+        var condition = REALM.eq(realm);
+        return findByConditionWithPagination(condition, pageNumber, pageSize);
     }
 
     // 带条件分页（通用）

@@ -1,5 +1,6 @@
 package com.owiseman.dataapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.owiseman.dataapi.util.UUIDConverter;
 import jakarta.persistence.*;
 
@@ -21,18 +22,31 @@ public class SysSoftRole {
     @Column(name = "role_code")
     private String roleCode;
 
+    @JsonProperty("isActive")
     @Column(name = "is_active")
     private Boolean isActive;
+
+    @Column(name = "realm")
+    private String realm;
+
+    public String getRealm() {
+        return realm;
+    }
+
+    public void setRealm(String realm) {
+        this.realm = realm;
+    }
 
     public SysSoftRole() {
     }
 
-    public SysSoftRole(String id, String roleName, String roleDescription, String roleCode, Boolean isActive) {
+    public SysSoftRole(String id, String roleName, String roleDescription, String roleCode, Boolean isActive, String realm) {
         this.id = id;
         this.roleName = roleName;
         this.roleDescription = roleDescription;
         this.roleCode = roleCode;
         this.isActive = isActive;
+        this.realm = realm;
     }
 
     public Boolean getActive() {
@@ -81,6 +95,7 @@ public class SysSoftRole {
         private String roleDescription;
         private String roleCode;
         private Boolean isActive;
+        private String realm;
 
         public Builder id(String id) {
             this.id = id;
@@ -102,6 +117,11 @@ public class SysSoftRole {
             this.isActive = isActive;
             return this;
         }
+
+        public Builder realm(String realm) {
+            this.realm = realm;
+            return this;
+        }
         public SysSoftRole build() {
             SysSoftRole sysSoftRole = new SysSoftRole();
             sysSoftRole.setId(id);
@@ -109,6 +129,7 @@ public class SysSoftRole {
             sysSoftRole.setRoleDescription(roleDescription);
             sysSoftRole.setRoleCode(roleCode);
             sysSoftRole.setActive(isActive);
+            sysSoftRole.setRealm(realm);
             return sysSoftRole;
         }
     }

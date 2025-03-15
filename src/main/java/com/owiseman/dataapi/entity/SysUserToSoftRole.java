@@ -14,6 +14,7 @@ public class SysUserToSoftRole {
     @Id
     @GeneratedValue(generator = "uuid")
     @Convert(converter = UUIDConverter.class)
+    @Column(name = "id")
     private String id;
 
     @Column(name = "user_id")

@@ -1,13 +1,21 @@
 package com.owiseman.dataapi.repository;
 
+import com.owiseman.dataapi.dto.BindRoleToUserDto;
+import com.owiseman.dataapi.dto.PageResult;
 import com.owiseman.dataapi.entity.SysSoftRole;
+import com.owiseman.dataapi.entity.SysUserToSoftRole;
 import com.owiseman.dataapi.util.JooqContextHolder;
+import com.owiseman.jpa.util.PaginationHelper;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
+import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static com.owiseman.dataapi.entity.Tables.SYSUSERTOSOFTROLE.*;
 import static com.owiseman.dataapi.entity.Tables.SYSSOFTROLE;
@@ -21,10 +29,18 @@ public class SysUserToSoftRoleRepository {
         this.dslContext = JooqContextHolder.getDslContext();
     }
 
+    @Autowired
+    public SysUserRepository sysUserRepository;
+
+    @Autowired
+    public SysSoftRoleRepository sysSoftRoleRepository;
+
      // 添加用户与角色的关联
     @Transactional
     public void addUserRoleAssociation(String userId, String roseCode) {
+        String id = UUID.randomUUID().toString();
         dslContext.insertInto(TABLE)
+                .set(ID, id)
                 .set(USERID, userId)
                 .set(ROLECODE, roseCode)
                 .execute();
@@ -35,6 +51,12 @@ public class SysUserToSoftRoleRepository {
     public void deleteUserRoleAssociation(String userId, String roseCode) {
         dslContext.deleteFrom(TABLE)
                 .where(USERID.eq(userId).and(ROLECODE.eq(roseCode)))
+                .execute();
+    }
+
+    public void deleteById(String id) {
+        dslContext.deleteFrom(TABLE)
+                .where(ID.eq(id))
                 .execute();
     }
 
@@ -68,6 +90,33 @@ public class SysUserToSoftRoleRepository {
                 .from(TABLE)
                 .where(ROLECODE.eq(roseCode))
                 .fetch(USERID);
+    }
+
+    public PageResult<BindRoleToUserDto> findAll(int pageNum, int pageSize) {
+        Condition condition = DSL.noCondition();
+        List<SysUserToSoftRole> info = PaginationHelper.getPaginatedData(
+                dslContext,
+                condition,
+                TABLE.getName(),
+                pageSize,
+                pageNum,
+                SysUserToSoftRole.class
+        );
+        List<BindRoleToUserDto> bindsDtoList = new ArrayList<>();
+        for (SysUserToSoftRole sysUserToSoftRole : info) {
+            BindRoleToUserDto bindsDto = new BindRoleToUserDto();
+            bindsDto.setId(sysUserToSoftRole.getId());
+            bindsDto.setUserId(sysUserToSoftRole.getUserId());
+            bindsDto.setRoleCode(sysUserToSoftRole.getRoleCode());
+            bindsDto.setUserName(sysUserRepository.findById(bindsDto.getUserId()).get().getUsername());
+            bindsDto.setRoleName(sysSoftRoleRepository.findByRoleCode(sysUserToSoftRole.getRoleCode()).get().getRoleName());
+            bindsDtoList.add(bindsDto);
+        }
+
+        int total = dslContext.selectCount()
+                .from(TABLE)
+                .fetchOne(0, Integer.class);
+        return new PageResult<>(bindsDtoList, pageNum, pageSize, total);
     }
 
     // 查询某个用户的所有角色信息
